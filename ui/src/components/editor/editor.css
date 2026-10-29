@@ -1,0 +1,24 @@
+/* Shared by the editor form components */
+.ed-body h3 {
+  margin: 16px 0 8px;
+  font-size: 0.95rem;
+}
+.ed-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 2px 0 4px;
+}
+.ed-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.ed-add {
+  margin: 12px 0 8px;
+}
+.ed-note {
+  margin: 12px 0 8px;
+  font-size: 13px;
+  color: var(--muted);
+}

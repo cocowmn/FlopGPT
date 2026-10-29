@@ -1,0 +1,25 @@
+[package]
+name = "flopgpt"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "flopgpt_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["preserve_order"] }
+axum = "0.8"
+tokio = { version = "1", features = ["net", "sync", "time"] }
+tokio-stream = { version = "0.1", features = ["sync"] }
+tauri-plugin-dialog = "2"
+futures-util = "0.3"
+rust-embed = "8"
+mime_guess = "2"
+local-ip-address = "0.6"
+qrcode = { version = "0.14", default-features = false, features = ["svg"] }

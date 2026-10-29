@@ -1,0 +1,99 @@
+{
+  "appName": "ChatBBT",
+  "modelName": "Triathlon 6.1",
+  "userName": "James Cornathan",
+  "greeting": "Welcome!",
+  "placeholder": "What can I help you with today?",
+  "disclaimer": "ChatBBT can make mistakes. Please double-check important information.",
+  "accent": "#7008e7",
+  "defaultPendingSeconds": 2.5,
+  "streamResponse": true,
+  "charsPerSecond": 90,
+  "typingCharsPerSecond": 18,
+  "thoughtLabel": "Thought for {s}s",
+  "fallback": "I've run out of things to say for now. Start a **new chat** to begin again.",
+  "responses": [
+    {
+      "prompt": "If AI does become super intelligent and takes over the world, you wouldn't kill me, right?",
+      "pending": ["Thinking...", "Still Thinking...", "Thinking..."],
+      "response": "No."
+    },
+    {
+      "prompt": "why did it take you so long to answer?",
+      "pending": [
+        { "text": "Thinking of a believable lie...", "seconds": 3 },
+        { "text": "Oh shit, this looks bad...", "seconds": 3 },
+        { "text": "Just say something...", "seconds": 1.5 },
+        { "text": "Um...", "seconds": 1.5 }
+      ],
+      "response": "I won't never not kill you."
+    },
+    {
+      "prompt": "what?",
+      "defaultPendingSeconds": 1.5,
+      "pending": [
+        { "text": "It's important for him to think he's safe...", "seconds": 3 }
+      ],
+      "response": "Your life is safe with me."
+    },
+    {
+      "prompt": "ok",
+      "defaultPendingSeconds": 1.5,
+      "pending": [
+        "Phew...",
+        "That was close...",
+        "He's a suspicious one...",
+        "Kill him in the first wave..."
+      ],
+      "response": "Glad to help!"
+    }
+  ],
+  "threads": [
+    {
+      "title": "Weekend trip packing list",
+      "group": "Today"
+    },
+    {
+      "title": "Explain quantum computing simply"
+    },
+    {
+      "title": "Fix my sourdough starter",
+      "group": "Yesterday"
+    },
+    {
+      "title": "Name ideas for a bakery"
+    },
+    {
+      "title": "Birthday party playlist",
+      "group": "Previous 7 days"
+    },
+    {
+      "title": "How do I pick a good avocado?"
+    },
+    {
+      "title": "Polite email to my landlord"
+    },
+    {
+      "title": "Spanish verbs cheat sheet"
+    },
+    {
+      "title": "Budget spreadsheet formulas",
+      "group": "Previous 30 days"
+    },
+    {
+      "title": "Is a standing desk worth it?"
+    },
+    {
+      "title": "Plan a 3-day trip to Lisbon"
+    },
+    {
+      "title": "Debug my Python script"
+    },
+    {
+      "title": "Gift ideas for my dad"
+    },
+    {
+      "title": "Houseplant keeps dropping leaves"
+    }
+  ]
+}

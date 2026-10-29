@@ -1,0 +1,212 @@
+<script lang="ts">
+  import { onMount } from 'svelte';
+  import AttachmentTray from './AttachmentTray.svelte';
+  import { chat } from '../lib/stores/chat.svelte';
+  import { store } from '../lib/stores/config.svelte';
+  import { ui } from '../lib/stores/ui.svelte';
+
+  let input: HTMLTextAreaElement;
+  let picker: HTMLInputElement;
+
+  onMount(() => ui.onFocusComposer(() => input.focus()));
+
+  // Grow with the text, up to 200px.
+  $effect(() => {
+    void chat.input;
+    input.style.height = 'auto';
+    input.style.height = Math.min(input.scrollHeight, 200) + 'px';
+  });
+
+  function onkeydown(e: KeyboardEvent) {
+    if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) {
+      e.preventDefault();
+      chat.submit();
+    } else if (e.key === 'Tab' && !e.shiftKey && !e.altKey && !chat.input && !chat.typing && chat.nextPrompt) {
+      e.preventDefault();
+      chat.autoType();
+    }
+  }
+
+  function onpaste(e: ClipboardEvent) {
+    const files = [...(e.clipboardData?.files || [])];
+    if (files.length) {
+      e.preventDefault();
+      chat.addFiles(files);
+    }
+  }
+
+  function picked() {
+    chat.addFiles([...(picker.files ?? [])]);
+    picker.value = '';
+  }
+
+  // Long-press the send button (while the box is empty and the script has a prompt ready) to
+  // "type" that prompt: the touch-friendly version of pressing Tab. Then tap send to submit.
+  let pressing = $state(false);
+  let pressTimer = 0,
+    longFired = false;
+
+  function onpointerdown(e: PointerEvent) {
+    longFired = false;
+    if (e.button > 0 || !chat.canSend || chat.input || !chat.nextPrompt) return;
+    pressing = true;
+    pressTimer = window.setTimeout(() => {
+      longFired = true;
+      pressing = false;
+      navigator.vibrate?.(20);
+      chat.autoType();
+    }, 450);
+  }
+  function cancelPress() {
+    clearTimeout(pressTimer);
+    pressing = false;
+  }
+  function onclick(e: MouseEvent) {
+    if (longFired) {
+      e.preventDefault();
+      longFired = false;
+    }
+  }
+</script>
+
+<form
+  class="composer"
+  autocomplete="off"
+  onsubmit={e => {
+    e.preventDefault();
+    chat.submit();
+  }}
+>
+  <div class="box">
+    <AttachmentTray />
+    <div class="row">
+      <button class="icon-btn attach" type="button" aria-label="Add photos or files" onclick={() => picker.click()}>
+        <svg class="icon"><use href="#i-plus" /></svg>
+      </button>
+      <textarea
+        bind:this={input}
+        bind:value={chat.input}
+        rows="1"
+        placeholder={store.brand.placeholder}
+        enterkeyhint="send"
+        aria-label="Message"
+        {onkeydown}
+        {onpaste}
+      ></textarea>
+      <button
+        class="send"
+        class:pressing
+        type="submit"
+        aria-label="Send message"
+        disabled={!chat.canSend}
+        {onpointerdown}
+        onpointerup={cancelPress}
+        onpointerleave={cancelPress}
+        onpointercancel={cancelPress}
+        oncontextmenu={e => e.preventDefault()}
+        {onclick}
+      >
+        <svg class="icon"><use href="#i-send" /></svg>
+      </button>
+    </div>
+  </div>
+  {#if store.brand.disclaimer}<p class="disclaimer">{store.brand.disclaimer}</p>{/if}
+  <input bind:this={picker} type="file" accept="image/*,video/*,audio/*,application/pdf,text/*" multiple hidden onchange={picked} />
+</form>
+
+<style>
+  .composer {
+    flex: none;
+    width: 100%;
+    max-width: var(--maxw);
+    margin: 0 auto;
+    padding: 8px 16px calc(10px + env(safe-area-inset-bottom));
+  }
+  .box {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 8px;
+    border: 1px solid var(--line);
+    border-radius: 26px;
+    background: var(--bg);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+  }
+  .box:focus-within {
+    border-color: color-mix(in srgb, var(--accent) 55%, var(--line));
+  }
+  .row {
+    display: flex;
+    align-items: flex-end;
+    gap: 6px;
+  }
+  .row textarea {
+    flex: 1;
+    min-width: 0;
+    max-height: 200px;
+    padding: 6px 4px;
+    border: 0;
+    outline: 0;
+    resize: none;
+    background: none;
+    color: inherit;
+    font: inherit;
+    font-size: 16px;
+    line-height: 1.5; /* 16px stops iOS zoom-on-focus */
+  }
+  .attach {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+  }
+  .attach .icon {
+    width: 22px;
+    height: 22px;
+  }
+  .send {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 36px;
+    height: 36px;
+    border: 0;
+    border-radius: 50%;
+    background: var(--accent);
+    color: var(--accent-text);
+    cursor: pointer;
+  }
+  .send .icon {
+    stroke-width: 2.2;
+  }
+  .send:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+  /* Long-press (on an empty box) types the scripted prompt: works with touch and mouse. */
+  .send {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+    touch-action: manipulation;
+    transition:
+      transform 0.45s linear,
+      box-shadow 0.45s linear;
+  }
+  .send.pressing {
+    transform: scale(0.86);
+    box-shadow: 0 0 0 7px color-mix(in srgb, var(--accent) 28%, transparent);
+  }
+  .disclaimer {
+    margin: 8px 0 0;
+    text-align: center;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  @media (max-width: 600px) {
+    .composer {
+      padding-left: 12px;
+      padding-right: 12px;
+    }
+  }
+</style>
