@@ -8,6 +8,8 @@
     "build": "tauri build",
     "dev:web": "vite",
     "build:web": "vite build",
+    "dev:standalone": "vite --mode standalone",
+    "build:standalone": "vite build --mode standalone",
     "check": "svelte-check --tsconfig ./tsconfig.json",
     "release": "scripts/release.sh"
   },

@@ -215,3 +215,5 @@ target/
 
 src-tauri/target/
 src-tauri/gen/schemas/
+dist-web/
+.vercel

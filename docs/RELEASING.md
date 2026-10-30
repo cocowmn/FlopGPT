@@ -72,7 +72,7 @@ Example for **0.1.1**:
    gh run watch
    ```
 
-7. **Check the draft:** `gh release list` should show **FlopGPT v0.1.1** as a *Draft*, with 9 files named like `FlopGPT_0.1.1_macOS-Apple-Silicon.dmg`. Its notes start with a "Which file do I download?" table, followed by notes GitHub generates from the commits (both set in the workflow). If the files say an older version, or there's no draft, a version was missed in step 2 or 3. Stop and fix it before publishing.
+7. **Check the draft:** `gh release list` should show **FlopGPT v0.1.1** as a *Draft*, with 10 files named like `FlopGPT_0.1.1_macOS-Apple-Silicon.dmg`. Its notes start with a "Which file do I download?" table, followed by notes GitHub generates from the commits (both set in the workflow). If the files say an older version, or there's no draft, a version was missed in step 2 or 3. Stop and fix it before publishing.
 
 8. **Publish:**
 

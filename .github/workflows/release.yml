@@ -71,8 +71,35 @@ jobs:
             | **Mac with Intel** (older Macs) | `…_macOS-Intel.dmg` |
             | **Windows** | `…_Windows-setup.exe` |
             | **Linux** | `…_Linux.AppImage` works on most distros. Use `.deb` for Ubuntu/Debian or `.rpm` for Fedora. |
+            | **A website** (browser-only, e.g. on Vercel) | `…_Web.zip` |
 
             Not sure which Mac you have? Click the Apple menu, then **About This Mac**. If it lists a **Chip**, pick Apple Silicon. If it lists a **Processor**, pick Intel.
 
             You can ignore the `.app.tar.gz` and `.msi` files.
           args: --target ${{ matrix.target }}
+
+  # The browser-only page (config in localStorage), added to the draft the build job made.
+  web:
+    needs: build
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+
+      - run: npm ci
+      - run: npm run build:standalone
+
+      - name: Attach to the draft release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          version=$(node -p "require('./package.json').version")
+          zip_name="FlopGPT_${version}_Web.zip"
+          (cd dist-web && zip -qr "../$zip_name" .)
+          gh release upload "v$version" "$zip_name" --clobber

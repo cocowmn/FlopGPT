@@ -1,8 +1,9 @@
 /* ------------------------------------------------------------------ *
  *  Config: one JSON (script settings, responses and threads) saved by the desktop app.
- *  The app window reads and saves it through Tauri; phones through the app's server.
+ *  The app window reads and saves it through Tauri; phones through the app's server;
+ *  the browser-only build in localStorage.
  * ------------------------------------------------------------------ */
-import { exportJson, fetchConfig, HttpError, putConfig, TAURI, watchConfig } from '../backend';
+import { exportJson, fetchConfig, HttpError, putConfig, STANDALONE, TAURI, watchConfig } from '../backend';
 import { isJson, takeLegacy, toLogoDataURL } from '../files';
 import { detect, merge, normalizeScript, normalizeThreads } from '../normalize';
 import type { Config, Thread } from '../types';
@@ -38,11 +39,13 @@ class ConfigStore {
     };
   });
 
-  locked = $derived(!TAURI && !this.writable);
+  locked = $derived(!TAURI && !STANDALONE && !this.writable);
   saveNote = $derived(
     TAURI
       ? 'Changes are saved in this app and sent to connected phones.'
-      : this.writable
+      : STANDALONE
+        ? 'Changes are saved in this browser only. Export to move them to another device.'
+        : this.writable
         ? 'Changes save to the Mac app and show up on every connected device.'
         : 'The Mac app has phone editing turned off.'
   );
@@ -127,7 +130,7 @@ export async function boot() {
     snap = await fetchConfig();
   } catch {
     applyConfig(EMPTY_CONFIG, true);
-    ui.toast("Can't reach the FlopGPT app. Check it's running and on the same wifi.");
+    ui.toast(STANDALONE ? "Couldn't load the config." : "Can't reach the FlopGPT app. Check it's running and on the same wifi.");
     return;
   }
   store.rev = snap.rev;
