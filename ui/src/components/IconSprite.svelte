@@ -12,6 +12,11 @@
       ><rect x="3" y="4" width="18" height="16" rx="3" /><path d="M9 4v16" /></symbol
     >
     <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" /></symbol>
+    <symbol id="i-compose" viewBox="0 0 24 24"
+      ><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path
+        d="M18.38 2.63a2.12 2.12 0 0 1 3 3l-9 9.01a2 2 0 0 1-.85.5l-2.87.84a.5.5 0 0 1-.62-.62l.84-2.87a2 2 0 0 1 .5-.85z"
+      /></symbol
+    >
     <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></symbol>
     <symbol id="i-sliders" viewBox="0 0 24 24"
       ><path d="M4 7h9M17 7h3M4 17h3M11 17h9" /><circle cx="15" cy="7" r="2" /><circle cx="9" cy="17" r="2" /></symbol

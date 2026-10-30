@@ -21,7 +21,7 @@
   </div>
 
   <button class="new-chat" type="button" onclick={newChat}
-    ><svg class="icon"><use href="#i-plus" /></svg>New chat</button
+    ><svg class="icon"><use href="#i-compose" /></svg>New chat</button
   >
 
   <label class="search">

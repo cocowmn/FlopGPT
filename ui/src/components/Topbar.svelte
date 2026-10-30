@@ -20,7 +20,7 @@
   <div class="model">{store.brand.model}</div>
   <div class="actions">
     <button class="icon-btn" type="button" aria-label="New chat" onclick={newChat}>
-      <svg class="icon"><use href="#i-plus" /></svg>
+      <svg class="icon"><use href="#i-compose" /></svg>
     </button>
   </div>
 </header>
