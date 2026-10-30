@@ -10,7 +10,7 @@
     "skipLibCheck": true,
     "allowJs": true,
     "checkJs": true,
-    "types": ["svelte", "vite/client"]
+    "types": ["svelte", "vite/client", "node"]
   },
   "include": ["ui/src/**/*.ts", "ui/src/**/*.svelte", "vite.config.ts"]
 }

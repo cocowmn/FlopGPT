@@ -20,7 +20,7 @@
 
 <h3>Settings</h3>
 <div class="ed-grid">
-  <Field label="App name"><TextInput obj={s} key="appName" placeholder="Nova" /></Field>
+  <Field label="App name"><TextInput obj={s} key="appName" placeholder="FlopGPT" /></Field>
   <Field label="Model name"><TextInput obj={s} key="modelName" /></Field>
   <Field label="User name"><TextInput obj={s} key="userName" placeholder="You" /></Field>
   <Field label="Accent color"><AccentField {s} /></Field>

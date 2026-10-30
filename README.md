@@ -95,12 +95,12 @@ The names are `3-dots-bounce`, `3-dots-fade`, `3-dots-move`, `3-dots-rotate`, `3
 
 ```json
 {
-  "appName": "Nova",
-  "modelName": "Nova 2 Pro",
+  "appName": "FlopGPT",
+  "modelName": "Flap 3.7",
   "userName": "Alex",
   "greeting": "What can I help you with today?",
-  "placeholder": "Message Nova",
-  "disclaimer": "Nova can make mistakes.",
+  "placeholder": "Send a message, Flop",
+  "disclaimer": "Flopping can make mistakes. Sorry bout it.",
   "accent": "#5b5bd6",
   "logo": "optional-logo.png",
   "spinner": "random",
@@ -162,7 +162,7 @@ npm run build:standalone   # static files in dist-web/
 npm run dev:standalone     # try it at http://localhost:5173 without the app
 ```
 
-`dist-web/` is a static site you can host anywhere; each release also includes it as `FlopGPT_<version>_Web.zip`. To host it on Vercel with no deployment config in this repo, either:
+`dist-web/` is a static site you can host anywhere; each release also includes it as `FlopGPT_<version>_Web.zip`. To host it on Vercel (`vercel.json` only sets cache headers for the service worker and manifest), either:
 
 - **Build locally and upload the result.** Once, run `vercel link` in the repo root, set the project's **Build Command** to `npm run build:standalone` and **Output Directory** to `dist-web` (in the prompts or the dashboard), and fetch those settings:
 
@@ -178,6 +178,15 @@ npm run dev:standalone     # try it at http://localhost:5173 without the app
 
   This uploads only the built site (`.vercel/output/`, about 130 KB). Don't run a plain `vercel` or `vercel deploy` from the repo root: the CLI ignores `.gitignore` and would upload `src-tauri/target/`, several GB of Rust build output. `.vercel/` is gitignored. Run `vercel pull` again after changing the settings in the dashboard.
 - **Or connect the repo** in the Vercel dashboard with the same two settings, and Vercel builds on every push.
+
+### Installing it as an app
+
+Over HTTPS (or on localhost) the page installs as an app ("Install" in Chrome, **Add to Home Screen** on phones) and works offline. The installed app takes its name, icon and color from the config: the logo on white, or the sparkle on the accent color.
+
+- The color follows config changes right away, even after installing.
+- The name and icon are fixed when it's installed. Chrome picks up changes later on its own (it can take a day, and may ask first); iOS never does, so set them before adding it.
+- On iOS the home-screen app has its own storage, separate from Safari's, so it starts from the built-in config. Set it up inside the installed app, or Export from Safari and Import there.
+- The phone server is plain HTTP, so there's no offline mode or real install from it, but iOS **Add to Home Screen** still uses the configured name and logo.
 
 ## Building
 
