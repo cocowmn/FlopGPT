@@ -7,9 +7,29 @@ App concept inspired by [a tiktok by @jackyroadstudios](https://www.tiktok.com/t
 It's a desktop app (Tauri). Open **FlopGPT** to run the demo on the computer; it also serves
 the demo to phones on the same wifi.
 
-<div style="display: grid; place-items: center;">
-  <video src="docs/demo.mp4" width="50%" controls></video>
-</div>
+<!-- This video will not render on GitHub -->
+<video src="docs/demo.mp4" width="300" controls></video>
+
+<!-- This link will render as a video on GitHub -->
+https://github.com/user-attachments/assets/ccc0058f-19aa-4b86-bd81-6f368e81a5c3
+
+## Download
+
+Get the latest version from the **[Releases page](https://github.com/cocowmn/FlopGPT/releases/latest)**. Under **Assets**, pick the file for your computer:
+
+| Your computer | Download |
+|---|---|
+| **Mac with Apple Silicon** (M1, M2, M3, M4 — most Macs from late 2020 on) | `FlopGPT_<version>_macOS-Apple-Silicon.dmg` |
+| **Mac with Intel** (older Macs) | `FlopGPT_<version>_macOS-Intel.dmg` |
+| **Windows** | `FlopGPT_<version>_Windows-setup.exe` |
+| **Linux** | `FlopGPT_<version>_Linux.AppImage` works on most distros. Use `.deb` for Ubuntu/Debian or `.rpm` for Fedora. |
+
+Not sure which Mac you have? Click the Apple menu, then **About This Mac**. If it lists a **Chip**, pick Apple Silicon. If it lists a **Processor**, pick Intel.
+
+The app isn't signed, so the first time you open it your computer will warn you:
+
+- **Mac:** if macOS says it can't verify FlopGPT, open **System Settings > Privacy & Security**, scroll down, and click **Open Anyway** next to the FlopGPT message.
+- **Windows:** if SmartScreen says "Windows protected your PC", click **More info**, then **Run anyway**.
 
 ## Building
 
@@ -25,7 +45,7 @@ npm run check    # type-check the page
 once, push a version tag (`git tag v0.1.0 && git push --tags`) or run the **Release** workflow
 from the GitHub Actions tab. `.github/workflows/release.yml` builds macOS (Apple silicon and
 Intel), Windows and Linux, then attaches the bundles to a draft release named after the version
-in `src-tauri/tauri.conf.json`.
+in `package.json`. See [docs/RELEASING.md](docs/RELEASING.md) for the full release steps.
 
 Needs Rust 1.90 or newer (`rustup update stable`) and, on a Mac, Xcode command line tools.
 The page (`ui/`) is a Svelte 5 + TypeScript app built by Vite into `dist/`, which the app
