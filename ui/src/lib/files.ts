@@ -11,8 +11,8 @@ export const isJson = (f: File) => /\.json$/i.test(f.name) || f.type === 'applic
 
 export const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
 
-// Shrinks bitmaps to 256px so the config stays small; SVGs are kept as-is.
-export function toLogoDataURL(file: File): Promise<string> {
+// Shrinks bitmaps to `max` px so the config stays small; SVGs are kept as-is.
+export function toImageDataURL(file: File, max = 256): Promise<string> {
   return new Promise((resolve, reject) => {
     if (!/^image\//.test(file.type)) return reject(new Error('Please choose an image file.'));
     const fr = new FileReader();
@@ -23,7 +23,7 @@ export function toLogoDataURL(file: File): Promise<string> {
       const img = new Image();
       img.onerror = () => reject(new Error("Couldn't read that image."));
       img.onload = () => {
-        const k = Math.min(1, 256 / Math.max(img.naturalWidth, img.naturalHeight));
+        const k = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
         const c = document.createElement('canvas');
         c.width = Math.max(1, Math.round(img.naturalWidth * k));
         c.height = Math.max(1, Math.round(img.naturalHeight * k));

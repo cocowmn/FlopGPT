@@ -1,5 +1,5 @@
 import { tick } from 'svelte';
-import { MediaQuery } from 'svelte/reactivity';
+import { MediaQuery, SvelteSet } from 'svelte/reactivity';
 
 export const wide = new MediaQuery('min-width: 900px');
 export const reduceMotion = new MediaQuery('prefers-reduced-motion: reduce');
@@ -16,11 +16,12 @@ class UI {
   activeThread = $state(-1); // highlighted old thread (cosmetic only)
   settingsOpen = $state(false);
   editorOpen = $state(false);
+  imagesOpen = $state(false);
   lightbox = $state<{ src: string; alt: string } | null>(null);
   confirmReq = $state<ConfirmRequest | null>(null);
   toastMsg = $state('');
   toastShown = $state(false);
-  logoFailedFor = $state(''); // a logo src that wouldn't load; the sparkle shows instead
+  failedImages = new SvelteSet<string>(); // image srcs that wouldn't load; the default shows instead
   pinned = true; // keep the chat scrolled to the bottom
 
   private toastTimer = 0;

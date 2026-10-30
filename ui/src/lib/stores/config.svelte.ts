@@ -3,8 +3,12 @@
  *  The app window reads and saves it through Tauri; phones through the app's server;
  *  the browser-only build in localStorage.
  * ------------------------------------------------------------------ */
-import { exportJson, fetchConfig, HttpError, putConfig, STANDALONE, TAURI, watchConfig } from '../backend';
-import { isJson, takeLegacy, toLogoDataURL } from '../files';
+import { exportJson, exportZip, fetchConfig, HttpError, putConfig, STANDALONE, TAURI, watchConfig } from '../backend';
+import { isJson, takeLegacy, toImageDataURL } from '../files';
+import { IMAGE_SLOTS, slotOf, type ImageKey } from '../images';
+import { abs } from '../location';
+import { appIconPng, DEFAULT_ACCENT, SPARKLE, toHex } from '../pwa';
+import { zip } from '../zip';
 import { detect, merge, normalizeScript, normalizeThreads } from '../normalize';
 import type { Config, Thread } from '../types';
 import { chat } from './chat.svelte';
@@ -35,8 +39,22 @@ class ConfigStore {
       user,
       initial: user.trim().charAt(0).toUpperCase() || '?',
       accent: s.accent && CSS.supports('color', s.accent) ? s.accent : '',
-      logo: s.logo ? String(s.logo) : '', // as written in the config
     };
+  });
+
+  // Each image spot: its own image (as written in the config), and the full URL to show ('' = the default).
+  // `false` keeps a spot on its default instead of the large logo.
+  images = $derived.by(() => {
+    const s = this.script;
+    const own = (k: ImageKey) => (s[k] ? String(s[k]) : '');
+    const out = {} as Record<ImageKey, { own: string; src: string; inherited: boolean; optedOut: boolean }>;
+    for (const slot of IMAGE_SLOTS) {
+      const mine = own(slot.key);
+      const optedOut = slot.inherits && s[slot.key] === false;
+      const raw = mine || (slot.inherits && !optedOut ? own('logo') : '');
+      out[slot.key] = { own: mine, src: raw ? abs(raw) : '', inherited: !mine && !!raw, optedOut };
+    }
+    return out;
   });
 
   locked = $derived(!TAURI && !STANDALONE && !this.writable);
@@ -155,7 +173,7 @@ export async function boot() {
   }
 }
 
-/* ---- imports, exports and the logo ---- */
+/* ---- imports, exports and images ---- */
 
 export async function importFiles(files: File[]) {
   for (const file of files) {
@@ -186,32 +204,129 @@ export function dropFiles(files: File[]) {
   if (media.length) chat.addFiles(media);
 }
 
-export async function exportConfig(cfg: Config = store.config) {
-  const slug = String(cfg.appName || 'demo')
+const slug = (name: unknown) =>
+  String(name || 'demo')
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '');
+    .replace(/^-|-$/g, '') || 'demo';
+
+export async function exportConfig(cfg: Config = store.config) {
   try {
-    const path = await exportJson((slug || 'demo') + '-config.json', cfg);
+    const path = await exportJson(slug(cfg.appName) + '-config.json', cfg);
     if (path) ui.toast('Exported to ' + path);
   } catch (e) {
     ui.toast(String(e));
   }
 }
 
-export async function setLogoFile(file: File) {
+export async function setImageFile(key: ImageKey, file: File) {
+  const slot = slotOf(key);
   try {
-    const logo = await toLogoDataURL(file);
-    await setConfig({ ...store.config, logo }, false, 'Logo updated');
+    const data = await toImageDataURL(file, slot.maxSize);
+    await setConfig({ ...store.config, [key]: data }, false, `${slot.label} updated`);
   } catch (e) {
     ui.toast((e as Error).message);
   }
 }
 
-export function resetLogo() {
+export function resetImages(keys: ImageKey[]) {
   const cfg = { ...store.config };
-  delete cfg.logo;
-  setConfig(cfg, false, 'Logo reset');
+  for (const k of keys) delete cfg[k];
+  setConfig(cfg, false, keys.length === 1 ? `${slotOf(keys[0]).label} reset` : 'Images reset');
+}
+
+const EXT: Record<string, string> = {
+  'image/png': 'png',
+  'image/jpeg': 'jpg',
+  'image/svg+xml': 'svg',
+  'image/webp': 'webp',
+  'image/gif': 'gif',
+  'image/avif': 'avif',
+  'image/x-icon': 'ico',
+  'image/vnd.microsoft.icon': 'ico',
+};
+
+/** Every image as the app shows it right now, the built-in ones included, in one .zip. */
+export async function exportImages() {
+  const accent = toHex(store.brand.accent || DEFAULT_ACCENT);
+  const svg = (body: string, box: number) =>
+    new Blob([`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${box} ${box}">${body}</svg>\n`], {
+      type: 'image/svg+xml',
+    });
+  const sparkle = (fill: string) => svg(`<path fill="${fill}" d="${SPARKLE}"/>`, 24);
+  // The built-in look of each spot (see global.css and index.html). The user's initial isn't an image: left out.
+  const builtIn: Record<Exclude<ImageKey, 'appIcon'>, () => Blob | null> = {
+    logo: () =>
+      svg(
+        `<circle cx="26" cy="26" r="26" fill="${accent}"/>` +
+          `<path fill="#fff" transform="translate(13 13) scale(${26 / 24})" d="${SPARKLE}"/>`,
+        52,
+      ),
+    smallLogo: () => sparkle(accent),
+    favicon: () => sparkle(DEFAULT_ACCENT),
+    threadAvatar: () => sparkle(accent),
+    userAvatar: () => null,
+  };
+
+  const missed: string[] = [],
+    dropped: string[] = [];
+  try {
+    const files = await Promise.all(
+      IMAGE_SLOTS.map(async slot => {
+        const key = slot.key;
+        const src = shown(store.images[key].src);
+        let blob: Blob | null;
+        if (key === 'appIcon') {
+          // Drawn the way it's installed, built-in or not.
+          const img = store.images.appIcon;
+          blob = await appIconPng({
+            name: store.brand.name,
+            accent: store.brand.accent,
+            logo: src,
+            fullBleed: !img.inherited,
+          });
+        } else if (!src) {
+          blob = builtIn[key]();
+        } else {
+          blob = await fetch(src)
+            .then(r => (r.ok ? r.blob() : Promise.reject()))
+            .catch(() => {
+              const fallback = builtIn[key]();
+              (fallback ? missed : dropped).push(slot.label.toLowerCase());
+              return fallback;
+            });
+        }
+        if (!blob) return null;
+        const ext = EXT[blob.type] || /\.(\w{2,4})(?:[?#]|$)/.exec(src)?.[1] || 'png';
+        return { name: `${slug(slot.label)}.${ext}`, data: new Uint8Array(await blob.arrayBuffer()) };
+      }),
+    );
+    const path = await exportZip(slug(store.brand.name) + '-images.zip', zip(files.filter(f => !!f)));
+    const notes = [
+      missed.length && `Couldn't fetch the ${missed.join(', ')}, so the default is in the zip.`,
+      dropped.length && `Couldn't fetch the ${dropped.join(', ')}, so it's not in the zip.`,
+    ].filter(Boolean);
+    if (notes.length) ui.toast(notes.join(' '));
+    else if (path) ui.toast('Exported to ' + path);
+  } catch (e) {
+    ui.toast(`Couldn't make the zip (${(e as Error).message || e}).`);
+  }
+}
+
+/** Whether a spot without its own image shows the large logo, or its default. */
+export function useLargeLogo(key: ImageKey, on: boolean) {
+  const cfg: Config = { ...store.config, [key]: false };
+  if (on) delete cfg[key];
+  setConfig(cfg, false, `${slotOf(key).label} ${on ? 'uses the large logo' : 'uses its default'}`);
+}
+
+/** The src to draw, or '' if it's empty or wouldn't load. */
+export const shown = (src: string) => (src && !ui.failedImages.has(src) ? src : '');
+
+export function imageFailed(key: ImageKey, src: string) {
+  if (ui.failedImages.has(src)) return;
+  ui.failedImages.add(src);
+  ui.toast(`Couldn't load the ${slotOf(key).label.toLowerCase()} image, so the default is shown.`);
 }
 
 export async function resetDefaults() {

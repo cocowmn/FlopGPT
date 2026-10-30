@@ -1,41 +1,37 @@
 <script lang="ts">
   import { TAURI } from '../../lib/backend';
   import { plural } from '../../lib/files';
-  import {
-    exportConfig,
-    importFiles,
-    resetDefaults,
-    resetLogo,
-    setLogoFile,
-    startOver,
-    store,
-  } from '../../lib/stores/config.svelte';
+  import { IMAGE_SLOTS } from '../../lib/images';
+  import { exportConfig, importFiles, resetDefaults, startOver, store } from '../../lib/stores/config.svelte';
   import { ui } from '../../lib/stores/ui.svelte';
   import { openEditor } from '../editor/editor.svelte';
   import Modal from '../Modal.svelte';
   import ServerPanel from './ServerPanel.svelte';
 
   let configPicker: HTMLInputElement;
-  let logoPicker: HTMLInputElement;
 
   const configInfo = $derived(
     `${store.brand.name} · ${plural(store.script.responses.length, 'response')} · ${plural(store.threads.length, 'chat')}` +
       (store.pending ? ' · update waiting for New chat' : ''),
   );
-  const logo = $derived(store.brand.logo);
+  const customImages = $derived(IMAGE_SLOTS.filter(s => store.images[s.key].own));
+  const imagesInfo = $derived(
+    customImages.length
+      ? `Custom ${customImages.map(s => s.label.toLowerCase()).join(', ')}`
+      : `All ${IMAGE_SLOTS.length} default`,
+  );
 
   async function pickedConfig() {
     await importFiles([...(configPicker.files ?? [])]);
     configPicker.value = '';
   }
-  async function pickedLogo() {
-    const f = logoPicker.files?.[0];
-    if (f) await setLogoFile(f);
-    logoPicker.value = '';
-  }
   function editConfig() {
     ui.settingsOpen = false;
     openEditor();
+  }
+  function editImages() {
+    ui.settingsOpen = false;
+    ui.imagesOpen = true;
   }
   function restart() {
     startOver();
@@ -66,14 +62,11 @@
 
     <div class="set-row">
       <div>
-        <strong>Logo</strong>
-        <p>{!logo ? 'Default' : logo.startsWith('data:') ? 'Custom image' : logo}</p>
+        <strong>Images</strong>
+        <p>{imagesInfo}</p>
       </div>
       <div class="set-btns">
-        <button class="btn" type="button" disabled={store.locked} onclick={() => logoPicker.click()}
-          >Choose image…</button
-        >
-        <button class="btn" type="button" disabled={store.locked || !logo} onclick={resetLogo}>Reset</button>
+        <button class="btn" type="button" onclick={editImages}>Edit</button>
       </div>
     </div>
 
@@ -92,7 +85,6 @@
 </Modal>
 
 <input bind:this={configPicker} type="file" accept=".json,application/json" hidden onchange={pickedConfig} />
-<input bind:this={logoPicker} type="file" accept="image/*" hidden onchange={pickedLogo} />
 
 <style>
   .set-row {

@@ -8,8 +8,8 @@
 import { TAURI } from './backend';
 
 const BRAND_CACHE = 'flopgpt-brand'; // shared with ui/sw.js
-const SPARKLE = 'M12 2c.6 4.6 2.4 8.4 10 10-7.6 1.6-9.4 5.4-10 10-.6-4.6-2.4-8.4-10-10 7.6-1.6 9.4-5.4 10-10z'; // #i-logo
-const DEFAULT_ACCENT = '#5b5bd6'; // --accent in global.css
+export const SPARKLE = 'M12 2c.6 4.6 2.4 8.4 10 10-7.6 1.6-9.4 5.4-10 10-.6-4.6-2.4-8.4-10-10 7.6-1.6 9.4-5.4 10-10z'; // #i-logo
+export const DEFAULT_ACCENT = '#5b5bd6'; // --accent in global.css
 
 const WORKER = import.meta.env.PROD && !TAURI && isSecureContext && 'serviceWorker' in navigator;
 
@@ -21,6 +21,7 @@ export interface AppBrand {
   name: string;
   accent: string; // any CSS color, '' for the default
   logo: string; // full URL, '' for the sparkle
+  fullBleed: boolean; // a made-for-purpose app icon fills the square; a logo sits inside it
 }
 
 let timer: ReturnType<typeof setTimeout> | undefined;
@@ -37,15 +38,8 @@ async function apply(b: AppBrand, run: number) {
   const color = toHex(b.accent || DEFAULT_ACCENT);
   meta('theme-color').content = color;
   meta('apple-mobile-web-app-title').content = b.name;
-  const logo = b.logo ? await loadImage(b.logo).catch(() => null) : null;
+  const icons = await drawIcons(b, [180, 192, 512]);
   if (run !== latest) return;
-  let icons;
-  try {
-    icons = [180, 192, 512].map(size => drawIcon(size, color, logo));
-    icons[0].toDataURL(); // throws if a cross-origin logo tainted the canvas
-  } catch {
-    icons = [180, 192, 512].map(size => drawIcon(size, color, null));
-  }
   (document.getElementById('touch-icon') as HTMLLinkElement).href = icons[0].toDataURL('image/png');
   if (!WORKER) return;
   try {
@@ -80,6 +74,26 @@ async function apply(b: AppBrand, run: number) {
   } catch {} // storage full or blocked: the worker serves the built-in manifest
 }
 
+/** The installed app's icon as a PNG, as "Add to Home Screen" would get it. */
+export async function appIconPng(b: AppBrand, size = 512): Promise<Blob> {
+  const [c] = await drawIcons(b, [size]);
+  const png = await new Promise<Blob | null>(r => c.toBlob(r, 'image/png'));
+  if (!png) throw new Error("Couldn't draw the app icon.");
+  return png;
+}
+
+async function drawIcons(b: AppBrand, sizes: number[]) {
+  const color = toHex(b.accent || DEFAULT_ACCENT);
+  const logo = b.logo ? await loadImage(b.logo).catch(() => null) : null;
+  try {
+    const icons = sizes.map(size => drawIcon(size, color, logo, b.fullBleed));
+    icons[0].toDataURL(); // throws if a cross-origin logo tainted the canvas
+    return icons;
+  } catch {
+    return sizes.map(size => drawIcon(size, color, null, false));
+  }
+}
+
 // Browsers read the manifest once per page, so a new name only reaches "Install" or "Add to Home Screen"
 // if the link changes. Also redone when the worker takes over: before that the built-in manifest was read.
 let manifestRev = 0;
@@ -89,8 +103,9 @@ function reloadManifest() {
 }
 if (WORKER) navigator.serviceWorker.addEventListener('controllerchange', reloadManifest);
 
-/** A square, full-bleed icon: the logo on white, or the sparkle on the accent. Content stays in the maskable safe zone. */
-function drawIcon(size: number, color: string, logo: HTMLImageElement | null) {
+/** A square, full-bleed icon: the app icon filling it, the logo on white, or the sparkle on the accent.
+ *  A logo or the sparkle stays in the maskable safe zone. */
+function drawIcon(size: number, color: string, logo: HTMLImageElement | null, fill: boolean) {
   const c = document.createElement('canvas');
   c.width = c.height = size;
   const ctx = c.getContext('2d')!;
@@ -100,7 +115,7 @@ function drawIcon(size: number, color: string, logo: HTMLImageElement | null) {
   if (logo) {
     const w = logo.naturalWidth || 1,
       h = logo.naturalHeight || 1; // an SVG without a size draws square
-    const k = box / Math.max(w, h);
+    const k = fill ? size / Math.min(w, h) : box / Math.max(w, h);
     ctx.drawImage(logo, (size - w * k) / 2, (size - h * k) / 2, w * k, h * k);
   } else {
     ctx.translate((size - box) / 2, (size - box) / 2);
@@ -122,7 +137,7 @@ function loadImage(src: string) {
 }
 
 /** Any CSS color as hex (canvas normalizes it), for manifests that only read simple colors. */
-function toHex(color: string) {
+export function toHex(color: string) {
   const ctx = document.createElement('canvas').getContext('2d')!;
   ctx.fillStyle = DEFAULT_ACCENT;
   ctx.fillStyle = color; // ignored if unparseable

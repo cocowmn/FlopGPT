@@ -1,8 +1,10 @@
 <script lang="ts">
-  import { startOver, store } from '../lib/stores/config.svelte';
+  import { imageFailed, shown, startOver, store } from '../lib/stores/config.svelte';
   import { ui } from '../lib/stores/ui.svelte';
   import Logo from './Logo.svelte';
   import ThreadList from './ThreadList.svelte';
+
+  const avatar = $derived(store.images.userAvatar.src);
 
   function newChat() {
     startOver();
@@ -12,7 +14,7 @@
 
 <aside class="sidebar" aria-label="Conversations">
   <div class="sb-head">
-    <div class="brand"><Logo class="brand-logo" /><span>{store.brand.name}</span></div>
+    <div class="brand"><Logo class="brand-logo" kind="smallLogo" /><span>{store.brand.name}</span></div>
     <button class="icon-btn" type="button" aria-label="Close sidebar" onclick={() => (ui.sidebarOpen = false)}>
       <svg class="icon"><use href="#i-sidebar" /></svg>
     </button>
@@ -36,7 +38,11 @@
   <ThreadList />
 
   <div class="sb-foot">
-    <div class="avatar user" aria-hidden="true">{store.brand.initial}</div>
+    {#if shown(avatar)}
+      <img class="avatar user" src={avatar} alt="" onerror={() => imageFailed('userAvatar', avatar)} />
+    {:else}
+      <div class="avatar user" aria-hidden="true">{store.brand.initial}</div>
+    {/if}
     <span class="user-name">{store.brand.user}</span>
   </div>
 </aside>

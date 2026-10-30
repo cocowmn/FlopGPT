@@ -33,6 +33,11 @@ export interface Config {
   disclaimer?: string;
   accent?: string;
   logo?: string;
+  smallLogo?: string | false; // false: the default, not the logo
+  appIcon?: string | false; // false: the default, not the logo
+  favicon?: string | false; // false: the default, not the logo
+  threadAvatar?: string | false; // false: the default, not the logo
+  userAvatar?: string;
   spinner?: string | string[] | false;
   defaultPendingSeconds?: number | string;
   streamResponse?: boolean;

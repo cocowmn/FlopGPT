@@ -31,6 +31,13 @@
       /></symbol
     >
     <symbol id="i-send" viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7" /></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24"
+      ><path d="M12 15V4M7 9l5-5 5 5" /><path d="M5 15v3a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-3" /></symbol
+    >
+    <symbol id="i-download" viewBox="0 0 24 24"
+      ><path d="M12 4v11M7 10l5 5 5-5" /><path d="M5 15v3a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-3" /></symbol
+    >
+    <symbol id="i-swap" viewBox="0 0 24 24"><path d="m16 3 4 4-4 4M20 7H8M8 21l-4-4 4-4M4 17h12" /></symbol>
     <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" /></symbol>
     <symbol id="i-file" viewBox="0 0 24 24"
       ><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" /><path d="M14 3v5h5" /></symbol

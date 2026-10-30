@@ -54,14 +54,25 @@ export function watchConfig(onRev: (rev: number) => void) {
 /** Asks where to save (desktop) or downloads the file (phones). Returns the path, if any. */
 export async function exportJson(name: string, json: unknown): Promise<string | null> {
   if (TAURI) return invoke<string | null>('export_json', { name, json });
+  download(name, new Blob([JSON.stringify(json, null, 2) + '\n'], { type: 'application/json' }));
+  return null;
+}
+
+/** Same, for a .zip. */
+export async function exportZip(name: string, bytes: Uint8Array<ArrayBuffer>): Promise<string | null> {
+  if (TAURI) return invoke<string | null>('export_zip', { name, bytes: Array.from(bytes) });
+  download(name, new Blob([bytes], { type: 'application/zip' }));
+  return null;
+}
+
+function download(name: string, blob: Blob) {
   const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([JSON.stringify(json, null, 2) + '\n'], { type: 'application/json' }));
+  a.href = URL.createObjectURL(blob);
   a.download = name;
   document.body.append(a);
   a.click();
   a.remove();
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-  return null;
 }
 
 /* ---- STANDALONE: the config in this browser's localStorage (other tabs hear saves via `storage` events) ---- */

@@ -135,17 +135,33 @@ fn config_save(hub: State<'_, Hub>, config: Option<Value>) -> Result<u64, String
 /// Asks where to save, then writes the JSON there. Returns the path, or None if cancelled.
 #[tauri::command]
 async fn export_json(app: AppHandle, name: String, json: Value) -> Result<Option<String>, String> {
+    save_as(
+        &app,
+        &name,
+        "JSON",
+        "json",
+        (serde_json::to_string_pretty(&json).unwrap() + "\n").as_bytes(),
+    )
+}
+
+/// Same, for a .zip.
+#[tauri::command]
+async fn export_zip(app: AppHandle, name: String, bytes: Vec<u8>) -> Result<Option<String>, String> {
+    save_as(&app, &name, "Zip archive", "zip", &bytes)
+}
+
+fn save_as(app: &AppHandle, name: &str, kind: &str, ext: &str, data: &[u8]) -> Result<Option<String>, String> {
     let Some(picked) = app
         .dialog()
         .file()
-        .set_file_name(&name)
-        .add_filter("JSON", &["json"])
+        .set_file_name(name)
+        .add_filter(kind, &[ext])
         .blocking_save_file()
     else {
         return Ok(None);
     };
     let path = picked.into_path().map_err(|e| e.to_string())?;
-    std::fs::write(&path, serde_json::to_string_pretty(&json).unwrap() + "\n").map_err(|e| e.to_string())?;
+    std::fs::write(&path, data).map_err(|e| e.to_string())?;
     Ok(Some(path.display().to_string()))
 }
 
@@ -188,7 +204,8 @@ pub fn run() {
             server_qr,
             config_load,
             config_save,
-            export_json
+            export_json,
+            export_zip
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

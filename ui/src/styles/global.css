@@ -172,6 +172,9 @@ textarea.ed-in {
   font-size: 13px;
   font-weight: 600;
 }
+img.avatar {
+  object-fit: cover;
+}
 .avatar.big {
   width: 52px;
   height: 52px;
@@ -332,6 +335,9 @@ dialog.editor .dlg {
   display: flex;
   flex-direction: column;
   max-height: calc(100dvh - 34px);
+}
+dialog.images {
+  width: min(560px, calc(100% - 32px));
 }
 dialog.lightbox {
   width: auto;

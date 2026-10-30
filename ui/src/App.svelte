@@ -6,13 +6,13 @@
   import EditorDialog from './components/editor/EditorDialog.svelte';
   import IconSprite from './components/IconSprite.svelte';
   import Lightbox from './components/Lightbox.svelte';
+  import ImagesDialog from './components/settings/ImagesDialog.svelte';
   import SettingsDialog from './components/settings/SettingsDialog.svelte';
   import Sidebar from './components/Sidebar.svelte';
   import Toast from './components/Toast.svelte';
   import Topbar from './components/Topbar.svelte';
-  import { abs } from './lib/location';
   import { brandApp } from './lib/pwa';
-  import { boot, dropFiles, store } from './lib/stores/config.svelte';
+  import { boot, dropFiles, shown, store } from './lib/stores/config.svelte';
   import { ui, wide } from './lib/stores/ui.svelte';
 
   let preload = $state(true);
@@ -34,13 +34,14 @@
     const root = document.documentElement;
     if (b.accent) root.style.setProperty('--accent', b.accent);
     else root.style.removeProperty('--accent');
-    const src = b.logo ? abs(b.logo) : '';
-    root.classList.toggle('has-logo', !!src && ui.logoFailedFor !== src);
-    favicon.href = src || DEFAULT_FAVICON;
+    const img = store.images;
+    root.classList.toggle('has-logo', !!shown(img.logo.src));
+    favicon.href = shown(img.favicon.src) || DEFAULT_FAVICON;
     brandApp({
       name: b.name,
       accent: b.accent,
-      logo: src && ui.logoFailedFor !== src ? src : '',
+      logo: shown(img.appIcon.src),
+      fullBleed: !img.appIcon.inherited,
     });
   });
 
@@ -74,6 +75,7 @@
 </div>
 
 <SettingsDialog />
+<ImagesDialog />
 <EditorDialog />
 <Lightbox />
 <ConfirmDialog />

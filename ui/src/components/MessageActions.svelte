@@ -39,7 +39,7 @@
   >
     <svg class="icon"><use href="#i-down" /></svg>
   </button>
-  <Logo class="actions-logo" />
+  <Logo class="actions-logo" kind="threadAvatar" />
 </div>
 
 <style>

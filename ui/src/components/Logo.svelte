@@ -1,23 +1,16 @@
-<!-- The default sparkle, or the config's logo image (falls back to the sparkle if it won't load). -->
+<!-- The default sparkle, or the config's image for this spot (falls back to the sparkle if it won't load). -->
 <script lang="ts">
-  import { abs } from '../lib/location';
-  import { store } from '../lib/stores/config.svelte';
-  import { ui } from '../lib/stores/ui.svelte';
+  import type { ImageKey } from '../lib/images';
+  import { imageFailed, shown, store } from '../lib/stores/config.svelte';
 
-  let { class: cls = '' }: { class?: string } = $props();
+  let { class: cls = '', kind = 'logo' }: { class?: string; kind?: ImageKey } = $props();
 
-  const src = $derived(store.brand.logo ? abs(store.brand.logo) : '');
-
-  function onerror() {
-    if (ui.logoFailedFor === src) return;
-    ui.logoFailedFor = src;
-    ui.toast("Couldn't load the logo image, so the default is shown.");
-  }
+  const src = $derived(store.images[kind].src);
 </script>
 
 <span class="logo-slot {cls}">
-  {#if src && ui.logoFailedFor !== src}
-    <img {src} alt="" {onerror} />
+  {#if shown(src)}
+    <img {src} alt="" onerror={() => imageFailed(kind, src)} />
   {:else}
     <svg class="icon" aria-hidden="true"><use href="#i-logo" /></svg>
   {/if}
