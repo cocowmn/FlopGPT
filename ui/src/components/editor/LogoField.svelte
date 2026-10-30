@@ -1,8 +1,8 @@
 <!-- An image chosen in Settings is a long data URL: show a note instead of the text. -->
 <script lang="ts">
+  import type { EditScript } from '../../lib/normalize';
   import TextInput from './TextInput.svelte';
   import { changed } from './editor.svelte';
-  import type { EditScript } from '../../lib/normalize';
 
   let { s }: { s: EditScript } = $props();
 </script>

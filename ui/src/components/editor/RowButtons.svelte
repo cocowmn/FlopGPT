@@ -15,8 +15,17 @@
 </script>
 
 <span class="ed-row-btns">
-  <button type="button" class="ed-mini" title="Move up" aria-label="Move up" disabled={i === 0} onclick={() => move(-1)}>↑</button>
-  <button type="button" class="ed-mini" title="Move down" aria-label="Move down" disabled={i === list.length - 1} onclick={() => move(1)}>↓</button>
+  <button type="button" class="ed-mini" title="Move up" aria-label="Move up" disabled={i === 0} onclick={() => move(-1)}
+    >↑</button
+  >
+  <button
+    type="button"
+    class="ed-mini"
+    title="Move down"
+    aria-label="Move down"
+    disabled={i === list.length - 1}
+    onclick={() => move(1)}>↓</button
+  >
   <button type="button" class="ed-mini" title="Remove" aria-label="Remove" onclick={remove}>✕</button>
 </span>
 

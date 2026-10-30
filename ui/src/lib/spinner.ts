@@ -8,10 +8,15 @@ let seq = 0;
 function build(s: SpinnerDef): SpinnerPick {
   const n = ++seq;
   let svg = s.svg.trim().replace(/^(<svg\b[^>]*?)\sfill="[^"]*"/, '$1');
-  [...svg.matchAll(/\bid="([^"]+)"/g)].map(m => m[1]).forEach(id => {
-    svg = svg.split(id).join(id + '_' + n);
-  });
-  const vb = ((svg.match(/viewBox="([^"]+)"/) || [])[1] || '').trim().split(/[\s,]+/).map(Number);
+  [...svg.matchAll(/\bid="([^"]+)"/g)]
+    .map(m => m[1])
+    .forEach(id => {
+      svg = svg.split(id).join(id + '_' + n);
+    });
+  const vb = ((svg.match(/viewBox="([^"]+)"/) || [])[1] || '')
+    .trim()
+    .split(/[\s,]+/)
+    .map(Number);
   const ratio = vb[2] > 0 && vb[3] > 0 ? vb[2] / vb[3] : 1;
   const h = ratio > 3 ? 64 / ratio : 24; // very wide ones (the gooey one) get a fixed width instead
   return { type: 'svg', name: s.name, html: svg, w: +(h * ratio).toFixed(1), h: +h.toFixed(1) };

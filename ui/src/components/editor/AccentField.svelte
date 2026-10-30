@@ -18,7 +18,13 @@
 </script>
 
 <span class="ed-color">
-  <input type="color" class="ed-swatch" aria-label="Pick accent color" value={swatch} oninput={e => set(e.currentTarget.value)} />
+  <input
+    type="color"
+    class="ed-swatch"
+    aria-label="Pick accent color"
+    value={swatch}
+    oninput={e => set(e.currentTarget.value)}
+  />
   <input class="ed-in" placeholder="#5b5bd6" value={text} oninput={e => set(e.currentTarget.value)} />
 </span>
 

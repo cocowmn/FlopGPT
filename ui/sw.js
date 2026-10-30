@@ -18,7 +18,7 @@ self.addEventListener('activate', e => {
     caches
       .keys()
       .then(keys => Promise.all(keys.filter(k => k !== SHELL && k !== BRAND).map(k => caches.delete(k))))
-      .then(() => self.clients.claim())
+      .then(() => self.clients.claim()),
   );
 });
 

@@ -5,7 +5,7 @@
     label,
     wide = false,
     group = false, // several inputs: a <div> instead of a <label>
-    children
+    children,
   }: { label: string; wide?: boolean; group?: boolean; children: Snippet } = $props();
 </script>
 

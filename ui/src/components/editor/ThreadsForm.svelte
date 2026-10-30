@@ -1,7 +1,7 @@
 <script lang="ts">
+  import type { EditThreadItem } from '../../lib/normalize';
   import RowButtons from './RowButtons.svelte';
   import { changed } from './editor.svelte';
-  import type { EditThreadItem } from '../../lib/normalize';
 
   let { items }: { items: EditThreadItem[] } = $props();
 

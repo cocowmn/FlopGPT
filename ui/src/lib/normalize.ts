@@ -37,7 +37,7 @@ export function normalizeResponse(r: RawResponse | undefined | null, script: Con
     .map(p =>
       p && typeof p === 'object'
         ? { text: String(p.text ?? p.label ?? ''), seconds: num(p.seconds ?? p.duration, fallbackSecs) }
-        : { text: String(p ?? ''), seconds: fallbackSecs }
+        : { text: String(p ?? ''), seconds: fallbackSecs },
     )
     .filter(p => p.text.trim());
   return {
@@ -45,7 +45,7 @@ export function normalizeResponse(r: RawResponse | undefined | null, script: Con
     pending,
     text: String(r.response ?? r.text ?? r.message ?? ''),
     stream: r.stream ?? script.streamResponse ?? true,
-    cps: num(r.charsPerSecond, num(script.charsPerSecond, 90)) || 90
+    cps: num(r.charsPerSecond, num(script.charsPerSecond, 90)) || 90,
   };
 }
 
@@ -67,7 +67,7 @@ export function detect(raw: unknown): ImportKind | null {
   if (o && Array.isArray(o.threads)) return 'threads';
   if (Array.isArray(raw)) {
     const looksLikeScript = raw.some(
-      x => x && typeof x === 'object' && ['response', 'pending', 'thinking', 'text'].some(k => k in x)
+      x => x && typeof x === 'object' && ['response', 'pending', 'thinking', 'text'].some(k => k in x),
     );
     return looksLikeScript ? 'script' : 'threads';
   }
@@ -118,7 +118,8 @@ function editableScript(raw: Config): EditScript {
   const s = clone(normalizeScript(clone(raw)));
   delete s.threads;
   const responses = s.responses.map((r): EditResponse => {
-    const o: Record<string, unknown> = r == null || typeof r !== 'object' ? { response: r == null ? '' : String(r) } : r;
+    const o: Record<string, unknown> =
+      r == null || typeof r !== 'object' ? { response: r == null ? '' : String(r) } : r;
     const p = (o.pending ?? o.thinking ?? o.thoughts ?? []) as RawPending | RawPending[];
     delete o.thinking;
     delete o.thoughts;
@@ -157,7 +158,7 @@ function threadsOut(items: EditThreadItem[]) {
 
 export const toEditData = (cfg: Config): EditData => ({
   script: editableScript(cfg),
-  threads: editableThreads(cfg.threads ?? [])
+  threads: editableThreads(cfg.threads ?? []),
 });
 
 /** The editor's form contents as config JSON. */
@@ -166,7 +167,7 @@ export function fromEditData(data: EditData): Config {
   return {
     ...s,
     responses: s.responses.map(r => ({ ...r, pending: r.pending.map(stepOut) })),
-    threads: threadsOut(data.threads)
+    threads: threadsOut(data.threads),
   };
 }
 
@@ -176,7 +177,7 @@ export function parseConfigJson(text: string): Config {
   try {
     raw = JSON.parse(text);
   } catch (e) {
-    throw new Error('Invalid JSON: ' + (e as Error).message);
+    throw new Error('Invalid JSON: ' + (e as Error).message, { cause: e });
   }
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) throw new Error('The config should be a JSON object.');
   normalizeScript(clone(raw)); // these throw if the shape is wrong

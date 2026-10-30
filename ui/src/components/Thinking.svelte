@@ -1,8 +1,8 @@
 <!-- The pending blurbs: one at a time while thinking, then "Thought for Ns", which expands to the list. -->
 <script lang="ts">
   import { tick, untrack } from 'svelte';
-  import Spinner from './Spinner.svelte';
   import type { Thinking } from '../lib/stores/chat.svelte';
+  import Spinner from './Spinner.svelte';
 
   let { thinking }: { thinking: Thinking } = $props();
 
@@ -98,13 +98,7 @@
   }
   .thinking.live .think-label span {
     color: transparent;
-    background: linear-gradient(
-        90deg,
-        var(--muted) 0%,
-        var(--text) 50%,
-        var(--muted) 100%
-      )
-      0 0 / 200% 100%;
+    background: linear-gradient(90deg, var(--muted) 0%, var(--text) 50%, var(--muted) 100%) 0 0 / 200% 100%;
     -webkit-background-clip: text;
     background-clip: text;
     animation:
@@ -122,7 +116,7 @@
     height: 16px;
     transition: transform 0.3s var(--ease);
   }
-  .thinking-head[aria-expanded="true"] .chev {
+  .thinking-head[aria-expanded='true'] .chev {
     transform: rotate(180deg);
   }
 

@@ -7,9 +7,11 @@ App concept inspired by [a tiktok by @jackyroadstudios](https://www.tiktok.com/t
 It's a desktop app (Tauri) for Mac, Windows and Linux, and it also serves the demo to phones on the same wifi. Or try it in your browser at **[flopgpt.vercel.app](https://flopgpt.vercel.app)**.
 
 <!-- This video will not render on GitHub -->
+
 <video src="docs/demo.mp4" width="300" controls></video>
 
 <!-- This link will render as a video on GitHub -->
+
 https://github.com/user-attachments/assets/ccc0058f-19aa-4b86-bd81-6f368e81a5c3
 
 ## How it plays
@@ -31,12 +33,12 @@ https://github.com/user-attachments/assets/ccc0058f-19aa-4b86-bd81-6f368e81a5c3
 
 Get the latest version from the **[Releases page](https://github.com/cocowmn/FlopGPT/releases/latest)**. Under **Assets**, pick the file for your computer:
 
-| Your computer | Download |
-|---|---|
-| **Mac with Apple Silicon** (M1, M2, M3, M4 — most Macs from late 2020 on) | `FlopGPT_<version>_macOS-Apple-Silicon.dmg` |
-| **Mac with Intel** (older Macs) | `FlopGPT_<version>_macOS-Intel.dmg` |
-| **Windows** | `FlopGPT_<version>_Windows-setup.exe` |
-| **Linux** | `FlopGPT_<version>_Linux.AppImage` works on most distros. Use `.deb` for Ubuntu/Debian or `.rpm` for Fedora. |
+| Your computer                                                             | Download                                                                                                     |
+| ------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| **Mac with Apple Silicon** (M1, M2, M3, M4 — most Macs from late 2020 on) | `FlopGPT_<version>_macOS-Apple-Silicon.dmg`                                                                  |
+| **Mac with Intel** (older Macs)                                           | `FlopGPT_<version>_macOS-Intel.dmg`                                                                          |
+| **Windows**                                                               | `FlopGPT_<version>_Windows-setup.exe`                                                                        |
+| **Linux**                                                                 | `FlopGPT_<version>_Linux.AppImage` works on most distros. Use `.deb` for Ubuntu/Debian or `.rpm` for Fedora. |
 
 Not sure which Mac you have? Click the Apple menu, then **About This Mac**. If it lists a **Chip**, pick Apple Silicon. If it lists a **Processor**, pick Intel.
 
@@ -115,11 +117,7 @@ The names are `3-dots-bounce`, `3-dots-fade`, `3-dots-move`, `3-dots-rotate`, `3
   "responses": [
     {
       "prompt": "Optional. Tab / empty-Enter will type this.",
-      "pending": [
-        "Reading your message",
-        { "text": "Doing something dramatic", "seconds": 4 },
-        "Almost there"
-      ],
+      "pending": ["Reading your message", { "text": "Doing something dramatic", "seconds": 4 }, "Almost there"],
       "response": "The final answer. **Markdown** is supported."
     }
   ],
@@ -134,22 +132,22 @@ The names are `3-dots-bounce`, `3-dots-fade`, `3-dots-move`, `3-dots-rotate`, `3
 
 Everything except `responses` is optional.
 
-| Field | Where | Meaning |
-| --- | --- | --- |
-| `appName`, `modelName`, `userName`, `greeting`, `placeholder`, `disclaimer`, `accent` | top level | Branding. `accent` also colors the thinking spinners. |
-| `logo` | top level | Logo image: a path, URL or data URI (see [Logo](#logo)). |
-| `spinner` | top level | `"random"` (default), `"none"`, a spinner name, or a list of names. |
-| `defaultPendingSeconds` | top level or response | How long each blurb shows unless it sets its own `seconds` (default 2.5). A response's value overrides the top-level one. |
-| `streamResponse` | top level | Typewriter streaming on or off (default on). In a response, the same switch is called `stream`. |
-| `charsPerSecond` | top level or response | Streaming speed (default 90). |
-| `typingCharsPerSecond` | top level | How fast Tab or long-press types a `prompt` (default 28). |
-| `thoughtLabel` | top level | The label the blurbs collapse to (default `Thought for {s}s`; `{s}` is the seconds). |
-| `fallback` | top level | The answer to every prompt after the last response: a string, or a response like those in `responses`. |
-| `prompt` | response | A line the performer can type with Tab or send with Enter on an empty box. |
-| `pending` | response | The blurbs, shown in order. Each is a string or `{ "text", "seconds" }` (`thinking` also works). |
-| `seconds` | pending item | How long that blurb shows. |
-| `response` | response | The answer, in Markdown (`text` also works). A plain string in `responses` is an answer with no blurbs. |
-| `threads` | top level | Old conversations in the sidebar, as `{ "title", "group" }` or plain strings. `group` starts a heading that the following chats share until the next `group`. They're for show: clicking one only highlights it, though the sidebar search does filter them. |
+| Field                                                                                 | Where                 | Meaning                                                                                                                                                                                                                                                      |
+| ------------------------------------------------------------------------------------- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `appName`, `modelName`, `userName`, `greeting`, `placeholder`, `disclaimer`, `accent` | top level             | Branding. `accent` also colors the thinking spinners.                                                                                                                                                                                                        |
+| `logo`                                                                                | top level             | Logo image: a path, URL or data URI (see [Logo](#logo)).                                                                                                                                                                                                     |
+| `spinner`                                                                             | top level             | `"random"` (default), `"none"`, a spinner name, or a list of names.                                                                                                                                                                                          |
+| `defaultPendingSeconds`                                                               | top level or response | How long each blurb shows unless it sets its own `seconds` (default 2.5). A response's value overrides the top-level one.                                                                                                                                    |
+| `streamResponse`                                                                      | top level             | Typewriter streaming on or off (default on). In a response, the same switch is called `stream`.                                                                                                                                                              |
+| `charsPerSecond`                                                                      | top level or response | Streaming speed (default 90).                                                                                                                                                                                                                                |
+| `typingCharsPerSecond`                                                                | top level             | How fast Tab or long-press types a `prompt` (default 28).                                                                                                                                                                                                    |
+| `thoughtLabel`                                                                        | top level             | The label the blurbs collapse to (default `Thought for {s}s`; `{s}` is the seconds).                                                                                                                                                                         |
+| `fallback`                                                                            | top level             | The answer to every prompt after the last response: a string, or a response like those in `responses`.                                                                                                                                                       |
+| `prompt`                                                                              | response              | A line the performer can type with Tab or send with Enter on an empty box.                                                                                                                                                                                   |
+| `pending`                                                                             | response              | The blurbs, shown in order. Each is a string or `{ "text", "seconds" }` (`thinking` also works).                                                                                                                                                             |
+| `seconds`                                                                             | pending item          | How long that blurb shows.                                                                                                                                                                                                                                   |
+| `response`                                                                            | response              | The answer, in Markdown (`text` also works). A plain string in `responses` is an answer with no blurbs.                                                                                                                                                      |
+| `threads`                                                                             | top level             | Old conversations in the sidebar, as `{ "title", "group" }` or plain strings. `group` starts a heading that the following chats share until the next `group`. They're for show: clicking one only highlights it, though the sidebar search does filter them. |
 
 Markdown supported in responses: paragraphs, `#` headings, `-` and `1.` lists, `>` quotes, fenced code blocks, `` `inline code` ``, `**bold**`, `*italic*`, `[links](https://...)`, `---`.
 
@@ -177,6 +175,7 @@ npm run dev:standalone     # try it at http://localhost:5173 without the app
   ```
 
   This uploads only the built site (`.vercel/output/`, about 130 KB). Don't run a plain `vercel` or `vercel deploy` from the repo root: the CLI ignores `.gitignore` and would upload `src-tauri/target/`, several GB of Rust build output. `.vercel/` is gitignored. Run `vercel pull` again after changing the settings in the dashboard.
+
 - **Or connect the repo** in the Vercel dashboard with the same two settings, and Vercel builds on every push.
 
 ### Installing it as an app

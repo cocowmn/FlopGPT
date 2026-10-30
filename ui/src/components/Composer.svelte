@@ -1,9 +1,9 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import AttachmentTray from './AttachmentTray.svelte';
   import { chat } from '../lib/stores/chat.svelte';
   import { store } from '../lib/stores/config.svelte';
   import { ui } from '../lib/stores/ui.svelte';
+  import AttachmentTray from './AttachmentTray.svelte';
 
   let input: HTMLTextAreaElement;
   let picker: HTMLInputElement;
@@ -93,15 +93,21 @@
         onpointerup={cancelPress}
         onpointerleave={cancelPress}
         onpointercancel={cancelPress}
-        {oncontextmenu}
-      ></textarea>
+        {oncontextmenu}></textarea>
       <button class="send" type="submit" aria-label="Send message" disabled={!sendable}>
         <svg class="icon"><use href="#i-send" /></svg>
       </button>
     </div>
   </div>
   {#if store.brand.disclaimer}<p class="disclaimer">{store.brand.disclaimer}</p>{/if}
-  <input bind:this={picker} type="file" accept="image/*,video/*,audio/*,application/pdf,text/*" multiple hidden onchange={picked} />
+  <input
+    bind:this={picker}
+    type="file"
+    accept="image/*,video/*,audio/*,application/pdf,text/*"
+    multiple
+    hidden
+    onchange={picked}
+  />
 </form>
 
 <style>

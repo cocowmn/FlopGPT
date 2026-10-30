@@ -1,30 +1,26 @@
 <script lang="ts">
-  import { onMount } from "svelte";
-  import IconSprite from "./components/IconSprite.svelte";
-  import Sidebar from "./components/Sidebar.svelte";
-  import Topbar from "./components/Topbar.svelte";
-  import ChatView from "./components/ChatView.svelte";
-  import Composer from "./components/Composer.svelte";
-  import SettingsDialog from "./components/settings/SettingsDialog.svelte";
-  import EditorDialog from "./components/editor/EditorDialog.svelte";
-  import Lightbox from "./components/Lightbox.svelte";
-  import ConfirmDialog from "./components/ConfirmDialog.svelte";
-  import Toast from "./components/Toast.svelte";
-  import { abs } from "./lib/location";
-  import { brandApp } from "./lib/pwa";
-  import { boot, dropFiles, store } from "./lib/stores/config.svelte";
-  import { ui, wide } from "./lib/stores/ui.svelte";
+  import { onMount } from 'svelte';
+  import ChatView from './components/ChatView.svelte';
+  import Composer from './components/Composer.svelte';
+  import ConfirmDialog from './components/ConfirmDialog.svelte';
+  import EditorDialog from './components/editor/EditorDialog.svelte';
+  import IconSprite from './components/IconSprite.svelte';
+  import Lightbox from './components/Lightbox.svelte';
+  import SettingsDialog from './components/settings/SettingsDialog.svelte';
+  import Sidebar from './components/Sidebar.svelte';
+  import Toast from './components/Toast.svelte';
+  import Topbar from './components/Topbar.svelte';
+  import { abs } from './lib/location';
+  import { brandApp } from './lib/pwa';
+  import { boot, dropFiles, store } from './lib/stores/config.svelte';
+  import { ui, wide } from './lib/stores/ui.svelte';
 
   let preload = $state(true);
-  const favicon = document.getElementById("favicon") as HTMLLinkElement;
+  const favicon = document.getElementById('favicon') as HTMLLinkElement;
   const DEFAULT_FAVICON = favicon.href;
 
   onMount(() => {
-    boot().then(() =>
-      requestAnimationFrame(() =>
-        requestAnimationFrame(() => (preload = false)),
-      ),
-    );
+    boot().then(() => requestAnimationFrame(() => requestAnimationFrame(() => (preload = false))));
   });
 
   $effect(() => {
@@ -36,26 +32,25 @@
     const b = store.brand;
     document.title = b.name;
     const root = document.documentElement;
-    if (b.accent) root.style.setProperty("--accent", b.accent);
-    else root.style.removeProperty("--accent");
-    const src = b.logo ? abs(b.logo) : "";
-    root.classList.toggle("has-logo", !!src && ui.logoFailedFor !== src);
+    if (b.accent) root.style.setProperty('--accent', b.accent);
+    else root.style.removeProperty('--accent');
+    const src = b.logo ? abs(b.logo) : '';
+    root.classList.toggle('has-logo', !!src && ui.logoFailedFor !== src);
     favicon.href = src || DEFAULT_FAVICON;
     brandApp({
       name: b.name,
       accent: b.accent,
-      logo: src && ui.logoFailedFor !== src ? src : "",
+      logo: src && ui.logoFailedFor !== src ? src : '',
     });
   });
 
   function onkeydown(e: KeyboardEvent) {
-    if (e.key === "Escape") ui.closeSidebarIfNarrow();
+    if (e.key === 'Escape') ui.closeSidebarIfNarrow();
   }
 
   /* drag & drop files anywhere on the page */
   function ondragover(e: DragEvent) {
-    if (e.dataTransfer && [...e.dataTransfer.types].includes("Files"))
-      e.preventDefault();
+    if (e.dataTransfer && [...e.dataTransfer.types].includes('Files')) e.preventDefault();
   }
   function ondrop(e: DragEvent) {
     if (!e.dataTransfer || !e.dataTransfer.files.length) return;
@@ -68,17 +63,9 @@
 
 <IconSprite />
 
-<div
-  class="app"
-  class:preload
-  data-sidebar={ui.sidebarOpen ? "open" : "closed"}
->
+<div class="app" class:preload data-sidebar={ui.sidebarOpen ? 'open' : 'closed'}>
   <Sidebar />
-  <div
-    class="backdrop"
-    role="presentation"
-    onclick={() => (ui.sidebarOpen = false)}
-  ></div>
+  <div class="backdrop" role="presentation" onclick={() => (ui.sidebarOpen = false)}></div>
   <main class="main">
     <Topbar />
     <ChatView />
@@ -107,7 +94,7 @@
     pointer-events: none;
     transition: opacity 0.25s ease;
   }
-  .app[data-sidebar="open"] .backdrop {
+  .app[data-sidebar='open'] .backdrop {
     opacity: 1;
     pointer-events: auto;
   }
@@ -127,7 +114,7 @@
     .main {
       transition: margin-left 0.25s ease;
     }
-    .app[data-sidebar="open"] .main {
+    .app[data-sidebar='open'] .main {
       margin-left: var(--sbw);
     }
   }

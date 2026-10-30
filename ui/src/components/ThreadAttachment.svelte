@@ -1,15 +1,20 @@
 <!-- A sent attachment in the thread: images open in the lightbox, media get players. -->
 <script lang="ts">
-  import FileChip from './FileChip.svelte';
   import { ui } from '../lib/stores/ui.svelte';
   import type { Attachment } from '../lib/types';
+  import FileChip from './FileChip.svelte';
 
   let { a }: { a: Attachment } = $props();
   let broken = $state(false); // e.g. a format the browser can't show
 </script>
 
 {#if a.kind === 'image' && !broken}
-  <button type="button" class="att-img" aria-label="View {a.file.name}" onclick={() => (ui.lightbox = { src: a.url, alt: a.file.name })}>
+  <button
+    type="button"
+    class="att-img"
+    aria-label="View {a.file.name}"
+    onclick={() => (ui.lightbox = { src: a.url, alt: a.file.name })}
+  >
     <img src={a.url} alt={a.file.name} onload={() => ui.stick()} onerror={() => (broken = true)} />
   </button>
 {:else if a.kind === 'video'}

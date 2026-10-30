@@ -1,6 +1,6 @@
 <script lang="ts">
-  import ThreadAttachment from './ThreadAttachment.svelte';
   import type { Message } from '../lib/stores/chat.svelte';
+  import ThreadAttachment from './ThreadAttachment.svelte';
 
   let { msg }: { msg: Extract<Message, { role: 'user' }> } = $props();
 </script>

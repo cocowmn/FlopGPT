@@ -15,7 +15,7 @@ const KEY = 'flopgpt.config'; // localStorage, STANDALONE only: { rev, config }
 export class HttpError extends Error {
   constructor(
     message: string,
-    readonly status: number
+    readonly status: number,
   ) {
     super(message);
   }
@@ -37,7 +37,7 @@ export async function putConfig(cfg: Config | null): Promise<number> {
   const res = await fetch(API, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ config: cfg })
+    body: JSON.stringify({ config: cfg }),
   });
   if (!res.ok) throw new HttpError((await res.text()) || 'HTTP ' + res.status, res.status);
   return (await res.json()).rev;
@@ -46,7 +46,8 @@ export async function putConfig(cfg: Config | null): Promise<number> {
 /** Calls `onRev` with the config revision now (phones) and after every save. */
 export function watchConfig(onRev: (rev: number) => void) {
   if (TAURI) listen<number>('config-changed', e => onRev(Number(e.payload)));
-  else if (STANDALONE) addEventListener('storage', e => e.key === KEY && onRev(e.newValue ? JSON.parse(e.newValue).rev : Date.now()));
+  else if (STANDALONE)
+    addEventListener('storage', e => e.key === KEY && onRev(e.newValue ? JSON.parse(e.newValue).rev : Date.now()));
   else if (window.EventSource) new EventSource('/api/events').onmessage = e => onRev(Number(e.data));
 }
 
@@ -81,7 +82,12 @@ function saveLocal(cfg: Config | null): number {
     // A reset keeps the rev so other tabs still see a newer revision.
     localStorage.setItem(KEY, JSON.stringify(cfg ? { rev, config: cfg } : { rev }));
   } catch (e) {
-    throw new Error((e as Error).name === 'QuotaExceededError' ? "it's too big for this browser's storage (try a smaller logo)" : "this browser won't let the page save");
+    throw new Error(
+      (e as Error).name === 'QuotaExceededError'
+        ? "it's too big for this browser's storage (try a smaller logo)"
+        : "this browser won't let the page save",
+      { cause: e },
+    );
   }
   return rev;
 }
@@ -93,5 +99,5 @@ export const server = {
   stop: () => invoke<ServerStatus>('server_stop'),
   setPort: (port: number) => invoke<ServerStatus>('server_set_port', { port }),
   setPhoneEdit: (on: boolean) => invoke<ServerStatus>('server_set_phone_edit', { on }),
-  qr: (url: string) => invoke<string>('server_qr', { url })
+  qr: (url: string) => invoke<string>('server_qr', { url }),
 };

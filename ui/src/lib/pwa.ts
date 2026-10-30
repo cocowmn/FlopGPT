@@ -59,14 +59,22 @@ async function apply(b: AppBrand, run: number) {
       display: 'standalone',
       background_color: '#ffffff',
       theme_color: color,
-      icons: [192, 512].map(size => ({ src: `brand-${size}.png`, sizes: `${size}x${size}`, type: 'image/png', purpose: 'any maskable' }))
+      icons: [192, 512].map(size => ({
+        src: `brand-${size}.png`,
+        sizes: `${size}x${size}`,
+        type: 'image/png',
+        purpose: 'any maskable',
+      })),
     };
     await Promise.all([
-      cache.put('manifest.webmanifest', new Response(JSON.stringify(manifest), { headers: { 'Content-Type': 'application/manifest+json' } })),
+      cache.put(
+        'manifest.webmanifest',
+        new Response(JSON.stringify(manifest), { headers: { 'Content-Type': 'application/manifest+json' } }),
+      ),
       ...[192, 512].map(async (size, i) => {
         const png = await new Promise<Blob | null>(r => icons[i + 1].toBlob(r, 'image/png'));
         if (png) await cache.put(`brand-${size}.png`, new Response(png, { headers: { 'Content-Type': 'image/png' } }));
-      })
+      }),
     ]);
     if (run === latest) reloadManifest();
   } catch {} // storage full or blocked: the worker serves the built-in manifest

@@ -1,11 +1,11 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import Logo from './Logo.svelte';
-  import UserMessage from './UserMessage.svelte';
-  import AssistantMessage from './AssistantMessage.svelte';
   import { chat } from '../lib/stores/chat.svelte';
   import { store } from '../lib/stores/config.svelte';
   import { ui } from '../lib/stores/ui.svelte';
+  import AssistantMessage from './AssistantMessage.svelte';
+  import Logo from './Logo.svelte';
+  import UserMessage from './UserMessage.svelte';
 
   let scroller: HTMLDivElement;
 

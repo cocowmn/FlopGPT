@@ -1,18 +1,26 @@
 <script lang="ts">
-  import Modal from '../Modal.svelte';
-  import ServerPanel from './ServerPanel.svelte';
-  import { openEditor } from '../editor/editor.svelte';
   import { TAURI } from '../../lib/backend';
   import { plural } from '../../lib/files';
-  import { exportConfig, importFiles, resetDefaults, resetLogo, setLogoFile, startOver, store } from '../../lib/stores/config.svelte';
+  import {
+    exportConfig,
+    importFiles,
+    resetDefaults,
+    resetLogo,
+    setLogoFile,
+    startOver,
+    store,
+  } from '../../lib/stores/config.svelte';
   import { ui } from '../../lib/stores/ui.svelte';
+  import { openEditor } from '../editor/editor.svelte';
+  import Modal from '../Modal.svelte';
+  import ServerPanel from './ServerPanel.svelte';
 
   let configPicker: HTMLInputElement;
   let logoPicker: HTMLInputElement;
 
   const configInfo = $derived(
     `${store.brand.name} · ${plural(store.script.responses.length, 'response')} · ${plural(store.threads.length, 'chat')}` +
-      (store.pending ? ' · update waiting for New chat' : '')
+      (store.pending ? ' · update waiting for New chat' : ''),
   );
   const logo = $derived(store.brand.logo);
 
@@ -45,7 +53,10 @@
     </header>
 
     <div class="set-row">
-      <div><strong>Config</strong><p>{configInfo}</p></div>
+      <div>
+        <strong>Config</strong>
+        <p>{configInfo}</p>
+      </div>
       <div class="set-btns">
         <button class="btn" type="button" disabled={store.locked} onclick={editConfig}>Edit</button>
         <button class="btn" type="button" disabled={store.locked} onclick={() => configPicker.click()}>Import…</button>
@@ -54,9 +65,14 @@
     </div>
 
     <div class="set-row">
-      <div><strong>Logo</strong><p>{!logo ? 'Default' : logo.startsWith('data:') ? 'Custom image' : logo}</p></div>
+      <div>
+        <strong>Logo</strong>
+        <p>{!logo ? 'Default' : logo.startsWith('data:') ? 'Custom image' : logo}</p>
+      </div>
       <div class="set-btns">
-        <button class="btn" type="button" disabled={store.locked} onclick={() => logoPicker.click()}>Choose image…</button>
+        <button class="btn" type="button" disabled={store.locked} onclick={() => logoPicker.click()}
+          >Choose image…</button
+        >
         <button class="btn" type="button" disabled={store.locked || !logo} onclick={resetLogo}>Reset</button>
       </div>
     </div>

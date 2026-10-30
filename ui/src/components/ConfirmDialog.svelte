@@ -1,7 +1,7 @@
 <!-- In-app stand-in for confirm(): ask with ui.confirm(message, okLabel). -->
 <script lang="ts">
-  import Modal from './Modal.svelte';
   import { ui } from '../lib/stores/ui.svelte';
+  import Modal from './Modal.svelte';
 
   let message = $state('');
   let ok = $state('OK');

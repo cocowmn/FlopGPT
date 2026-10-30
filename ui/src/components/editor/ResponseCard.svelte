@@ -1,9 +1,9 @@
 <script lang="ts">
-  import Field from './Field.svelte';
-  import TextInput from './TextInput.svelte';
-  import RowButtons from './RowButtons.svelte';
-  import { changed } from './editor.svelte';
   import { DEFAULT_SECONDS, num, type EditResponse, type EditScript } from '../../lib/normalize';
+  import Field from './Field.svelte';
+  import RowButtons from './RowButtons.svelte';
+  import TextInput from './TextInput.svelte';
+  import { changed } from './editor.svelte';
 
   let { r, i, s }: { r: EditResponse; i: number; s: EditScript } = $props();
 

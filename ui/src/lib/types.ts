@@ -1,5 +1,6 @@
 /** A pending ("thinking") blurb as written in a config: a string or { text, seconds }. */
-export type RawPending = string | { text?: string; label?: string; seconds?: number | string; duration?: number | string };
+export type RawPending =
+  string | { text?: string; label?: string; seconds?: number | string; duration?: number | string };
 
 /** One scripted response as written in a config. A bare string is a response with no blurbs. */
 export type RawResponse =
@@ -71,9 +72,7 @@ export interface SpinnerDef {
 }
 
 export type SpinnerPick =
-  | { type: 'none' }
-  | { type: 'logo' }
-  | { type: 'svg'; name: string; html: string; w: number; h: number };
+  { type: 'none' } | { type: 'logo' } | { type: 'svg'; name: string; html: string; w: number; h: number };
 
 /** What the app answers for the saved config. */
 export interface Snapshot {

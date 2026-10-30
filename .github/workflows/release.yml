@@ -4,7 +4,7 @@ name: Release
 # platform and attach the bundles to a draft GitHub release.
 on:
   push:
-    tags: ["v*"]
+    tags: ['v*']
   workflow_dispatch:
 
 jobs:
@@ -42,7 +42,7 @@ jobs:
 
       - uses: swatinem/rust-cache@v2
         with:
-          workspaces: "./src-tauri -> target"
+          workspaces: './src-tauri -> target'
 
       - name: Install Linux dependencies
         if: runner.os == 'Linux'

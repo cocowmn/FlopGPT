@@ -20,7 +20,13 @@
 <nav class="threads" aria-label="Previous chats">
   {#each shown as t (t.i)}
     {#if t.heading}<div class="group">{t.group}</div>{/if}
-    <button type="button" class="thread" class:active={t.i === ui.activeThread} title={t.title} onclick={() => pick(t.i)}>
+    <button
+      type="button"
+      class="thread"
+      class:active={t.i === ui.activeThread}
+      title={t.title}
+      onclick={() => pick(t.i)}
+    >
       {t.title}
     </button>
   {:else}

@@ -9,7 +9,12 @@
 </script>
 
 <header class="topbar">
-  <button class="icon-btn toggle" type="button" aria-label="Toggle sidebar" onclick={() => (ui.sidebarOpen = !ui.sidebarOpen)}>
+  <button
+    class="icon-btn toggle"
+    type="button"
+    aria-label="Toggle sidebar"
+    onclick={() => (ui.sidebarOpen = !ui.sidebarOpen)}
+  >
     <svg class="icon"><use href="#i-sidebar" /></svg>
   </button>
   <div class="model">{store.brand.model}</div>

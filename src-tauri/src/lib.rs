@@ -23,7 +23,10 @@ struct Settings {
 
 impl Default for Settings {
     fn default() -> Self {
-        Self { port: server::DEFAULT_PORT, phone_edit: true }
+        Self {
+            port: server::DEFAULT_PORT,
+            phone_edit: true,
+        }
     }
 }
 
@@ -43,7 +46,10 @@ fn save_settings(app: &AppHandle, s: &Server) -> Result<(), String> {
     if let Some(dir) = path.parent() {
         std::fs::create_dir_all(dir).map_err(|e| e.to_string())?;
     }
-    let settings = Settings { port: s.configured_port, phone_edit: s.hub.phone_edit.load(Ordering::Relaxed) };
+    let settings = Settings {
+        port: s.configured_port,
+        phone_edit: s.hub.phone_edit.load(Ordering::Relaxed),
+    };
     std::fs::write(path, serde_json::to_string(&settings).unwrap()).map_err(|e| e.to_string())
 }
 

@@ -3,20 +3,12 @@
  *  The app window reads and saves it through Tauri; phones through the app's server;
  *  the browser-only build in localStorage.
  * ------------------------------------------------------------------ */
-import {
-  exportJson,
-  fetchConfig,
-  HttpError,
-  putConfig,
-  STANDALONE,
-  TAURI,
-  watchConfig,
-} from "../backend";
-import { isJson, takeLegacy, toLogoDataURL } from "../files";
-import { detect, merge, normalizeScript, normalizeThreads } from "../normalize";
-import type { Config, Thread } from "../types";
-import { chat } from "./chat.svelte";
-import { ui } from "./ui.svelte";
+import { exportJson, fetchConfig, HttpError, putConfig, STANDALONE, TAURI, watchConfig } from '../backend';
+import { isJson, takeLegacy, toLogoDataURL } from '../files';
+import { detect, merge, normalizeScript, normalizeThreads } from '../normalize';
+import type { Config, Thread } from '../types';
+import { chat } from './chat.svelte';
+import { ui } from './ui.svelte';
 
 const EMPTY_CONFIG: Config = { responses: [], threads: [] }; // shown only until the app answers
 
@@ -32,31 +24,30 @@ class ConfigStore {
 
   brand = $derived.by(() => {
     const s = this.script;
-    const name = s.appName || "FlopGPT";
-    const user = String(s.userName || "You");
+    const name = s.appName || 'FlopGPT';
+    const user = String(s.userName || 'You');
     return {
       name,
       model: s.modelName || name,
-      greeting: s.greeting || "How can I help you today?",
+      greeting: s.greeting || 'How can I help you today?',
       placeholder: s.placeholder || `Message ${name}`,
-      disclaimer:
-        s.disclaimer ?? `${name} can make mistakes. Check important info.`,
+      disclaimer: s.disclaimer ?? `${name} can make mistakes. Check important info.`,
       user,
-      initial: user.trim().charAt(0).toUpperCase() || "?",
-      accent: s.accent && CSS.supports("color", s.accent) ? s.accent : "",
-      logo: s.logo ? String(s.logo) : "", // as written in the config
+      initial: user.trim().charAt(0).toUpperCase() || '?',
+      accent: s.accent && CSS.supports('color', s.accent) ? s.accent : '',
+      logo: s.logo ? String(s.logo) : '', // as written in the config
     };
   });
 
   locked = $derived(!TAURI && !STANDALONE && !this.writable);
   saveNote = $derived(
     TAURI
-      ? "Changes are saved in this app and sent to connected phones."
+      ? 'Changes are saved in this app and sent to connected phones.'
       : STANDALONE
-        ? "Changes are saved in this browser only. Export to move them to another device."
+        ? 'Changes are saved in this browser only. Export to move them to another device.'
         : this.writable
-          ? "Changes save to the Mac app and show up on every connected device."
-          : "The Mac app has phone editing turned off.",
+          ? 'Changes save to the Mac app and show up on every connected device.'
+          : 'The Mac app has phone editing turned off.',
   );
 }
 
@@ -70,9 +61,7 @@ export async function saveConfig(cfg: Config | null): Promise<boolean> {
     return true;
   } catch (e) {
     if (e instanceof HttpError && e.status === 403) store.writable = false;
-    ui.toast(
-      `Not saved: ${(e as Error).message || e}. Export to keep your changes.`,
-    );
+    ui.toast(`Not saved: ${(e as Error).message || e}. Export to keep your changes.`);
     return false;
   } finally {
     store.saving = false;
@@ -111,13 +100,13 @@ async function onConfigRev(rev: number) {
   if (chat.index === 0 && !chat.busy) {
     try {
       applyConfig(snap.config, true);
-      ui.toast("Config updated");
+      ui.toast('Config updated');
     } catch (e) {
       ui.toast(`The new config is unusable (${(e as Error).message}).`);
     }
   } else {
     store.pending = snap.config;
-    ui.toast("Config updated. It loads at the next New chat.");
+    ui.toast('Config updated. It loads at the next New chat.');
   }
 }
 
@@ -155,16 +144,14 @@ export async function boot() {
     const legacy = takeLegacy(cfg);
     if (legacy && (await saveConfig(legacy))) {
       cfg = legacy;
-      ui.toast("Moved your saved script into the app.");
+      ui.toast('Moved your saved script into the app.');
     }
   }
   try {
     applyConfig(cfg, true);
   } catch (e) {
     applyConfig(EMPTY_CONFIG, true);
-    ui.toast(
-      `The saved config is unusable (${(e as Error).message}). Import or reset it in Settings.`,
-    );
+    ui.toast(`The saved config is unusable (${(e as Error).message}). import or reset it in Settings.`);
   }
 }
 
@@ -173,30 +160,18 @@ export async function boot() {
 export async function importFiles(files: File[]) {
   for (const file of files) {
     try {
-      if (store.locked)
-        throw new Error("The Mac app has phone editing turned off.");
+      if (store.locked) throw new Error('The Mac app has phone editing turned off.');
       let raw;
       try {
         raw = JSON.parse(await file.text());
       } catch (e) {
-        throw new Error(
-          `${file.name} isn't valid JSON (${(e as Error).message})`,
-        );
+        throw new Error(`${file.name} isn't valid JSON (${(e as Error).message})`, { cause: e });
       }
       const kind = detect(raw);
-      if (!kind)
-        throw new Error(`${file.name} doesn't look like a demo config.`);
+      if (!kind) throw new Error(`${file.name} doesn't look like a demo config.`);
       const note =
-        kind === "script"
-          ? " (kept the old conversations)"
-          : kind === "threads"
-            ? " (old conversations only)"
-            : "";
-      await setConfig(
-        merge(store.config, raw, kind),
-        kind !== "threads",
-        `Imported ${file.name}${note}`,
-      );
+        kind === 'script' ? ' (kept the old conversations)' : kind === 'threads' ? ' (old conversations only)' : '';
+      await setConfig(merge(store.config, raw, kind), kind !== 'threads', `Imported ${file.name}${note}`);
     } catch (e) {
       ui.toast((e as Error).message);
     }
@@ -206,19 +181,19 @@ export async function importFiles(files: File[]) {
 /** Dropped files: .json files configure the demo; anything else is attached to the next message. */
 export function dropFiles(files: File[]) {
   const json = files.filter(isJson),
-    media = files.filter((f) => !isJson(f));
+    media = files.filter(f => !isJson(f));
   if (json.length) importFiles(json);
   if (media.length) chat.addFiles(media);
 }
 
 export async function exportConfig(cfg: Config = store.config) {
-  const slug = String(cfg.appName || "demo")
+  const slug = String(cfg.appName || 'demo')
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "");
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
   try {
-    const path = await exportJson((slug || "demo") + "-config.json", cfg);
-    if (path) ui.toast("Exported to " + path);
+    const path = await exportJson((slug || 'demo') + '-config.json', cfg);
+    if (path) ui.toast('Exported to ' + path);
   } catch (e) {
     ui.toast(String(e));
   }
@@ -227,7 +202,7 @@ export async function exportConfig(cfg: Config = store.config) {
 export async function setLogoFile(file: File) {
   try {
     const logo = await toLogoDataURL(file);
-    await setConfig({ ...store.config, logo }, false, "Logo updated");
+    await setConfig({ ...store.config, logo }, false, 'Logo updated');
   } catch (e) {
     ui.toast((e as Error).message);
   }
@@ -236,18 +211,18 @@ export async function setLogoFile(file: File) {
 export function resetLogo() {
   const cfg = { ...store.config };
   delete cfg.logo;
-  setConfig(cfg, false, "Logo reset");
+  setConfig(cfg, false, 'Logo reset');
 }
 
 export async function resetDefaults() {
   const ok = await ui.confirm(
-    "Replace the saved config with the built-in one? Export first if you want to keep it.",
-    "Reset",
+    'Replace the saved config with the built-in one? Export first if you want to keep it.',
+    'Reset',
   );
   if (!ok || !(await saveConfig(null))) return;
   try {
     applyConfig((await fetchConfig()).config, true);
-    ui.toast("Reset to defaults");
+    ui.toast('Reset to defaults');
   } catch (e) {
     ui.toast((e as Error).message);
   }

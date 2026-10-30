@@ -1,7 +1,7 @@
 <!-- Files waiting to be sent, above the text box. -->
 <script lang="ts">
-  import FileChip from './FileChip.svelte';
   import { chat } from '../lib/stores/chat.svelte';
+  import FileChip from './FileChip.svelte';
 
   let broken = $state<Record<number, boolean>>({}); // thumbnails the browser can't show
 </script>

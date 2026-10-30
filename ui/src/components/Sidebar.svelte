@@ -1,8 +1,8 @@
 <script lang="ts">
-  import Logo from './Logo.svelte';
-  import ThreadList from './ThreadList.svelte';
   import { startOver, store } from '../lib/stores/config.svelte';
   import { ui } from '../lib/stores/ui.svelte';
+  import Logo from './Logo.svelte';
+  import ThreadList from './ThreadList.svelte';
 
   function newChat() {
     startOver();
@@ -18,11 +18,19 @@
     </button>
   </div>
 
-  <button class="new-chat" type="button" onclick={newChat}><svg class="icon"><use href="#i-plus" /></svg>New chat</button>
+  <button class="new-chat" type="button" onclick={newChat}
+    ><svg class="icon"><use href="#i-plus" /></svg>New chat</button
+  >
 
   <label class="search">
     <svg class="icon"><use href="#i-search" /></svg>
-    <input type="search" placeholder="Search chats" autocomplete="off" aria-label="Search chats" bind:value={ui.search} />
+    <input
+      type="search"
+      placeholder="Search chats"
+      autocomplete="off"
+      aria-label="Search chats"
+      bind:value={ui.search}
+    />
   </label>
 
   <ThreadList />
@@ -41,8 +49,7 @@
     width: min(var(--sbw), 86vw);
     display: flex;
     flex-direction: column;
-    padding: calc(8px + env(safe-area-inset-top)) 10px
-      calc(8px + env(safe-area-inset-bottom));
+    padding: calc(8px + env(safe-area-inset-top)) 10px calc(8px + env(safe-area-inset-bottom));
     background: var(--side);
     border-right: 1px solid var(--line);
     transform: translateX(-100%);

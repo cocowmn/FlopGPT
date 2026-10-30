@@ -16,12 +16,12 @@ The manual steps are below for reference, or for finishing a release by hand if 
 
 Tauri names the release from the version in `src-tauri/tauri.conf.json`, which is set to `"../package.json"`, so it always matches `package.json`. The remaining files that store the version:
 
-| File | Updated by |
-|---|---|
-| `package.json` | `npm version` (this is the one that names the release) |
-| `package-lock.json` | `npm version` |
-| `src-tauri/Cargo.toml` | by hand |
-| `src-tauri/Cargo.lock` | `cargo` (refreshes after the `Cargo.toml` edit) |
+| File                   | Updated by                                             |
+| ---------------------- | ------------------------------------------------------ |
+| `package.json`         | `npm version` (this is the one that names the release) |
+| `package-lock.json`    | `npm version`                                          |
+| `src-tauri/Cargo.toml` | by hand                                                |
+| `src-tauri/Cargo.lock` | `cargo` (refreshes after the `Cargo.toml` edit)        |
 
 ## Every release
 
@@ -72,7 +72,7 @@ Example for **0.1.1**:
    gh run watch
    ```
 
-7. **Check the draft:** `gh release list` should show **FlopGPT v0.1.1** as a *Draft*, with 10 files named like `FlopGPT_0.1.1_macOS-Apple-Silicon.dmg`. Its notes start with a "Which file do I download?" table, followed by notes GitHub generates from the commits (both set in the workflow). If the files say an older version, or there's no draft, a version was missed in step 2 or 3. Stop and fix it before publishing.
+7. **Check the draft:** `gh release list` should show **FlopGPT v0.1.1** as a _Draft_, with 10 files named like `FlopGPT_0.1.1_macOS-Apple-Silicon.dmg`. Its notes start with a "Which file do I download?" table, followed by notes GitHub generates from the commits (both set in the workflow). If the files say an older version, or there's no draft, a version was missed in step 2 or 3. Stop and fix it before publishing.
 
 8. **Publish:**
 

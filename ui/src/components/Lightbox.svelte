@@ -1,6 +1,6 @@
 <script lang="ts">
-  import Modal from './Modal.svelte';
   import { ui } from '../lib/stores/ui.svelte';
+  import Modal from './Modal.svelte';
 
   // Keep the last image while the dialog closes.
   let shown = $state({ src: '', alt: '' });

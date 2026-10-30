@@ -1,9 +1,9 @@
 <!-- No avatar beside AI replies: the text simply starts at the left edge, like ChatGPT / Claude. -->
 <script lang="ts">
-  import Thinking from './Thinking.svelte';
-  import MessageActions from './MessageActions.svelte';
   import { closeOpen, renderMarkdown } from '../lib/markdown';
   import type { AssistantMessage } from '../lib/stores/chat.svelte';
+  import MessageActions from './MessageActions.svelte';
+  import Thinking from './Thinking.svelte';
 
   let { msg }: { msg: AssistantMessage } = $props();
 
@@ -14,6 +14,7 @@
 <div class="msg">
   {#if msg.thinking}<Thinking thinking={msg.thinking} />{/if}
   {#if msg.writing}
+    <!-- eslint-disable-next-line svelte/no-at-html-tags -- renderMarkdown escapes the text -->
     <div class="prose">{@html html}</div>
   {/if}
   <MessageActions text={msg.full} ready={msg.complete} />

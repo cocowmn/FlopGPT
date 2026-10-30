@@ -17,12 +17,12 @@ use axum::response::sse::{Event, KeepAlive, Sse};
 use axum::response::{IntoResponse, Response};
 use axum::routing::get;
 use axum::{Json, Router};
+use futures_util::StreamExt;
 use rust_embed::RustEmbed;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use tokio::sync::watch;
 use tokio_stream::wrappers::WatchStream;
-use futures_util::StreamExt;
 
 #[derive(RustEmbed)]
 #[folder = "../dist/"]
@@ -176,7 +176,13 @@ pub struct Status {
 
 impl Server {
     pub fn new(hub: Hub, configured_port: u16) -> Self {
-        Self { hub, configured_port, port: None, error: None, stop: None }
+        Self {
+            hub,
+            configured_port,
+            port: None,
+            error: None,
+            stop: None,
+        }
     }
 
     pub fn running(&self) -> bool {
@@ -210,7 +216,10 @@ impl Server {
         };
 
         let (tx, mut rx) = watch::channel(false);
-        let ctx = Ctx { hub: self.hub.clone(), stopping: rx.clone() };
+        let ctx = Ctx {
+            hub: self.hub.clone(),
+            stopping: rx.clone(),
+        };
         let app = Router::new()
             .route("/api/config", get(get_config).put(put_config))
             .route("/api/events", get(events))
@@ -300,15 +309,17 @@ async fn track(
     {
         let mut stats = hub.stats.lock().unwrap();
         stats.requests += 1;
-        let c = stats
-            .clients
-            .entry(addr.ip())
-            .or_insert(Client { requests: 0, last_seen: Instant::now(), open: 0 });
+        let c = stats.clients.entry(addr.ip()).or_insert(Client {
+            requests: 0,
+            last_seen: Instant::now(),
+            open: 0,
+        });
         c.requests += 1;
         c.last_seen = Instant::now();
     }
     let mut res = next.run(req).await;
-    res.headers_mut().insert(header::CACHE_CONTROL, HeaderValue::from_static("no-store"));
+    res.headers_mut()
+        .insert(header::CACHE_CONTROL, HeaderValue::from_static("no-store"));
     res
 }
 
@@ -355,7 +366,10 @@ async fn events(State(ctx): State<Ctx>, ConnectInfo(addr): ConnectInfo<SocketAdd
             c.open += 1;
         }
     }
-    let guard = OpenGuard { hub: ctx.hub.clone(), ip: addr.ip() };
+    let guard = OpenGuard {
+        hub: ctx.hub.clone(),
+        ip: addr.ip(),
+    };
     let mut stopping = ctx.stopping.clone();
     let stream = WatchStream::new(ctx.hub.subscribe())
         .map(move |rev| {
@@ -372,7 +386,13 @@ async fn events(State(ctx): State<Ctx>, ConnectInfo(addr): ConnectInfo<SocketAdd
 fn asset(path: &str) -> Option<Response> {
     let file = Assets::get(path)?;
     let mime = mime_guess::from_path(path).first_or_octet_stream();
-    Some(([(header::CONTENT_TYPE, mime.as_ref().to_string())], file.data.into_owned()).into_response())
+    Some(
+        (
+            [(header::CONTENT_TYPE, mime.as_ref().to_string())],
+            file.data.into_owned(),
+        )
+            .into_response(),
+    )
 }
 
 async fn serve(req: Request) -> Response {

@@ -1,12 +1,12 @@
 <script lang="ts">
   import { untrack } from 'svelte';
-  import Field from './Field.svelte';
-  import TextInput from './TextInput.svelte';
+  import { DEFAULT_FALLBACK, DEFAULT_SECONDS, DEFAULT_TYPING_CPS, setKey, type EditScript } from '../../lib/normalize';
   import AccentField from './AccentField.svelte';
+  import Field from './Field.svelte';
   import LogoField from './LogoField.svelte';
   import ResponseCard from './ResponseCard.svelte';
+  import TextInput from './TextInput.svelte';
   import { changed } from './editor.svelte';
-  import { DEFAULT_FALLBACK, DEFAULT_SECONDS, DEFAULT_TYPING_CPS, setKey, type EditScript } from '../../lib/normalize';
 
   let { s }: { s: EditScript } = $props();
 
@@ -14,7 +14,16 @@
   function setSpinner(v: string) {
     spinner = v;
     v = v.trim();
-    setKey(s, 'spinner', v.includes(',') ? v.split(',').map(x => x.trim()).filter(Boolean) : v);
+    setKey(
+      s,
+      'spinner',
+      v.includes(',')
+        ? v
+            .split(',')
+            .map(x => x.trim())
+            .filter(Boolean)
+        : v,
+    );
   }
 </script>
 
@@ -28,7 +37,14 @@
   <Field label="Placeholder"><TextInput obj={s} key="placeholder" /></Field>
   <Field label="Disclaimer"><TextInput obj={s} key="disclaimer" /></Field>
   <Field label="Logo"><LogoField {s} /></Field>
-  <Field label="Spinner"><input class="ed-in" placeholder="random" value={spinner} oninput={e => setSpinner(e.currentTarget.value)} /></Field>
+  <Field label="Spinner"
+    ><input
+      class="ed-in"
+      placeholder="random"
+      value={spinner}
+      oninput={e => setSpinner(e.currentTarget.value)}
+    /></Field
+  >
   <Field label="Thought label"><TextInput obj={s} key="thoughtLabel" placeholder={'Thought for {s}s'} /></Field>
   <Field label="Seconds per step">
     <TextInput obj={s} key="defaultPendingSeconds" number placeholder={String(DEFAULT_SECONDS)} />
@@ -38,7 +54,11 @@
     <TextInput obj={s} key="typingCharsPerSecond" number placeholder={String(DEFAULT_TYPING_CPS)} />
   </Field>
   <label class="ed-check">
-    <input type="checkbox" checked={s.streamResponse !== false} onchange={e => (s.streamResponse = e.currentTarget.checked)} />
+    <input
+      type="checkbox"
+      checked={s.streamResponse !== false}
+      onchange={e => (s.streamResponse = e.currentTarget.checked)}
+    />
     Stream responses
   </label>
   <Field label="After the last response" wide>

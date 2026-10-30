@@ -1,15 +1,15 @@
 <!-- Change the config: a form for the settings, responses and old conversations, or raw JSON. -->
 <script lang="ts">
   import { untrack } from 'svelte';
-  import Modal from '../Modal.svelte';
-  import ScriptSettingsForm from './ScriptSettingsForm.svelte';
-  import ThreadsForm from './ThreadsForm.svelte';
-  import { changed, ed } from './editor.svelte';
   import { fromEditData, parseConfigJson, toEditData } from '../../lib/normalize';
   import { applyConfig, exportConfig, saveConfig, store } from '../../lib/stores/config.svelte';
   import { ui } from '../../lib/stores/ui.svelte';
   import type { Config } from '../../lib/types';
+  import Modal from '../Modal.svelte';
+  import ScriptSettingsForm from './ScriptSettingsForm.svelte';
+  import ThreadsForm from './ThreadsForm.svelte';
   import './editor.css';
+  import { changed, ed } from './editor.svelte';
 
   let mode = $state<'form' | 'json'>('form');
   let json = $state('');
@@ -88,7 +88,8 @@
         {/key}
       </div>
     {:else}
-      <textarea class="ed-in ed-json" spellcheck="false" aria-label="JSON" bind:value={json} oninput={changed}></textarea>
+      <textarea class="ed-in ed-json" spellcheck="false" aria-label="JSON" bind:value={json} oninput={changed}
+      ></textarea>
     {/if}
     {#if error}<p class="ed-error" role="alert">{error}</p>{/if}
     <p class="ed-warn">{store.saveNote}</p>

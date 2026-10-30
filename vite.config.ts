@@ -1,7 +1,7 @@
+import { svelte } from '@sveltejs/vite-plugin-svelte';
 import { createHash } from 'node:crypto';
 import { readdirSync, readFileSync } from 'node:fs';
 import { defineConfig, type Plugin } from 'vite';
-import { svelte } from '@sveltejs/vite-plugin-svelte';
 
 // The page is built into dist/, which Tauri loads and the phone server (src-tauri/src/server.rs) embeds.
 // `--mode standalone` builds a browser-only copy into dist-web/ that keeps its config in localStorage.
@@ -19,8 +19,8 @@ export default defineConfig(({ mode }) => {
       strictPort: true,
       host: true,
       // A browser on the dev server talks to the running app like a phone would.
-      proxy: { '/api': 'http://localhost:8787' }
-    }
+      proxy: { '/api': 'http://localhost:8787' },
+    },
   };
 });
 
@@ -38,6 +38,6 @@ function serviceWorker(): Plugin {
         .replace("'__VERSION__'", JSON.stringify(hash.digest('hex').slice(0, 12)))
         .replace('__FILES__', JSON.stringify(files));
       this.emitFile({ type: 'asset', fileName: 'sw.js', source });
-    }
+    },
   };
 }

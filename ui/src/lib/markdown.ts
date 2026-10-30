@@ -1,15 +1,18 @@
 /* ------------------------------------------------------------------ *
  *  Tiny markdown renderer (headings, lists, quotes, code, bold/italic/links)
  * ------------------------------------------------------------------ */
-export const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+export const esc = (s: string) =>
+  s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
 function inline(s: string): string {
   s = esc(s);
   const codes: string[] = [];
   s = s.replace(/`([^`]+)`/g, (_, c: string) => '\u0000' + (codes.push(c) - 1) + '\u0000');
-  s = s.replace(/\[([^\]]+)\]\((https?:[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
-       .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-       .replace(/(^|[^*])\*([^*\s][^*]*)\*(?!\*)/g, '$1<em>$2</em>');
+  s = s
+    .replace(/\[([^\]]+)\]\((https?:[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
+    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+    .replace(/(^|[^*])\*([^*\s][^*]*)\*(?!\*)/g, '$1<em>$2</em>');
+  // eslint-disable-next-line no-control-regex -- \u0000 marks where code spans go back in
   return s.replace(/\u0000(\d+)\u0000/g, (_, n: string) => '<code>' + codes[+n] + '</code>');
 }
 

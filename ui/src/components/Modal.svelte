@@ -11,7 +11,7 @@
     backdropClose = false,
     onrequestclose,
     onclick,
-    children
+    children,
   }: {
     open?: boolean;
     class?: string;

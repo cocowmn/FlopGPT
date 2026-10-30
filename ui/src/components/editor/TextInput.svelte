@@ -9,9 +9,15 @@
     placeholder = '',
     rows = 0,
     number = false,
-    class: cls = ''
-  }: { obj: Record<string, unknown>; key: string; placeholder?: string; rows?: number; number?: boolean; class?: string } =
-    $props();
+    class: cls = '',
+  }: {
+    obj: Record<string, unknown>;
+    key: string;
+    placeholder?: string;
+    rows?: number;
+    number?: boolean;
+    class?: string;
+  } = $props();
 
   // The field keeps its own text so half-typed numbers like "2." aren't rewritten.
   let text = $state(untrack(() => String(obj[key] ?? '')));

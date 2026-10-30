@@ -20,7 +20,11 @@
 </script>
 
 {#if !gone && pick.type === 'svg'}
-  <span class="spin" class:done bind:this={el} data-spinner={pick.name} style:--w="{pick.w}px" style:--h="{pick.h}px">{@html pick.html}</span>
+  <!-- eslint-disable svelte/no-at-html-tags -- spinner SVG from spinners.ts or the user's own config -->
+  <span class="spin" class:done bind:this={el} data-spinner={pick.name} style:--w="{pick.w}px" style:--h="{pick.h}px"
+    >{@html pick.html}</span
+  >
+  <!-- eslint-enable svelte/no-at-html-tags -->
 {:else if !gone && pick.type === 'logo'}
   <span class="spin logo" class:done class:live={!done} style:--w="16px" style:--h="16px">
     <svg class="icon"><use href="#i-logo" /></svg>

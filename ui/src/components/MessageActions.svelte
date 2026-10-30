@@ -1,6 +1,6 @@
 <script lang="ts">
-  import Logo from './Logo.svelte';
   import { ui } from '../lib/stores/ui.svelte';
+  import Logo from './Logo.svelte';
 
   // Rendered (but hidden) for the whole reply so its row is already there when it fades in.
   let { text, ready = true }: { text: string; ready?: boolean } = $props();
@@ -9,18 +9,34 @@
   function copy() {
     navigator.clipboard?.writeText(text).then(
       () => ui.toast('Copied to clipboard'),
-      () => {}
+      () => {},
     );
   }
   const rate = (r: 'up' | 'down') => (rating = rating === r ? null : r);
 </script>
 
 <div class="actions" class:ready inert={!ready}>
-  <button class="icon-btn" type="button" aria-label="Copy" onclick={copy}><svg class="icon"><use href="#i-copy" /></svg></button>
-  <button class="icon-btn" class:on={rating === 'up'} type="button" aria-label="Good response" aria-pressed={rating === 'up'} onclick={() => rate('up')}>
+  <button class="icon-btn" type="button" aria-label="Copy" onclick={copy}
+    ><svg class="icon"><use href="#i-copy" /></svg></button
+  >
+  <button
+    class="icon-btn"
+    class:on={rating === 'up'}
+    type="button"
+    aria-label="Good response"
+    aria-pressed={rating === 'up'}
+    onclick={() => rate('up')}
+  >
     <svg class="icon"><use href="#i-up" /></svg>
   </button>
-  <button class="icon-btn" class:on={rating === 'down'} type="button" aria-label="Bad response" aria-pressed={rating === 'down'} onclick={() => rate('down')}>
+  <button
+    class="icon-btn"
+    class:on={rating === 'down'}
+    type="button"
+    aria-label="Bad response"
+    aria-pressed={rating === 'down'}
+    onclick={() => rate('down')}
+  >
     <svg class="icon"><use href="#i-down" /></svg>
   </button>
   <Logo class="actions-logo" />
