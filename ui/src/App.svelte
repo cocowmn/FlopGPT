@@ -6,14 +6,13 @@
   import EditorDialog from './components/editor/EditorDialog.svelte';
   import IconSprite from './components/IconSprite.svelte';
   import Lightbox from './components/Lightbox.svelte';
-  import ImagesDialog from './components/settings/ImagesDialog.svelte';
   import SettingsDialog from './components/settings/SettingsDialog.svelte';
   import Sidebar from './components/Sidebar.svelte';
   import Toast from './components/Toast.svelte';
   import Topbar from './components/Topbar.svelte';
   import { brandApp } from './lib/pwa';
   import { boot, dropFiles, shown, store } from './lib/stores/config.svelte';
-  import { ui, wide } from './lib/stores/ui.svelte';
+  import { MAC, ui, wide } from './lib/stores/ui.svelte';
 
   let ready = $state(false); // the config has loaded (or couldn't): until then the page stays blank
   let preload = $state(true);
@@ -65,6 +64,11 @@
 
   function onkeydown(e: KeyboardEvent) {
     if (e.key === 'Escape') ui.closeSidebarIfNarrow();
+    // ⌘, / Ctrl+, opens the settings, as in most apps
+    if (e.key === ',' && (MAC ? e.metaKey : e.ctrlKey) && !e.altKey && !e.shiftKey) {
+      e.preventDefault();
+      ui.settingsOpen = true;
+    }
   }
 
   /* drag & drop files anywhere on the page */
@@ -94,7 +98,6 @@
   </div>
 
   <SettingsDialog />
-  <ImagesDialog />
   <EditorDialog />
   <Lightbox />
   <ConfirmDialog />

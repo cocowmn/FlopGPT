@@ -1,6 +1,6 @@
 <script lang="ts">
   import { imageFailed, shown, startOver, store } from '../lib/stores/config.svelte';
-  import { ui } from '../lib/stores/ui.svelte';
+  import { SETTINGS_ARIA_KEY, SETTINGS_KEY, ui } from '../lib/stores/ui.svelte';
   import Logo from './Logo.svelte';
   import ThreadList from './ThreadList.svelte';
 
@@ -44,6 +44,16 @@
       <div class="avatar user" aria-hidden="true">{store.brand.initial}</div>
     {/if}
     <span class="user-name">{store.brand.user}</span>
+    <button
+      class="icon-btn"
+      type="button"
+      aria-label="Demo settings"
+      aria-keyshortcuts={SETTINGS_ARIA_KEY}
+      title="Demo settings ({SETTINGS_KEY})"
+      onclick={() => (ui.settingsOpen = true)}
+    >
+      <svg class="icon"><use href="#i-sliders" /></svg>
+    </button>
   </div>
 </aside>
 

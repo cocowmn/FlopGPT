@@ -1,9 +1,7 @@
 <script lang="ts">
   import { untrack } from 'svelte';
   import { DEFAULT_FALLBACK, DEFAULT_SECONDS, DEFAULT_TYPING_CPS, setKey, type EditScript } from '../../lib/normalize';
-  import AccentField from './AccentField.svelte';
   import Field from './Field.svelte';
-  import LogoField from './LogoField.svelte';
   import ResponseCard from './ResponseCard.svelte';
   import TextInput from './TextInput.svelte';
   import { changed } from './editor.svelte';
@@ -27,16 +25,8 @@
   }
 </script>
 
-<h3>Settings</h3>
+<h3>Options</h3>
 <div class="ed-grid">
-  <Field label="App name"><TextInput obj={s} key="appName" placeholder="FlopGPT" /></Field>
-  <Field label="Model name"><TextInput obj={s} key="modelName" /></Field>
-  <Field label="User name"><TextInput obj={s} key="userName" placeholder="You" /></Field>
-  <Field label="Accent color"><AccentField {s} /></Field>
-  <Field label="Greeting" wide><TextInput obj={s} key="greeting" /></Field>
-  <Field label="Placeholder"><TextInput obj={s} key="placeholder" /></Field>
-  <Field label="Disclaimer"><TextInput obj={s} key="disclaimer" /></Field>
-  <Field label="Logo"><LogoField {s} /></Field>
   <Field label="Spinner"
     ><input
       class="ed-in"
@@ -66,7 +56,7 @@
   </Field>
 </div>
 
-<h3>Responses</h3>
+<h3>Script</h3>
 {#each s.responses as r, i (r)}
   <ResponseCard {r} {i} {s} />
 {/each}

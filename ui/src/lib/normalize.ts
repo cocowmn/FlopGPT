@@ -171,17 +171,57 @@ export function fromEditData(data: EditData): Config {
   };
 }
 
+/* The two parts of the config with their own editor: the scripted conversation and the old threads. */
+export type Section = 'conversation' | 'threads';
+export const SECTION_KEYS: Record<Section, readonly string[]> = {
+  conversation: [
+    'spinner',
+    'thoughtLabel',
+    'defaultPendingSeconds',
+    'charsPerSecond',
+    'typingCharsPerSecond',
+    'streamResponse',
+    'fallback',
+    'responses',
+  ],
+  threads: ['threads'],
+};
+
+/** `base` with these keys taken from `part` instead (a key `part` lacks is removed). */
+export function replaceKeys(base: Config, part: Partial<Config>, keys: readonly string[]): Config {
+  const cfg: Record<string, unknown> = { ...base };
+  for (const k of keys) {
+    if (k in part) cfg[k] = (part as Record<string, unknown>)[k];
+    else delete cfg[k];
+  }
+  return cfg as Config;
+}
+
+/** Just a section's keys, as its editor's JSON tab shows them (the threads as a bare list). */
+export function sectionJson(cfg: Config, section: Section): unknown {
+  if (section === 'threads') return cfg.threads ?? [];
+  const out: Record<string, unknown> = {};
+  for (const k of SECTION_KEYS.conversation) if (k in cfg) out[k] = (cfg as Record<string, unknown>)[k];
+  return out;
+}
+
 /** Parses and checks the editor's JSON tab. */
-export function parseConfigJson(text: string): Config {
+export function parseSectionJson(text: string, section: Section): Partial<Config> {
   let raw: unknown;
   try {
     raw = JSON.parse(text);
   } catch (e) {
     throw new Error('Invalid JSON: ' + (e as Error).message, { cause: e });
   }
-  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) throw new Error('The config should be a JSON object.');
-  normalizeScript(clone(raw)); // these throw if the shape is wrong
-  normalizeThreads(clone((raw as Config).threads ?? []));
+  if (section === 'threads') {
+    const threads = Array.isArray(raw) ? raw : (raw as Config | null)?.threads;
+    if (!Array.isArray(threads)) throw new Error('The old conversations should be a JSON list.');
+    normalizeThreads(clone(threads)); // throws if an entry is wrong
+    return { threads };
+  }
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw))
+    throw new Error('The conversation should be a JSON object.');
+  normalizeScript(clone(raw)); // throws if the shape is wrong
   return raw as Config;
 }
 

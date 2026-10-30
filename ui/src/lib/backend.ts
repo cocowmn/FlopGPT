@@ -33,6 +33,10 @@ export async function fetchConfig(): Promise<Snapshot> {
   return snap;
 }
 
+/** The config the app ships with (the same file the app answers with until one is saved). */
+export const builtInConfig = async (): Promise<Config> =>
+  (await import('../../../src-tauri/default-config.json')).default as Config;
+
 /** Saves to the app (null = back to the built-in config) and returns the new revision. */
 export async function putConfig(cfg: Config | null): Promise<number> {
   if (TAURI) return invoke<number>('config_save', { config: cfg });
@@ -86,8 +90,7 @@ async function loadLocal(): Promise<Snapshot> {
     saved = JSON.parse(localStorage.getItem(KEY) ?? 'null');
   } catch {} // storage blocked, or not JSON: use the built-in config
   if (saved?.config) return { rev: saved.rev, config: saved.config, saved: true, writable: true };
-  const builtIn = (await import('../../../src-tauri/default-config.json')).default as Config;
-  return { rev: saved?.rev ?? 0, config: builtIn, saved: false, writable: true };
+  return { rev: saved?.rev ?? 0, config: await builtInConfig(), saved: false, writable: true };
 }
 
 function saveLocal(cfg: Config | null): number {

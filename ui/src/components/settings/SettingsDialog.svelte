@@ -1,41 +1,24 @@
+<!-- Demo settings: the header and tabs stay put while the tab below scrolls. -->
 <script lang="ts">
   import { TAURI } from '../../lib/backend';
-  import { plural } from '../../lib/files';
-  import { IMAGE_SLOTS } from '../../lib/images';
-  import { exportConfig, importFiles, resetDefaults, startOver, store } from '../../lib/stores/config.svelte';
   import { ui } from '../../lib/stores/ui.svelte';
-  import { openEditor } from '../editor/editor.svelte';
   import Modal from '../Modal.svelte';
+  import ConfigTab from './ConfigTab.svelte';
+  import ImagesTab from './ImagesTab.svelte';
   import ServerPanel from './ServerPanel.svelte';
 
-  let configPicker: HTMLInputElement;
+  type Tab = 'config' | 'images' | 'server';
+  const tabs: { key: Tab; label: string }[] = [
+    { key: 'config', label: 'Config' },
+    { key: 'images', label: 'Images' },
+    ...(TAURI ? [{ key: 'server' as const, label: 'Server' }] : []),
+  ];
+  let tab = $state<Tab>('config');
+  let body = $state<HTMLDivElement>();
 
-  const configInfo = $derived(
-    `${store.brand.name} · ${plural(store.script.responses.length, 'response')} · ${plural(store.threads.length, 'chat')}` +
-      (store.pending ? ' · update waiting for New chat' : ''),
-  );
-  const customImages = $derived(IMAGE_SLOTS.filter(s => store.images[s.key].own));
-  const imagesInfo = $derived(
-    customImages.length
-      ? `Custom ${customImages.map(s => s.label.toLowerCase()).join(', ')}`
-      : `All ${IMAGE_SLOTS.length} default`,
-  );
-
-  async function pickedConfig() {
-    await importFiles([...(configPicker.files ?? [])]);
-    configPicker.value = '';
-  }
-  function editConfig() {
-    ui.settingsOpen = false;
-    openEditor();
-  }
-  function editImages() {
-    ui.settingsOpen = false;
-    ui.imagesOpen = true;
-  }
-  function restart() {
-    startOver();
-    ui.settingsOpen = false;
+  function show(t: Tab) {
+    tab = t;
+    if (body) body.scrollTop = 0;
   }
 </script>
 
@@ -47,72 +30,47 @@
         <svg class="icon"><use href="#i-close" /></svg>
       </button>
     </header>
-
-    <div class="set-row">
-      <div>
-        <strong>Config</strong>
-        <p>{configInfo}</p>
-      </div>
-      <div class="set-btns">
-        <button class="btn" type="button" disabled={store.locked} onclick={editConfig}>Edit</button>
-        <button class="btn" type="button" disabled={store.locked} onclick={() => configPicker.click()}>Import…</button>
-        <button class="btn" type="button" onclick={() => exportConfig()}>Export…</button>
-      </div>
+    <div class="tabs set-tabs" role="tablist" aria-label="Settings">
+      {#each tabs as t (t.key)}
+        <button
+          class="tab"
+          class:on={tab === t.key}
+          type="button"
+          role="tab"
+          id="setTab-{t.key}"
+          aria-selected={tab === t.key}
+          aria-controls="setPanel"
+          onclick={() => show(t.key)}>{t.label}</button
+        >
+      {/each}
     </div>
 
-    <div class="set-row">
-      <div>
-        <strong>Images</strong>
-        <p>{imagesInfo}</p>
-      </div>
-      <div class="set-btns">
-        <button class="btn" type="button" onclick={editImages}>Edit</button>
-      </div>
+    <div class="set-body" id="setPanel" role="tabpanel" aria-labelledby="setTab-{tab}" bind:this={body}>
+      {#if tab === 'config'}
+        <ConfigTab />
+      {:else if tab === 'images'}
+        <ImagesTab />
+      {/if}
+      {#if TAURI}
+        <div hidden={tab !== 'server'}><ServerPanel active={ui.settingsOpen && tab === 'server'} /></div>
+      {/if}
     </div>
-
-    {#if TAURI}<ServerPanel active={ui.settingsOpen} />{/if}
-
-    <div class="set-actions">
-      <button class="btn" type="button" onclick={restart}>Restart script</button>
-      <button class="btn" type="button" disabled={store.locked} onclick={resetDefaults}>Reset to defaults</button>
-    </div>
-
-    <p class="hint">
-      {store.saveNote}<br />
-      Tip: drop a .json config anywhere on the page to import it.
-    </p>
   </div>
 </Modal>
 
-<input bind:this={configPicker} type="file" accept=".json,application/json" hidden onchange={pickedConfig} />
-
 <style>
-  .set-row {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 12px 0;
+  .set-tabs {
+    margin: 4px 0 12px;
+  }
+  .set-tabs .tab {
+    flex: 1;
+  }
+  .set-body {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    margin: 0 -20px;
+    padding: 12px 20px 2px;
     border-top: 1px solid var(--line);
-  }
-  .set-row p {
-    margin: 2px 0 0;
-    font-size: 13px;
-    color: var(--muted);
-    overflow-wrap: anywhere;
-  }
-
-  .set-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    padding: 12px 0;
-    border-top: 1px solid var(--line);
-  }
-  .hint {
-    margin: 4px 0 0;
-    font-size: 13px;
-    color: var(--muted);
   }
 </style>

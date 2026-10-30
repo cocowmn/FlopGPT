@@ -4,6 +4,7 @@
  *  the browser-only build in localStorage.
  * ------------------------------------------------------------------ */
 import {
+  builtInConfig,
   exportJson,
   exportZip,
   fetchConfig,
@@ -19,7 +20,16 @@ import { IMAGE_SLOTS, slotOf, type ImageKey } from '../images';
 import { abs } from '../location';
 import { appIconPng, DEFAULT_ACCENT, SPARKLE, toHex } from '../pwa';
 import { zip } from '../zip';
-import { detect, merge, normalizeScript, normalizeThreads } from '../normalize';
+import {
+  detect,
+  merge,
+  normalizeScript,
+  normalizeThreads,
+  replaceKeys,
+  SECTION_KEYS,
+  setKey,
+  type Section,
+} from '../normalize';
 import type { Config, Thread } from '../types';
 import { chat } from './chat.svelte';
 import { ui } from './ui.svelte';
@@ -112,6 +122,16 @@ export function applyConfig(cfg: Config, restart: boolean) {
 export async function setConfig(cfg: Config, restart: boolean, msg?: string) {
   applyConfig(cfg, restart);
   if ((await saveConfig(cfg)) && msg) ui.toast(msg);
+}
+
+// A branding field typed in Settings: shown at once, saved once the typing pauses.
+let fieldSave = 0;
+export function setField(key: string, value: string) {
+  const cfg: Config = { ...store.config };
+  setKey(cfg, key, value);
+  applyConfig(cfg, false);
+  clearTimeout(fieldSave);
+  fieldSave = window.setTimeout(() => saveConfig(store.config), 500);
 }
 
 // Another device (or the app) saved a config: take it now, or after this chat.
@@ -346,6 +366,23 @@ export function imageFailed(key: ImageKey, src: string) {
   if (ui.failedImages.has(src)) return;
   ui.failedImages.add(src);
   ui.toast(`Couldn't load the ${slotOf(key).label.toLowerCase()} image, so the default is shown.`);
+}
+
+/** Puts the conversation, or the old conversations, back to the built-in ones. */
+export async function resetSection(section: Section) {
+  const what = section === 'conversation' ? 'the conversation' : 'the old conversations';
+  if (!(await ui.confirm(`Put ${what} back to the built-in ${section === 'conversation' ? 'one' : 'ones'}?`, 'Reset')))
+    return;
+  try {
+    const cfg = replaceKeys(store.config, await builtInConfig(), SECTION_KEYS[section]);
+    await setConfig(
+      cfg,
+      section === 'conversation',
+      section === 'conversation' ? 'Conversation reset' : 'Old conversations reset',
+    );
+  } catch (e) {
+    ui.toast((e as Error).message);
+  }
 }
 
 export async function resetDefaults() {

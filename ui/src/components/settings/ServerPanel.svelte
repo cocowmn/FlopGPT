@@ -1,4 +1,4 @@
-<!-- Desktop app only: the LAN server that phones connect to. Polls while the settings are open. -->
+<!-- Settings' Server tab (desktop app only): the LAN server that phones connect to. Polls while it's shown. -->
 <script lang="ts">
   import { server } from '../../lib/backend';
   import { ui } from '../../lib/stores/ui.svelte';
@@ -72,8 +72,7 @@
 
 <div class="set-row srv">
   <div class="srv-main">
-    <strong>Phone server</strong>
-    <p>
+    <p class="srv-status">
       <span class="srv-dot" class:on={st?.running} class:err={st && !st.running && st.error}></span>
       {#if !st}Starting…
       {:else if st.running}Running on port {st.port}{st.port !== st.configuredPort
@@ -171,7 +170,6 @@
     justify-content: space-between;
     gap: 12px;
     padding: 12px 0;
-    border-top: 1px solid var(--line);
   }
   .set-row p {
     margin: 2px 0 0;
@@ -181,6 +179,12 @@
   }
   .srv {
     align-items: flex-start;
+    padding-top: 0;
+  }
+  .set-row .srv-status {
+    margin: 0;
+    font-size: 15px;
+    color: var(--text);
   }
   .srv-main {
     min-width: 0;

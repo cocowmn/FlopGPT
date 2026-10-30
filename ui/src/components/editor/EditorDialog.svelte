@@ -1,7 +1,14 @@
-<!-- Change the config: a form for the settings, responses and old conversations, or raw JSON. -->
+<!-- Change one part of the config, the conversation or the old conversations: as a form, or raw JSON. -->
 <script lang="ts">
   import { untrack } from 'svelte';
-  import { fromEditData, parseConfigJson, toEditData } from '../../lib/normalize';
+  import {
+    fromEditData,
+    parseSectionJson,
+    replaceKeys,
+    SECTION_KEYS,
+    sectionJson,
+    toEditData,
+  } from '../../lib/normalize';
   import { applyConfig, exportConfig, saveConfig, store } from '../../lib/stores/config.svelte';
   import { ui } from '../../lib/stores/ui.svelte';
   import type { Config } from '../../lib/types';
@@ -16,6 +23,8 @@
   let error = $state('');
   let body = $state<HTMLDivElement>();
 
+  const convo = $derived(ed.section === 'conversation');
+
   // A fresh start each time it opens.
   $effect(() => {
     if (!ui.editorOpen) return;
@@ -26,14 +35,19 @@
     });
   });
 
-  // What the editor currently holds, as config JSON.
-  const output = (): Config => (mode === 'form' ? fromEditData(ed.data!) : parseConfigJson(json));
+  // The saved config with this section swapped for what the editor holds; the rest is left as it is.
+  const output = (): Config =>
+    replaceKeys(
+      store.config,
+      mode === 'form' ? fromEditData(ed.data!) : parseSectionJson(json, ed.section),
+      SECTION_KEYS[ed.section],
+    );
 
   function setMode(m: typeof mode) {
     error = '';
     if (m === mode) return;
     try {
-      if (m === 'json') json = JSON.stringify(output(), null, 2);
+      if (m === 'json') json = JSON.stringify(sectionJson(output(), ed.section), null, 2);
       else ed.data = toEditData(output());
     } catch (e) {
       error = (e as Error).message;
@@ -60,7 +74,7 @@
     let cfg: Config;
     try {
       cfg = output();
-      applyConfig(cfg, true);
+      applyConfig(cfg, convo); // only a changed script needs the chat to start over
     } catch (e) {
       error = (e as Error).message;
       return;
@@ -74,17 +88,20 @@
 <Modal class="editor" labelledby="edTitle" bind:open={ui.editorOpen} onrequestclose={requestClose}>
   <div class="dlg">
     <header>
-      <h2 id="edTitle">Edit config</h2>
-      <div class="ed-tabs" role="group" aria-label="Editor mode">
-        <button class="ed-tab" class:on={mode === 'form'} type="button" onclick={() => setMode('form')}>Form</button>
-        <button class="ed-tab" class:on={mode === 'json'} type="button" onclick={() => setMode('json')}>JSON</button>
+      <h2 id="edTitle">{convo ? 'Edit conversation' : 'Edit old conversations'}</h2>
+      <div class="tabs" role="group" aria-label="Editor mode">
+        <button class="tab" class:on={mode === 'form'} type="button" onclick={() => setMode('form')}>Form</button>
+        <button class="tab" class:on={mode === 'json'} type="button" onclick={() => setMode('json')}>JSON</button>
       </div>
     </header>
     {#if mode === 'form' && ed.data}
       <div class="ed-body" bind:this={body} oninput={changed}>
         {#key ed.data}
-          <ScriptSettingsForm s={ed.data.script} />
-          <ThreadsForm items={ed.data.threads} />
+          {#if convo}
+            <ScriptSettingsForm s={ed.data.script} />
+          {:else}
+            <ThreadsForm items={ed.data.threads} />
+          {/if}
         {/key}
       </div>
     {:else}
@@ -96,33 +113,12 @@
     <div class="ed-foot">
       <button class="btn" type="button" onclick={exportIt}>Export…</button>
       <button class="btn" type="button" onclick={requestClose}>Cancel</button>
-      <button class="btn primary" type="button" onclick={apply}>Save &amp; restart</button>
+      <button class="btn primary" type="button" onclick={apply}>{convo ? 'Save & restart' : 'Save'}</button>
     </div>
   </div>
 </Modal>
 
 <style>
-  .ed-tabs {
-    display: flex;
-    padding: 3px;
-    border-radius: 10px;
-    background: var(--hover);
-  }
-  .ed-tab {
-    padding: 5px 12px;
-    border: 0;
-    border-radius: 8px;
-    background: none;
-    color: var(--muted);
-    font: inherit;
-    font-size: 13px;
-    cursor: pointer;
-  }
-  .ed-tab.on {
-    background: var(--bg);
-    color: var(--text);
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
-  }
   .ed-body {
     flex: 1;
     min-height: 0;

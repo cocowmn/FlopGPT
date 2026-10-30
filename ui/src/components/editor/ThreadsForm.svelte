@@ -11,7 +11,6 @@
   }
 </script>
 
-<h3>Old conversations</h3>
 <p class="ed-note">Headings (bold) group the chats below them in the sidebar.</p>
 <div class="ed-list">
   {#each items as it, i (it)}

@@ -19,9 +19,6 @@
   </button>
   <div class="model">{store.brand.model}</div>
   <div class="actions">
-    <button class="icon-btn" type="button" aria-label="Demo settings" onclick={() => (ui.settingsOpen = true)}>
-      <svg class="icon"><use href="#i-sliders" /></svg>
-    </button>
     <button class="icon-btn" type="button" aria-label="New chat" onclick={newChat}>
       <svg class="icon"><use href="#i-plus" /></svg>
     </button>

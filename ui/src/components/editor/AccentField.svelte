@@ -1,20 +1,11 @@
 <!-- The accent color: a text field (any CSS color) plus a swatch picker for hex colors. -->
 <script lang="ts">
-  import { untrack } from 'svelte';
-  import { setKey, type EditScript } from '../../lib/normalize';
+  let { value, set, disabled = false }: { value: string; set: (v: string) => void; disabled?: boolean } = $props();
 
-  let { s }: { s: EditScript } = $props();
-
-  let text = $state(untrack(() => String(s.accent ?? '')));
   let swatch = $state('#5b5bd6');
   $effect(() => {
-    if (/^#[0-9a-f]{6}$/i.test(text)) swatch = text;
+    if (/^#[0-9a-f]{6}$/i.test(value)) swatch = value;
   });
-
-  function set(v: string) {
-    text = v;
-    setKey(s, 'accent', v);
-  }
 </script>
 
 <span class="ed-color">
@@ -23,9 +14,10 @@
     class="ed-swatch"
     aria-label="Pick accent color"
     value={swatch}
+    {disabled}
     oninput={e => set(e.currentTarget.value)}
   />
-  <input class="ed-in" placeholder="#5b5bd6" value={text} oninput={e => set(e.currentTarget.value)} />
+  <input class="ed-in" placeholder="#5b5bd6" {value} {disabled} oninput={e => set(e.currentTarget.value)} />
 </span>
 
 <style>
@@ -42,5 +34,8 @@
     border-radius: 8px;
     background: var(--bg);
     cursor: pointer;
+  }
+  .ed-swatch:disabled {
+    cursor: default;
   }
 </style>

@@ -4,6 +4,12 @@ import { MediaQuery, SvelteSet } from 'svelte/reactivity';
 export const wide = new MediaQuery('min-width: 900px');
 export const reduceMotion = new MediaQuery('prefers-reduced-motion: reduce');
 
+const nav = navigator as Navigator & { userAgentData?: { platform: string } };
+export const MAC = /mac|iphone|ipad/i.test(nav.userAgentData?.platform || navigator.platform);
+/** The settings shortcut: ⌘, on Apple devices, Ctrl+, elsewhere. */
+export const SETTINGS_KEY = MAC ? '⌘,' : 'Ctrl+,';
+export const SETTINGS_ARIA_KEY = MAC ? 'Meta+Comma' : 'Control+Comma'; // the same, for aria-keyshortcuts
+
 interface ConfirmRequest {
   message: string;
   ok: string;
@@ -16,7 +22,6 @@ class UI {
   activeThread = $state(-1); // highlighted old thread (cosmetic only)
   settingsOpen = $state(false);
   editorOpen = $state(false);
-  imagesOpen = $state(false);
   lightbox = $state<{ src: string; alt: string } | null>(null);
   confirmReq = $state<ConfirmRequest | null>(null);
   toastMsg = $state('');

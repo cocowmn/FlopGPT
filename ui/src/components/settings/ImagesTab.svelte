@@ -1,4 +1,4 @@
-<!-- Every image the config can brand, each previewed the way it shows up in the app. -->
+<!-- Settings' Images tab: every image the config can brand, each previewed the way it shows up in the app. -->
 <script lang="ts">
   import { IMAGE_SLOTS, type ImageKey } from '../../lib/images';
   import {
@@ -11,7 +11,6 @@
     useLargeLogo,
   } from '../../lib/stores/config.svelte';
   import { ui } from '../../lib/stores/ui.svelte';
-  import Modal from '../Modal.svelte';
 
   let picker: HTMLInputElement;
   let target: ImageKey = 'logo'; // the row whose file picker is open
@@ -114,91 +113,78 @@
   {/if}
 {/snippet}
 
-<Modal class="images" labelledby="imagesTitle" backdropClose bind:open={ui.imagesOpen}>
-  <div class="dlg">
-    <header>
-      <h2 id="imagesTitle">Images</h2>
-      <button class="icon-btn" type="button" aria-label="Close" onclick={() => (ui.imagesOpen = false)}>
-        <svg class="icon"><use href="#i-close" /></svg>
-      </button>
-    </header>
-    <p class="lead">Click a preview or drop an image on a row to replace it. PNG, JPG, WebP, GIF or SVG.</p>
+<p class="lead">Click a preview or drop an image on a row to replace it. PNG, JPG, WebP, GIF or SVG.</p>
 
-    <ul class="img-list">
-      {#each IMAGE_SLOTS as slot (slot.key)}
-        {@const st = status(slot.key)}
-        {@const own = !!store.images[slot.key].own}
-        <li
-          class="img-row"
-          class:over={over === slot.key}
-          ondragover={e => ondragover(e, slot.key)}
-          ondragleave={e => ondragleave(e, slot.key)}
-          ondrop={e => ondrop(e, slot.key)}
-        >
-          <button
-            class="pv"
-            class:side={slot.key === 'smallLogo' || slot.key === 'userAvatar'}
-            class:busy={busy === slot.key}
-            type="button"
-            disabled={store.locked}
-            aria-label="Upload {slot.label.toLowerCase()}"
-            onclick={() => choose(slot.key)}
-          >
-            {@render preview(slot.key)}
-            <span class="pv-cover" aria-hidden="true"><svg class="icon"><use href="#i-upload" /></svg></span>
-          </button>
-          <div class="img-text">
-            <div class="img-title">
-              <strong>{slot.label}</strong>
-              {#if canSwap(slot.key)}
-                {@const on = store.images[slot.key].inherited}
-                <button
-                  class="pill swap"
-                  type="button"
-                  title={on ? 'Use the default here instead' : 'Use the large logo here instead'}
-                  onclick={() => useLargeLogo(slot.key, !on)}
-                  >{st.text}<svg class="icon" aria-hidden="true"><use href="#i-swap" /></svg></button
-                >
-              {:else}
-                <span class="pill {st.tone}">{st.text}</span>
-              {/if}
-            </div>
-            <p>{slot.hint}{slot.key === 'userAvatar' ? '. Your initial if none is set' : ''}</p>
-          </div>
-          <div class="img-btns">
-            <button class="btn" type="button" disabled={store.locked} onclick={() => choose(slot.key)}>Upload…</button>
-            <button
-              class="btn"
-              type="button"
-              disabled={store.locked || !own}
-              title={own ? undefined : 'Already the default'}
-              onclick={() => resetImages([slot.key])}>Reset</button
-            >
-          </div>
-        </li>
-      {/each}
-    </ul>
-
-    {#if store.locked}<p class="lead note">{store.saveNote}</p>{/if}
-    <div class="img-foot">
-      <button class="btn" type="button" disabled={store.locked || !changedKeys.length} onclick={resetAll}
-        >Reset all</button
+<ul class="img-list">
+  {#each IMAGE_SLOTS as slot (slot.key)}
+    {@const st = status(slot.key)}
+    {@const own = !!store.images[slot.key].own}
+    <li
+      class="img-row"
+      class:over={over === slot.key}
+      ondragover={e => ondragover(e, slot.key)}
+      ondragleave={e => ondragleave(e, slot.key)}
+      ondrop={e => ondrop(e, slot.key)}
+    >
+      <button
+        class="pv"
+        class:side={slot.key === 'smallLogo' || slot.key === 'userAvatar'}
+        class:busy={busy === slot.key}
+        type="button"
+        disabled={store.locked}
+        aria-label="Upload {slot.label.toLowerCase()}"
+        onclick={() => choose(slot.key)}
       >
-      <div class="img-foot-end">
-        <button
-          class="btn dl"
-          class:busy={zipping}
-          type="button"
-          aria-label="Download all images (.zip)"
-          title="Download all images (.zip)"
-          disabled={zipping}
-          onclick={download}><svg class="icon"><use href="#i-download" /></svg></button
-        >
-        <button class="btn primary" type="button" onclick={() => (ui.imagesOpen = false)}>Done</button>
+        {@render preview(slot.key)}
+        <span class="pv-cover" aria-hidden="true"><svg class="icon"><use href="#i-upload" /></svg></span>
+      </button>
+      <div class="img-text">
+        <div class="img-title">
+          <strong>{slot.label}</strong>
+          {#if canSwap(slot.key)}
+            {@const on = store.images[slot.key].inherited}
+            <button
+              class="pill swap"
+              type="button"
+              title={on ? 'Use the default here instead' : 'Use the large logo here instead'}
+              onclick={() => useLargeLogo(slot.key, !on)}
+              >{st.text}<svg class="icon" aria-hidden="true"><use href="#i-swap" /></svg></button
+            >
+          {:else}
+            <span class="pill {st.tone}">{st.text}</span>
+          {/if}
+        </div>
+        <p>{slot.hint}{slot.key === 'userAvatar' ? '. Your initial if none is set' : ''}</p>
       </div>
-    </div>
+      <div class="img-btns">
+        <button class="btn" type="button" disabled={store.locked} onclick={() => choose(slot.key)}>Upload…</button>
+        <button
+          class="btn"
+          type="button"
+          disabled={store.locked || !own}
+          title={own ? undefined : 'Already the default'}
+          onclick={() => resetImages([slot.key])}>Reset</button
+        >
+      </div>
+    </li>
+  {/each}
+</ul>
+
+{#if store.locked}<p class="lead note">{store.saveNote}</p>{/if}
+<div class="img-foot">
+  <button class="btn" type="button" disabled={store.locked || !changedKeys.length} onclick={resetAll}>Reset all</button>
+  <div class="img-foot-end">
+    <button
+      class="btn dl"
+      class:busy={zipping}
+      type="button"
+      aria-label="Download all images (.zip)"
+      title="Download all images (.zip)"
+      disabled={zipping}
+      onclick={download}><svg class="icon"><use href="#i-download" /></svg></button
+    >
   </div>
-</Modal>
+</div>
 
 <input bind:this={picker} type="file" accept="image/*" hidden onchange={picked} />
 
