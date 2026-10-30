@@ -1,0 +1,5 @@
+dist/
+dist-web/
+src-tauri/
+package-lock.json
+.vercel/
