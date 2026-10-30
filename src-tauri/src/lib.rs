@@ -1,4 +1,5 @@
 mod server;
+mod tls;
 
 use std::path::PathBuf;
 use std::sync::atomic::Ordering;
@@ -19,6 +20,7 @@ type ServerState = Mutex<Server>;
 struct Settings {
     port: u16,
     phone_edit: bool,
+    https: bool,
 }
 
 impl Default for Settings {
@@ -26,6 +28,7 @@ impl Default for Settings {
         Self {
             port: server::DEFAULT_PORT,
             phone_edit: true,
+            https: false,
         }
     }
 }
@@ -49,6 +52,7 @@ fn save_settings(app: &AppHandle, s: &Server) -> Result<(), String> {
     let settings = Settings {
         port: s.configured_port,
         phone_edit: s.hub.phone_edit.load(Ordering::Relaxed),
+        https: s.https,
     };
     std::fs::write(path, serde_json::to_string(&settings).unwrap()).map_err(|e| e.to_string())
 }
@@ -87,9 +91,29 @@ async fn server_set_port(app: AppHandle, state: State<'_, ServerState>, port: u1
 
 #[tauri::command]
 async fn server_set_phone_edit(app: AppHandle, state: State<'_, ServerState>, on: bool) -> Result<Status, String> {
-    let s = state.lock().await;
+    let mut s = state.lock().await;
     s.hub.phone_edit.store(on, Ordering::Relaxed);
     save_settings(&app, &s)?;
+    Ok(s.status())
+}
+
+#[tauri::command]
+async fn server_set_https(app: AppHandle, state: State<'_, ServerState>, on: bool) -> Result<Status, String> {
+    let mut s = state.lock().await;
+    s.https = on;
+    save_settings(&app, &s)?;
+    s.stop();
+    s.start().await;
+    Ok(s.status())
+}
+
+/// Replaces the CA with a new one; phones that trusted the old one have to be set up again.
+#[tauri::command]
+async fn server_reset_cert(state: State<'_, ServerState>) -> Result<Status, String> {
+    let mut s = state.lock().await;
+    s.stop();
+    s.reset_cert()?;
+    s.start().await;
     Ok(s.status())
 }
 
@@ -133,6 +157,7 @@ pub fn run() {
             let handle = app.handle().clone();
             let settings = load_settings(&handle);
             let data_dir = app.path().app_data_dir()?;
+            let tls_dir = app.path().app_config_dir()?.join("tls");
             let hub = Hub::new(data_dir.join("config.json"), settings.phone_edit);
 
             // Tell the window when the config changes (e.g. a phone saved an edit).
@@ -146,7 +171,7 @@ pub fn run() {
             });
 
             app.manage(hub.clone());
-            app.manage::<ServerState>(Mutex::new(Server::new(hub, settings.port)));
+            app.manage::<ServerState>(Mutex::new(Server::new(hub, settings.port, settings.https, tls_dir)));
             tauri::async_runtime::spawn(async move {
                 handle.state::<ServerState>().lock().await.start().await;
             });
@@ -158,6 +183,8 @@ pub fn run() {
             server_stop,
             server_set_port,
             server_set_phone_edit,
+            server_set_https,
+            server_reset_cert,
             server_qr,
             config_load,
             config_save,

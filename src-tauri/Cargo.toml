@@ -15,7 +15,7 @@ tauri = { version = "2", features = [] }
 serde = { version = "1", features = ["derive"] }
 serde_json = { version = "1", features = ["preserve_order"] }
 axum = "0.8"
-tokio = { version = "1", features = ["net", "sync", "time"] }
+tokio = { version = "1", features = ["net", "sync", "time", "macros", "io-util"] }
 tokio-stream = { version = "0.1", features = ["sync"] }
 tauri-plugin-dialog = "2"
 futures-util = "0.3"
@@ -23,3 +23,10 @@ rust-embed = "8"
 mime_guess = "2"
 local-ip-address = "0.6"
 qrcode = { version = "0.14", default-features = false, features = ["svg"] }
+rcgen = { version = "0.14.10", default-features = false, features = ["pem", "ring", "x509-parser"] }
+rustls = { version = "0.23.46", default-features = false, features = ["ring", "std", "tls12", "logging"] }
+tokio-rustls = { version = "0.26.6", default-features = false, features = ["ring", "tls12"] }
+hyper-util = { version = "0.1.21", features = ["server-auto", "tokio", "service"] }
+hyper = "1"
+gethostname = "1.1.0"
+time = "0.3.55"

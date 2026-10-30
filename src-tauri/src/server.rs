@@ -1,6 +1,7 @@
 //! LAN HTTP server: serves the built page in `dist/` (embedded into the binary) so phones on the
 //! same network can open it, plus the app's saved config, which phones can read, change
-//! and follow live.
+//! and follow live. With HTTPS turned on, the same port also speaks TLS (see `tls.rs`), so phones
+//! that trust the app's CA can install the page as an app, and the rest keep using plain HTTP.
 
 use std::collections::HashMap;
 use std::convert::Infallible;
@@ -8,7 +9,7 @@ use std::net::{IpAddr, SocketAddr};
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
-use std::time::Instant;
+use std::time::{Duration, Instant};
 
 use axum::extract::{ConnectInfo, DefaultBodyLimit, Request, State};
 use axum::http::{header, HeaderValue, StatusCode};
@@ -16,13 +17,22 @@ use axum::middleware::{self, Next};
 use axum::response::sse::{Event, KeepAlive, Sse};
 use axum::response::{IntoResponse, Response};
 use axum::routing::get;
+use axum::Extension;
 use axum::{Json, Router};
 use futures_util::StreamExt;
+use hyper_util::rt::{TokioExecutor, TokioIo};
+use hyper_util::server::conn::auto;
+use hyper_util::service::TowerToHyperService;
 use rust_embed::RustEmbed;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+use tokio::io::{AsyncRead, AsyncWrite};
+use tokio::net::TcpListener;
 use tokio::sync::watch;
+use tokio_rustls::TlsAcceptor;
 use tokio_stream::wrappers::WatchStream;
+
+use crate::tls::{self, Ca, Resolver};
 
 #[derive(RustEmbed)]
 #[folder = "../dist/"]
@@ -32,6 +42,8 @@ pub const DEFAULT_PORT: u16 = 8787;
 const PORT_TRIES: u16 = 20;
 const CONNECTED_SECS: u64 = 120;
 const MAX_BODY: usize = 10 * 1024 * 1024;
+const FIRST_BYTE_SECS: u64 = 10;
+const CERT_PAGE: &str = include_str!("cert.html");
 
 struct Client {
     requests: u64,
@@ -136,18 +148,32 @@ impl Hub {
     }
 }
 
-/// Per-run router state: the hub plus a signal that fires when the server is stopped.
+/// Per-run router state: the hub, the CA phones download (HTTPS only), and a signal that fires
+/// when the server is stopped.
 #[derive(Clone)]
 struct Ctx {
     hub: Hub,
+    ca: Option<Arc<[u8]>>,
     stopping: watch::Receiver<bool>,
+}
+
+/// The running server's TLS side: the CA, and the server certificate for the LAN addresses it was
+/// issued for, swapped for a new one when they change.
+struct Tls {
+    ca: Ca,
+    resolver: Arc<Resolver>,
+    ips: Vec<IpAddr>,
 }
 
 pub struct Server {
     pub hub: Hub,
     pub configured_port: u16,
+    pub https: bool,
+    tls_dir: PathBuf,
+    tls: Option<Tls>,
     port: Option<u16>,
     error: Option<String>,
+    cert_error: Option<String>,
     stop: Option<watch::Sender<bool>>,
 }
 
@@ -169,18 +195,25 @@ pub struct Status {
     error: Option<String>,
     local_url: Option<String>,
     lan_urls: Vec<String>,
+    setup_urls: Vec<String>, // plain HTTP pages where phones get the CA (HTTPS only)
     requests: u64,
     clients: Vec<ClientInfo>,
     phone_edit: bool,
+    https: bool, // serving HTTPS right now
+    cert_error: Option<String>,
 }
 
 impl Server {
-    pub fn new(hub: Hub, configured_port: u16) -> Self {
+    pub fn new(hub: Hub, configured_port: u16, https: bool, tls_dir: PathBuf) -> Self {
         Self {
             hub,
             configured_port,
+            https,
+            tls_dir,
+            tls: None,
             port: None,
             error: None,
+            cert_error: None,
             stop: None,
         }
     }
@@ -215,19 +248,38 @@ impl Server {
             return;
         };
 
+        self.tls = None;
+        self.cert_error = None;
+        if self.https {
+            match self.load_tls() {
+                Ok(t) => self.tls = Some(t),
+                Err(e) => self.cert_error = Some(format!("HTTPS is off: {e}")),
+            }
+        }
+
         let (tx, mut rx) = watch::channel(false);
         let ctx = Ctx {
             hub: self.hub.clone(),
+            ca: self.tls.as_ref().map(|t| Arc::from(t.ca.der())),
             stopping: rx.clone(),
         };
         let app = Router::new()
             .route("/api/config", get(get_config).put(put_config))
             .route("/api/events", get(events))
+            .route("/cert", get(cert_page))
+            .route("/cert/ca.crt", get(cert_file))
             .fallback(serve)
             .layer(DefaultBodyLimit::max(MAX_BODY))
             .layer(middleware::from_fn_with_state(self.hub.clone(), track))
             .with_state(ctx);
+        let acceptor = self
+            .tls
+            .as_ref()
+            .map(|t| TlsAcceptor::from(tls::server_config(t.resolver.clone())));
         tauri::async_runtime::spawn(async move {
+            if let Some(acceptor) = acceptor {
+                return serve_both(listener, app, acceptor, rx).await;
+            }
             let svc = app.into_make_service_with_connect_info::<SocketAddr>();
             let _ = axum::serve(listener, svc)
                 .with_graceful_shutdown(async move {
@@ -240,6 +292,13 @@ impl Server {
         self.stop = Some(tx);
     }
 
+    fn load_tls(&self) -> Result<Tls, String> {
+        let ca = Ca::load_or_create(&self.tls_dir)?;
+        let ips = lan_ips();
+        let resolver = Arc::new(Resolver::new(ca.issue(&ips)?));
+        Ok(Tls { ca, resolver, ips })
+    }
+
     pub fn stop(&mut self) {
         if let Some(tx) = self.stop.take() {
             let _ = tx.send(true);
@@ -247,10 +306,32 @@ impl Server {
         self.port = None;
     }
 
-    pub fn status(&self) -> Status {
+    /// Deletes the CA, so the next start makes a new one that phones have to trust again.
+    pub fn reset_cert(&self) -> Result<(), String> {
+        Ca::remove(&self.tls_dir)
+    }
+
+    /// Also renews the server certificate if this machine's LAN addresses changed (new wifi).
+    pub fn status(&mut self) -> Status {
         let port = self.port.filter(|_| self.running());
+        let ips = lan_ips();
+        if let Some(t) = self.tls.as_mut().filter(|t| t.ips != ips) {
+            match t.ca.issue(&ips) {
+                Ok(key) => {
+                    t.resolver.set(key);
+                    t.ips = ips.clone();
+                }
+                Err(e) => self.cert_error = Some(format!("Couldn't renew the certificate: {e}")),
+            }
+        }
+        let https = self.tls.is_some();
+        let scheme = if https { "https" } else { "http" };
         let lan_urls = port
-            .map(|p| lan_ips().into_iter().map(|ip| format!("http://{ip}:{p}/")).collect())
+            .map(|p| ips.iter().map(|ip| format!("{scheme}://{ip}:{p}/")).collect())
+            .unwrap_or_default();
+        let setup_urls = port
+            .filter(|_| https)
+            .map(|p| ips.iter().map(|ip| format!("http://{ip}:{p}/cert")).collect())
             .unwrap_or_default();
 
         let stats = self.hub.stats.lock().unwrap();
@@ -272,11 +353,62 @@ impl Server {
             port,
             configured_port: self.configured_port,
             error: self.error.clone(),
-            local_url: port.map(|p| format!("http://localhost:{p}/")),
+            local_url: port.map(|p| format!("{scheme}://localhost:{p}/")),
             lan_urls,
+            setup_urls,
             requests: stats.requests,
             clients,
             phone_edit: self.hub.phone_edit.load(Ordering::Relaxed),
+            https,
+            cert_error: self.cert_error.clone(),
+        }
+    }
+}
+
+/// Serves plain HTTP and HTTPS on one port: a connection that opens with a TLS handshake
+/// (first byte 0x16) gets TLS, anything else plain HTTP. Phones that don't trust the CA yet can
+/// still open the page, and the setup page where they get the CA, at the same address.
+async fn serve_both(listener: TcpListener, app: Router, acceptor: TlsAcceptor, mut stopping: watch::Receiver<bool>) {
+    loop {
+        let (stream, addr) = tokio::select! {
+            r = listener.accept() => match r {
+                Ok(c) => c,
+                Err(_) => continue,
+            },
+            _ = stopping.changed() => return,
+        };
+        let app = app.clone().layer(Extension(ConnectInfo(addr)));
+        let acceptor = acceptor.clone();
+        let stopping = stopping.clone();
+        tauri::async_runtime::spawn(async move {
+            let mut first = [0u8; 1];
+            let peek = tokio::time::timeout(Duration::from_secs(FIRST_BYTE_SECS), stream.peek(&mut first));
+            if !matches!(peek.await, Ok(Ok(1))) {
+                return;
+            }
+            if first[0] == 0x16 {
+                if let Ok(tls) = acceptor.accept(stream).await {
+                    serve_conn(tls, app, stopping).await;
+                }
+            } else {
+                serve_conn(stream, app, stopping).await;
+            }
+        });
+    }
+}
+
+async fn serve_conn<S>(io: S, app: Router, mut stopping: watch::Receiver<bool>)
+where
+    S: AsyncRead + AsyncWrite + Unpin + Send + 'static,
+{
+    let builder = auto::Builder::new(TokioExecutor::new());
+    let conn = builder.serve_connection_with_upgrades(TokioIo::new(io), TowerToHyperService::new(app));
+    tokio::pin!(conn);
+    tokio::select! {
+        _ = conn.as_mut() => {}
+        _ = async { let _ = stopping.wait_for(|s| *s).await; } => {
+            conn.as_mut().graceful_shutdown();
+            let _ = conn.await;
         }
     }
 }
@@ -381,6 +513,30 @@ async fn events(State(ctx): State<Ctx>, ConnectInfo(addr): ConnectInfo<SocketAdd
             let _ = stopping.wait_for(|s| *s).await;
         });
     Sse::new(stream).keep_alive(KeepAlive::default())
+}
+
+/// How to trust the app's CA on a phone (HTTPS only).
+async fn cert_page(State(ctx): State<Ctx>) -> Response {
+    if ctx.ca.is_none() {
+        return StatusCode::NOT_FOUND.into_response();
+    }
+    ([(header::CONTENT_TYPE, "text/html; charset=utf-8")], CERT_PAGE).into_response()
+}
+
+/// The CA certificate. iOS Safari offers to install it as a profile; Android saves it for
+/// Settings > Security > Install a certificate.
+async fn cert_file(State(ctx): State<Ctx>) -> Response {
+    let Some(ca) = ctx.ca else {
+        return StatusCode::NOT_FOUND.into_response();
+    };
+    (
+        [
+            (header::CONTENT_TYPE, "application/x-x509-ca-cert"),
+            (header::CONTENT_DISPOSITION, "attachment; filename=\"FlopGPT-CA.crt\""),
+        ],
+        ca.to_vec(),
+    )
+        .into_response()
 }
 
 fn asset(path: &str) -> Option<Response> {

@@ -55,10 +55,23 @@ The app runs a small web server so phones on the same wifi can open the demo. **
 - the address to open on a phone, with a QR code to scan;
 - how many devices are connected and how many requests they've made;
 - **Let phones change the config** (on by default): imports and edits made on a phone are saved in the app. Anyone on the wifi can then change the config, so turn it off on shared networks.
+- **Serve over HTTPS too** (off by default): see [HTTPS for phones](#https-for-phones).
 
 Every device uses the app's config and follows changes live. A device in the middle of a chat waits for the next **New chat** or **Restart script**, so a performance isn't interrupted.
 
 If macOS asks whether FlopGPT may accept incoming network connections, allow it, or phones can't connect. Guest wifi networks often block devices from reaching each other.
+
+### HTTPS for phones
+
+The phone server is plain HTTP, which is enough to show the demo. A phone can only install it as a real app that works offline over HTTPS. To set that up, turn on **Serve over HTTPS too**. The app then makes its own certificate authority (like [mkcert](https://github.com/FiloSottile/mkcert), with nothing to install), and serves HTTPS on the same port. Plain HTTP keeps working for phones you haven't set up.
+
+Set up each phone once:
+
+1. Scan QR code **1** to open the setup page, and tap **Download the certificate**.
+2. On iOS (use Safari), open **Settings › Profile Downloaded › Install**, then turn the certificate on in **Settings › General › About › Certificate Trust Settings**. On Android, install it from **Settings › Security › Install a certificate › CA certificate**.
+3. Scan QR code **2** to open the demo over HTTPS, then install it.
+
+The certificate only works for private network addresses (like 192.168.x.x) and `.local` names, so it can't be used to impersonate other sites. The installed app is tied to the address it was installed from. If the computer gets a new address or port, install it again; reserving an address for the computer in the router's settings avoids that. **New certificate** replaces the certificate authority, and every phone then has to be set up again. To undo the setup on a phone, remove the profile (iOS: **Settings › General › VPN & Device Management**) or the certificate (Android: **Encryption & credentials › User credentials**).
 
 ## Customization
 
@@ -185,7 +198,7 @@ Over HTTPS (or on localhost) the page installs as an app ("Install" in Chrome, *
 - The color follows config changes right away, even after installing.
 - The name and icon are fixed when it's installed. Chrome picks up changes later on its own (it can take a day, and may ask first); iOS never does, so set them before adding it.
 - On iOS the home-screen app has its own storage, separate from Safari's, so it starts from the built-in config. Set it up inside the installed app, or Export from Safari and Import there.
-- The phone server is plain HTTP, so there's no offline mode or real install from it, but iOS **Add to Home Screen** still uses the configured name and logo.
+- Over the phone server's plain HTTP there's no offline mode or real install, but iOS **Add to Home Screen** still uses the configured name and logo. Turn on [HTTPS for phones](#https-for-phones) for the real thing.
 
 ## Building
 
@@ -212,4 +225,4 @@ While `npm run dev` runs, phones get the page as it was built when dev started (
 - `ui/src/lib/spinners.ts` - the animated thinking spinners (add your own here)
 - `ui/src/styles/global.css` - colors and shared styles; everything else is styled in its component
 - `src-tauri/default-config.json` - the built-in config
-- `src-tauri/src/server.rs` - the phone server and saved config; `src-tauri/src/lib.rs` - the commands the settings dialog calls
+- `src-tauri/src/server.rs` - the phone server and saved config; `src-tauri/src/tls.rs` - its optional HTTPS certificates, and `cert.html` the phone setup page; `src-tauri/src/lib.rs` - the commands the settings dialog calls

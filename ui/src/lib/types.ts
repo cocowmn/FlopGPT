@@ -89,7 +89,10 @@ export interface ServerStatus {
   error: string | null;
   localUrl: string | null;
   lanUrls: string[];
+  setupUrls: string[]; // HTTPS only: the page where a phone gets the certificate
   requests: number;
   clients: { ip: string; requests: number; lastSeenSecs: number; open: boolean }[];
   phoneEdit: boolean;
+  https: boolean;
+  certError: string | null;
 }

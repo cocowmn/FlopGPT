@@ -99,5 +99,7 @@ export const server = {
   stop: () => invoke<ServerStatus>('server_stop'),
   setPort: (port: number) => invoke<ServerStatus>('server_set_port', { port }),
   setPhoneEdit: (on: boolean) => invoke<ServerStatus>('server_set_phone_edit', { on }),
+  setHttps: (on: boolean) => invoke<ServerStatus>('server_set_https', { on }),
+  resetCert: () => invoke<ServerStatus>('server_reset_cert'),
   qr: (url: string) => invoke<string>('server_qr', { url }),
 };
