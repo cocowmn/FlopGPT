@@ -10,6 +10,27 @@
 
   onMount(() => ui.onFocusComposer(() => input.focus()));
 
+  // While a long-press would auto-type, swallow the touch so iOS doesn't show its loupe or
+  // Paste callout; a short tap still focuses the box. Svelte's ontouchstart is passive,
+  // hence addEventListener.
+  onMount(() => {
+    let swallowed = false;
+    const start = (e: TouchEvent) => {
+      swallowed = armed();
+      if (swallowed) e.preventDefault();
+    };
+    const end = () => {
+      if (swallowed && !longFired) input.focus();
+      swallowed = false;
+    };
+    input.addEventListener('touchstart', start, { passive: false });
+    input.addEventListener('touchend', end);
+    return () => {
+      input.removeEventListener('touchstart', start);
+      input.removeEventListener('touchend', end);
+    };
+  });
+
   // Grow with the text, up to 200px.
   $effect(() => {
     void chat.input;
@@ -45,9 +66,11 @@
   let pressTimer = 0,
     longFired = false;
 
+  const armed = () => !chat.busy && !chat.typing && !chat.input && !!chat.nextPrompt;
+
   function onpointerdown(e: PointerEvent) {
     longFired = false;
-    if (e.button > 0 || chat.busy || chat.typing || chat.input || !chat.nextPrompt) return;
+    if (e.button > 0 || !armed()) return;
     pressTimer = window.setTimeout(() => {
       longFired = true;
       navigator.vibrate?.(20);
