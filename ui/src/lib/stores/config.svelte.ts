@@ -3,7 +3,17 @@
  *  The app window reads and saves it through Tauri; phones through the app's server;
  *  the browser-only build in localStorage.
  * ------------------------------------------------------------------ */
-import { exportJson, exportZip, fetchConfig, HttpError, putConfig, STANDALONE, TAURI, watchConfig } from '../backend';
+import {
+  exportJson,
+  exportZip,
+  fetchConfig,
+  HttpError,
+  lastConfig,
+  putConfig,
+  STANDALONE,
+  TAURI,
+  watchConfig,
+} from '../backend';
 import { isJson, takeLegacy, toImageDataURL } from '../files';
 import { IMAGE_SLOTS, slotOf, type ImageKey } from '../images';
 import { abs } from '../location';
@@ -147,6 +157,15 @@ export async function boot() {
   try {
     snap = await fetchConfig();
   } catch {
+    // Offline or away from the app's wifi: carry on with the last config it sent (newer ones arrive on reconnect).
+    const last = await lastConfig();
+    try {
+      if (last) {
+        applyConfig(last.config, true);
+        store.rev = last.rev;
+        return;
+      }
+    } catch {} // unusable: fall through to the empty config
     applyConfig(EMPTY_CONFIG, true);
     ui.toast(
       STANDALONE

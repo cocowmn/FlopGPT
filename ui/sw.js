@@ -6,7 +6,7 @@
 const VERSION = '__VERSION__';
 const FILES = __FILES__; // the built page, relative to this file
 const SHELL = 'flopgpt-shell-' + VERSION;
-const BRAND = 'flopgpt-brand'; // written by the page; outlives app updates
+const BRAND = 'flopgpt-brand'; // written by the page (manifest, icons, last config); outlives app updates
 const BRANDED = /^(manifest\.webmanifest|brand-\d+\.png)$/;
 
 self.addEventListener('install', e => {

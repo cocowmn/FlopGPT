@@ -28,7 +28,9 @@ export async function fetchConfig(): Promise<Snapshot> {
   // The page stays blank until this answers, so give up on an unreachable app rather than hang.
   const res = await fetch(API, { cache: 'no-store', signal: AbortSignal.timeout(5000) });
   if (!res.ok) throw new HttpError('HTTP ' + res.status, res.status);
-  return res.json();
+  const snap: Snapshot = await res.json();
+  keepLast(snap);
+  return snap;
 }
 
 /** Saves to the app (null = back to the built-in config) and returns the new revision. */
@@ -102,6 +104,31 @@ function saveLocal(cfg: Config | null): number {
     );
   }
   return rev;
+}
+
+/* ---- Phones: the last config the app sent, so the installed app still works when it can't reach it ---- */
+
+const LAST_CACHE = 'flopgpt-brand'; // shared with ui/sw.js, which keeps it across app updates
+const LAST_KEY = './last-config.json'; // never fetched: the page reads it straight from the cache
+
+function keepLast(snap: Snapshot) {
+  if (!('caches' in window)) return; // only on HTTPS, which is also the only way the page loads offline
+  const body = JSON.stringify({ rev: snap.rev, config: snap.config });
+  caches
+    .open(LAST_CACHE)
+    .then(c => c.put(LAST_KEY, new Response(body, { headers: { 'Content-Type': 'application/json' } })))
+    .catch(() => {}); // storage full or blocked: there's just nothing to fall back on
+}
+
+/** The config the app last sent this phone, if any. */
+export async function lastConfig(): Promise<{ rev: number; config: Config } | null> {
+  if (TAURI || STANDALONE || !('caches' in window)) return null;
+  try {
+    const hit = await (await caches.open(LAST_CACHE)).match(LAST_KEY);
+    return hit ? await hit.json() : null;
+  } catch {
+    return null;
+  }
 }
 
 /* The LAN server phones connect to (desktop app only). */
