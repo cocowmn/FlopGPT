@@ -12,7 +12,7 @@
 
 <div class="ed-card">
   <div class="ed-card-head"><strong>Response {i + 1}</strong><RowButtons list={s.responses} {i} /></div>
-  <Field label="Prompt (Tab or long-press send to auto-type)"><TextInput obj={r} key="prompt" /></Field>
+  <Field label="Prompt (Tab or long-press the message box to auto-type)"><TextInput obj={r} key="prompt" /></Field>
   <Field label="Thinking steps" group>
     <div class="ed-list">
       {#each r.pending as step, j (step)}

@@ -163,7 +163,7 @@ class Chat {
     });
   }
 
-  // Tab (or a long-press on send) on an empty box "types" the scripted prompt.
+  // Tab (or a long-press) on an empty box "types" the scripted prompt.
   autoType(text = this.nextPrompt) {
     if (!text || this.typing) return;
     const cps =

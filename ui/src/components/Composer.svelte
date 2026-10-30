@@ -40,33 +40,30 @@
     picker.value = '';
   }
 
-  // Long-press the send button (while the box is empty and the script has a prompt ready) to
-  // "type" that prompt: the touch-friendly version of pressing Tab. Then tap send to submit.
-  let pressing = $state(false);
+  // Long-press the empty message box (when the script has a prompt ready) to "type" that
+  // prompt: the touch-friendly version of pressing Tab. Then tap send to submit.
   let pressTimer = 0,
     longFired = false;
 
   function onpointerdown(e: PointerEvent) {
     longFired = false;
-    if (e.button > 0 || !chat.canSend || chat.input || !chat.nextPrompt) return;
-    pressing = true;
+    if (e.button > 0 || chat.busy || chat.typing || chat.input || !chat.nextPrompt) return;
     pressTimer = window.setTimeout(() => {
       longFired = true;
-      pressing = false;
       navigator.vibrate?.(20);
       chat.autoType();
     }, 450);
   }
   function cancelPress() {
     clearTimeout(pressTimer);
-    pressing = false;
   }
-  function onclick(e: MouseEvent) {
-    if (longFired) {
-      e.preventDefault();
-      longFired = false;
-    }
+  // Don't open the context menu for the press that just started typing.
+  function oncontextmenu(e: MouseEvent) {
+    if (longFired) e.preventDefault();
   }
+
+  // Sending is still refused while the prompt types itself out, but the button doesn't look disabled.
+  const sendable = $derived(chat.canSend || (chat.typing && !chat.busy));
 </script>
 
 <form
@@ -92,20 +89,13 @@
         aria-label="Message"
         {onkeydown}
         {onpaste}
-      ></textarea>
-      <button
-        class="send"
-        class:pressing
-        type="submit"
-        aria-label="Send message"
-        disabled={!chat.canSend}
         {onpointerdown}
         onpointerup={cancelPress}
         onpointerleave={cancelPress}
         onpointercancel={cancelPress}
-        oncontextmenu={e => e.preventDefault()}
-        {onclick}
-      >
+        {oncontextmenu}
+      ></textarea>
+      <button class="send" type="submit" aria-label="Send message" disabled={!sendable}>
         <svg class="icon"><use href="#i-send" /></svg>
       </button>
     </div>
@@ -181,20 +171,6 @@
   .send:disabled {
     opacity: 0.35;
     cursor: default;
-  }
-  /* Long-press (on an empty box) types the scripted prompt: works with touch and mouse. */
-  .send {
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    user-select: none;
-    touch-action: manipulation;
-    transition:
-      transform 0.45s linear,
-      box-shadow 0.45s linear;
-  }
-  .send.pressing {
-    transform: scale(0.86);
-    box-shadow: 0 0 0 7px color-mix(in srgb, var(--accent) 28%, transparent);
   }
   .disclaimer {
     margin: 8px 0 0;

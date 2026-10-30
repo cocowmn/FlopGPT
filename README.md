@@ -22,7 +22,7 @@ https://github.com/user-attachments/assets/ccc0058f-19aa-4b86-bd81-6f368e81a5c3
 
 **Performer shortcuts:**
 
-- **Type the scripted prompt:** if the next response has a `prompt`, press **Tab** in the empty box, or on a phone **long-press the send button**. The prompt types itself out; then send it.
+- **Type the scripted prompt:** if the next response has a `prompt`, press **Tab** in the empty box, or on a phone **long-press the empty message box**. The prompt types itself out; then send it.
 - **Send the prompt instantly:** press Enter or tap send with the box empty.
 - **Start over:** **New chat** in the sidebar, or **Restart script** in **Settings** (the sliders icon at the top right), goes back to the first response.
 - After the last response, every prompt gets the `fallback` message.

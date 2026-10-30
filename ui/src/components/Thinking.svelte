@@ -11,12 +11,14 @@
   let ids = 0;
   let box = $state<HTMLSpanElement>();
   let width = $state<number>(); // eases to fit each new label, so the chevron glides instead of jumping
+  let shown = ''; // the state last animated in: the effect can re-run (e.g. when a new message is sent) with nothing new
 
   // Slide the old text up and out while the new text slides up and in.
   $effect(() => {
     const text = thinking.label;
-    void thinking.steps.length, thinking.done; // also swap when a step repeats the last one
-    if (!text) return;
+    const key = `${thinking.steps.length}|${thinking.done}|${text}`; // also swap when a step repeats the last one
+    if (!text || key === shown) return;
+    shown = key;
     untrack(() => {
       for (const old of labels) {
         if (old.out) continue;
