@@ -25,7 +25,8 @@ export class HttpError extends Error {
 export async function fetchConfig(): Promise<Snapshot> {
   if (TAURI) return { ...(await invoke<Omit<Snapshot, 'writable'>>('config_load')), writable: true };
   if (STANDALONE) return loadLocal();
-  const res = await fetch(API, { cache: 'no-store' });
+  // The page stays blank until this answers, so give up on an unreachable app rather than hang.
+  const res = await fetch(API, { cache: 'no-store', signal: AbortSignal.timeout(5000) });
   if (!res.ok) throw new HttpError('HTTP ' + res.status, res.status);
   return res.json();
 }

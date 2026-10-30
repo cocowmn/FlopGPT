@@ -15,13 +15,30 @@
   import { boot, dropFiles, shown, store } from './lib/stores/config.svelte';
   import { ui, wide } from './lib/stores/ui.svelte';
 
+  let ready = $state(false); // the config has loaded (or couldn't): until then the page stays blank
   let preload = $state(true);
   const favicon = document.getElementById('favicon') as HTMLLinkElement;
   const DEFAULT_FAVICON = favicon.href;
 
   onMount(() => {
-    boot().then(() => requestAnimationFrame(() => requestAnimationFrame(() => (preload = false))));
+    boot()
+      .then(loadImages)
+      .finally(() => {
+        ready = true;
+        requestAnimationFrame(() => requestAnimationFrame(() => (preload = false)));
+      });
   });
+
+  // Waits, briefly, for the config's images so they show up with the rest of the page instead of after it.
+  function loadImages() {
+    const srcs = Object.values(store.images).map(i => shown(i.src));
+    const loads = [...new Set(srcs.filter(Boolean))].map(src => {
+      const img = new Image();
+      img.src = src;
+      return img.decode().catch(() => {});
+    });
+    return Promise.race([Promise.all(loads), new Promise(r => setTimeout(r, 1500))]);
+  }
 
   $effect(() => {
     ui.sidebarOpen = wide.current;
@@ -29,6 +46,7 @@
 
   // Branding that lives outside the components: tab title, accent, favicon, installed app.
   $effect(() => {
+    if (!ready) return; // index.html's defaults until then
     const b = store.brand;
     document.title = b.name;
     const root = document.documentElement;
@@ -64,21 +82,23 @@
 
 <IconSprite />
 
-<div class="app" class:preload data-sidebar={ui.sidebarOpen ? 'open' : 'closed'}>
-  <Sidebar />
-  <div class="backdrop" role="presentation" onclick={() => (ui.sidebarOpen = false)}></div>
-  <main class="main">
-    <Topbar />
-    <ChatView />
-    <Composer />
-  </main>
-</div>
+{#if ready}
+  <div class="app" class:preload data-sidebar={ui.sidebarOpen ? 'open' : 'closed'}>
+    <Sidebar />
+    <div class="backdrop" role="presentation" onclick={() => (ui.sidebarOpen = false)}></div>
+    <main class="main">
+      <Topbar />
+      <ChatView />
+      <Composer />
+    </main>
+  </div>
 
-<SettingsDialog />
-<ImagesDialog />
-<EditorDialog />
-<Lightbox />
-<ConfirmDialog />
+  <SettingsDialog />
+  <ImagesDialog />
+  <EditorDialog />
+  <Lightbox />
+  <ConfirmDialog />
+{/if}
 <Toast />
 
 <style>
