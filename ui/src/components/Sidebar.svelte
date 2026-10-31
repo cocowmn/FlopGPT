@@ -13,7 +13,7 @@
 </script>
 
 <aside class="sidebar" aria-label="Conversations">
-  <div class="sb-head">
+  <div class="sb-head" data-tauri-drag-region>
     <div class="brand"><Logo class="brand-logo" kind="smallLogo" /><span>{store.brand.name}</span></div>
     <button class="icon-btn" type="button" aria-label="Close sidebar" onclick={() => (ui.sidebarOpen = false)}>
       <svg class="icon"><use href="#i-sidebar" /></svg>
@@ -95,8 +95,23 @@
     padding-left: 6px;
     font-weight: 650;
     font-size: 17px;
+    min-width: 0;
+    pointer-events: none; /* lets the window be dragged by it */
+  }
+  .brand span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  /* Room for the Mac window buttons, which sit in this row. */
+  :global(.mac-titlebar) .sidebar {
+    padding-top: 4px;
+  }
+  :global(.mac-titlebar) .brand {
+    padding-left: 78px; /* the logo starts where the topbar's toggle icon does */
   }
   .brand :global(.brand-logo) {
+    flex: none;
     width: 22px;
     height: 22px;
     color: var(--accent);

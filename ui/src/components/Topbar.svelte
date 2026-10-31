@@ -8,7 +8,7 @@
   }
 </script>
 
-<header class="topbar">
+<header class="topbar" data-tauri-drag-region>
   <button
     class="icon-btn toggle"
     type="button"
@@ -33,15 +33,23 @@
     flex: none;
     padding: calc(6px + env(safe-area-inset-top)) 10px 6px;
   }
+  /* Room for the Mac window buttons, unless the docked sidebar holds them. */
+  :global(.mac-titlebar) .topbar {
+    padding-left: 80px;
+  }
   /* On wide screens the open sidebar has its own close button. */
   @media (min-width: 900px) {
     :global(.app[data-sidebar='open']) .toggle {
       display: none;
     }
+    :global(.mac-titlebar .app[data-sidebar='open']) .topbar {
+      padding-left: 10px;
+    }
   }
   .model {
     padding: 6px 10px;
     font-weight: 600;
+    pointer-events: none; /* lets the window be dragged by it */
   }
   .actions {
     display: flex;

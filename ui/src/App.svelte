@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { getCurrentWindow } from '@tauri-apps/api/window';
   import { onMount } from 'svelte';
   import ChatView from './components/ChatView.svelte';
   import Composer from './components/Composer.svelte';
@@ -10,6 +11,7 @@
   import Sidebar from './components/Sidebar.svelte';
   import Toast from './components/Toast.svelte';
   import Topbar from './components/Topbar.svelte';
+  import { TAURI } from './lib/backend';
   import { brandApp } from './lib/pwa';
   import { boot, dropFiles, shown, store } from './lib/stores/config.svelte';
   import { MAC, ui, wide } from './lib/stores/ui.svelte';
@@ -20,6 +22,7 @@
   const DEFAULT_FAVICON = favicon.href;
 
   onMount(() => {
+    if (TAURI && MAC) trackTitlebar();
     boot()
       .then(loadImages)
       .finally(() => {
@@ -27,6 +30,16 @@
         requestAnimationFrame(() => requestAnimationFrame(() => (preload = false)));
       });
   });
+
+  // The Mac window's buttons sit over the page (titleBarStyle: Overlay), except in fullscreen where macOS hides them.
+  async function trackTitlebar() {
+    const win = getCurrentWindow();
+    const root = document.documentElement;
+    const update = async () => root.classList.toggle('mac-titlebar', !(await win.isFullscreen()));
+    root.classList.add('mac-titlebar');
+    await update();
+    await win.onResized(update);
+  }
 
   // Waits, briefly, for the config's images so they show up with the rest of the page instead of after it.
   function loadImages() {

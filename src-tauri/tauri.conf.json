@@ -11,7 +11,7 @@
   },
   "app": {
     "windows": [
-      { "title": "FlopGPT", "hiddenTitle": true, "dragDropEnabled": false, "width": 1200, "height": 800, "minWidth": 360, "minHeight": 500 }
+      { "title": "FlopGPT", "hiddenTitle": true, "titleBarStyle": "Overlay", "trafficLightPosition": { "x": 18, "y": 28 }, "dragDropEnabled": false, "width": 1200, "height": 800, "minWidth": 360, "minHeight": 500 }
     ],
     "security": { "csp": null }
   },
