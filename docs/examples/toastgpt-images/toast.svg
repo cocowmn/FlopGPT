@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <!-- crust -->
+  <path d="M40 112c-22-6-28-34-16-54C40 30 86 18 128 18s88 12 104 40c12 20 6 48-16 54v108c0 10-8 18-18 18H58c-10 0-18-8-18-18z" fill="#b8651f"/>
+  <!-- crumb -->
+  <path d="M56 116c-16-4-20-24-11-38 13-20 48-30 83-30s70 10 83 30c9 14 5 34-11 38v100c0 5-4 8-8 8H64c-4 0-8-3-8-8z" fill="#f2c27a"/>
+  <!-- toasted center -->
+  <path d="M72 120c-10-3-12-16-6-25 10-14 36-21 62-21s52 7 62 21c6 9 4 22-6 25v86H72z" fill="#e3a14d" opacity=".55"/>
+  <!-- butter -->
+  <rect x="96" y="112" width="64" height="44" rx="8" fill="#fff2a8" transform="rotate(-8 128 134)"/>
+  <rect x="104" y="116" width="26" height="8" rx="4" fill="#ffffff" opacity=".8" transform="rotate(-8 128 134)"/>
+  <!-- face -->
+  <circle cx="100" cy="182" r="8" fill="#4a2a10"/>
+  <circle cx="156" cy="182" r="8" fill="#4a2a10"/>
+  <path d="M110 200q18 14 36 0" stroke="#4a2a10" stroke-width="7" fill="none" stroke-linecap="round"/>
+</svg>

@@ -1,10 +1,8 @@
 # FlopGPT
 
-A parody AI chat app that plays back a script. Made for skits and demos.
+A parody AI chat app that plays back a script. Made for skits and demos. Inspired by [a tiktok by @jackyroadstudios](https://www.tiktok.com/t/ZPLDLKTYY/) &mdash; the default AI Doomerism script pulled directly from his video; creativity credits to him and his beautiful mind.
 
-App concept inspired by [a tiktok by @jackyroadstudios](https://www.tiktok.com/t/ZPLDLKTYY/), but the default script is pulled directly from his skit. Creativity credits to him.
-
-It's a desktop app (Tauri) for Mac, Windows and Linux, and it also serves the demo to phones on the same wifi. Or try it in your browser at **[flopgpt.vercel.app](https://flopgpt.vercel.app)**.
+This is a desktop app for Mac, Windows and Linux built using [Tauri](https://v2.tauri.app/). It serves the demo to phones & other mobile devices on the same wifi. You can try a download- and server-free version online at **[flopgpt.vercel.app](https://flopgpt.vercel.app)**.
 
 <!-- This video will not render on GitHub -->
 
@@ -13,6 +11,14 @@ It's a desktop app (Tauri) for Mac, Windows and Linux, and it also serves the de
 <!-- This link will render as a video on GitHub -->
 
 https://github.com/user-attachments/assets/ccc0058f-19aa-4b86-bd81-6f368e81a5c3
+
+_**Note**_: I've developed and tested this application exclusively on macOS 26.6.* (Tahoe) and Safari for iPhone iOS 26.6.*. Downloads for Windows and Linux only work _in theory_, and guides written for Android have not been fully tested. If you try this with a different hardware setup, let me know if you run into weirdness. How? Idk, but I believe in your unshattering willpower to find a way.
+
+## I'm not a computer wizard! How can I possibly use this, you SWINE???
+
+Thank you for that, first of all. I appreciate the feedback and the sentiment, and you're honestly extremely brave for your candor and righteous, wrongteous indignation.
+
+[I've added a series of goal-oriented guides that you can find linked through the docs](docs/README.md). They're written to be friendly to people who refuse to learn the sacred texts of computer witchery. This should help you with writing a script, rebranding the app, performing a skit, and putting it on phones, with screenshots for the visual learners.
 
 ## How it plays
 
@@ -26,7 +32,7 @@ https://github.com/user-attachments/assets/ccc0058f-19aa-4b86-bd81-6f368e81a5c3
 
 - **Type the scripted prompt:** if the next response has a `prompt`, press **Tab** in the empty box, or on a phone **long-press the empty message box**. The prompt types itself out; then send it.
 - **Send the prompt instantly:** press Enter or tap send with the box empty.
-- **Start over:** **New chat** in the sidebar, or **Restart script** in **Settings** (the sliders icon at the top right), goes back to the first response.
+- **Start over:** **New chat** in the sidebar, or **Restart script** in **Settings** (the sliders button at the bottom of the sidebar, next to the user name), goes back to the first response.
 - After the last response, every prompt gets the `fallback` message.
 
 ## Download
@@ -49,7 +55,7 @@ The app isn't signed, so your computer warns you the first time you open it:
 
 ## Phones
 
-The app runs a small web server so phones on the same wifi can open the demo. **Settings > Phone server** shows:
+The app runs a small web server so phones on the same wifi can open the demo. **Settings > Server** (desktop app only) shows:
 
 - whether it's running, with a Start/Stop button, and its port (8787 by default, or the next free one; you can change it);
 - the address to open on a phone, with a QR code to scan;
@@ -91,7 +97,7 @@ The desktop app saves the config in its app data folder (on a Mac, `~/Library/Ap
 
 ### Logo
 
-**Settings > Logo > Choose image...** replaces the default sparkle with your own image: in the sidebar, the empty-chat greeting, the mark at the end of each reply, and the browser tab. A square image with a transparent background looks best. The image is stored in the config, so it exports with it. **Reset** brings the sparkle back.
+**Settings > Images** replaces the default sparkle with your own images. The **Large logo** is used everywhere (the empty-chat greeting, the sidebar, the mark at the end of each reply, the browser tab and the installed app icon) until **Small logo**, **App icon**, **Favicon** or **Thread avatar** gets its own image. **User avatar** sets the picture beside the user name. A square image with a transparent background looks best. Images are stored in the config, so they export with it. **Reset** brings the default back.
 
 In a config file, `"logo"` can also be a URL or data URI or, if you build the app yourself, the name of a file in `ui/public/` (`"logo": "my-logo.png"`).
 

@@ -1,0 +1,92 @@
+{
+  "appName": "ToastGPT",
+  "modelName": "Sourdough-4o",
+  "userName": "Crusty McCrumbs",
+  "greeting": "Let’s get this bread. Together.",
+  "placeholder": "Butter up ToastGPT",
+  "disclaimer": "ToastGPT may make mistakes. Like landing butter-side down.",
+  "accent": "#d9822b",
+  "logo": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTYgMjU2Ij4KICA8IS0tIGNydXN0IC0tPgogIDxwYXRoIGQ9Ik00MCAxMTJjLTIyLTYtMjgtMzQtMTYtNTRDNDAgMzAgODYgMTggMTI4IDE4czg4IDEyIDEwNCA0MGMxMiAyMCA2IDQ4LTE2IDU0djEwOGMwIDEwLTggMTgtMTggMThINThjLTEwIDAtMTgtOC0xOC0xOHoiIGZpbGw9IiNiODY1MWYiLz4KICA8IS0tIGNydW1iIC0tPgogIDxwYXRoIGQ9Ik01NiAxMTZjLTE2LTQtMjAtMjQtMTEtMzggMTMtMjAgNDgtMzAgODMtMzBzNzAgMTAgODMgMzBjOSAxNCA1IDM0LTExIDM4djEwMGMwIDUtNCA4LTggOEg2NGMtNCAwLTgtMy04LTh6IiBmaWxsPSIjZjJjMjdhIi8+CiAgPCEtLSB0b2FzdGVkIGNlbnRlciAtLT4KICA8cGF0aCBkPSJNNzIgMTIwYy0xMC0zLTEyLTE2LTYtMjUgMTAtMTQgMzYtMjEgNjItMjFzNTIgNyA2MiAyMWM2IDkgNCAyMi02IDI1djg2SDcyeiIgZmlsbD0iI2UzYTE0ZCIgb3BhY2l0eT0iLjU1Ii8+CiAgPCEtLSBidXR0ZXIgLS0+CiAgPHJlY3QgeD0iOTYiIHk9IjExMiIgd2lkdGg9IjY0IiBoZWlnaHQ9IjQ0IiByeD0iOCIgZmlsbD0iI2ZmZjJhOCIgdHJhbnNmb3JtPSJyb3RhdGUoLTggMTI4IDEzNCkiLz4KICA8cmVjdCB4PSIxMDQiIHk9IjExNiIgd2lkdGg9IjI2IiBoZWlnaHQ9IjgiIHJ4PSI0IiBmaWxsPSIjZmZmZmZmIiBvcGFjaXR5PSIuOCIgdHJhbnNmb3JtPSJyb3RhdGUoLTggMTI4IDEzNCkiLz4KICA8IS0tIGZhY2UgLS0+CiAgPGNpcmNsZSBjeD0iMTAwIiBjeT0iMTgyIiByPSI4IiBmaWxsPSIjNGEyYTEwIi8+CiAgPGNpcmNsZSBjeD0iMTU2IiBjeT0iMTgyIiByPSI4IiBmaWxsPSIjNGEyYTEwIi8+CiAgPHBhdGggZD0iTTExMCAyMDBxMTggMTQgMzYgMCIgc3Ryb2tlPSIjNGEyYTEwIiBzdHJva2Utd2lkdGg9IjciIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgo8L3N2Zz4K",
+  "userAvatar": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTYgMjU2Ij4KICA8Y2lyY2xlIGN4PSIxMjgiIGN5PSIxMjgiIHI9IjEyOCIgZmlsbD0iI2Q5ODIyYiIvPgogIDxwYXRoIGQ9Ik03MCAxNTBjLTYtMzAgMTQtNjIgNDYtNzAgMjAtNSAzNCA0IDUyIDIgMjItMiAzNiAxOCAzMCA0MC00IDE2LTIgMjgtMTAgNDQtMTIgMjItNDAgMjYtNjIgMjAtMTgtNS0zMCAyLTQ0LTYtMTAtNi0xMC0xOC0xMi0zMHoiIGZpbGw9IiNmMmMyN2EiLz4KICA8Y2lyY2xlIGN4PSIxMDQiIGN5PSIxMjIiIHI9IjYiIGZpbGw9IiNiODY1MWYiLz48Y2lyY2xlIGN4PSIxNTAiIGN5PSIxMTIiIHI9IjUiIGZpbGw9IiNiODY1MWYiLz4KICA8Y2lyY2xlIGN4PSIxMzIiIGN5PSIxNjAiIHI9IjciIGZpbGw9IiNiODY1MWYiLz48Y2lyY2xlIGN4PSIxNjgiIGN5PSIxNTAiIHI9IjQiIGZpbGw9IiNiODY1MWYiLz4KICA8Y2lyY2xlIGN4PSI5NiIgY3k9IjE2NCIgcj0iNCIgZmlsbD0iI2I4NjUxZiIvPgo8L3N2Zz4K",
+  "spinner": "random",
+  "defaultPendingSeconds": 2,
+  "streamResponse": true,
+  "charsPerSecond": 70,
+  "typingCharsPerSecond": 24,
+  "thoughtLabel": "Toasted for {s}s",
+  "fallback": "I’m all out of crumbs. Start a **New chat** for a fresh loaf.",
+  "responses": [
+    {
+      "prompt": "What should I have for breakfast?",
+      "pending": [
+        "Preheating...",
+        "Consulting the bread basket...",
+        {
+          "text": "Ignoring every option that isn’t toast...",
+          "seconds": 3
+        }
+      ],
+      "response": "Great question! After careful analysis, the answer is **toast**.\n\nOther options I considered:\n- Toast\n- Toast, but warmer\n- Cereal *(rejected: insufficiently toast)*"
+    },
+    {
+      "prompt": "I was thinking pancakes, actually.",
+      "pending": [
+        {
+          "text": "Pancakes?",
+          "seconds": 1.5
+        },
+        {
+          "text": "PANCAKES??",
+          "seconds": 1.5
+        },
+        {
+          "text": "Stay calm. Stay golden.",
+          "seconds": 3
+        }
+      ],
+      "response": "Pancakes are just toast that gave up halfway. I believe in you. Choose **toast**."
+    },
+    {
+      "prompt": "Are you biased?",
+      "defaultPendingSeconds": 1.2,
+      "pending": ["No", "Absolutely not", "Well...", "A little crusty, maybe"],
+      "response": "I am a perfectly neutral, unbiased assistant.\n\n> *Toast.*"
+    },
+    {
+      "prompt": "Fine. Toast it is.",
+      "pending": [
+        {
+          "text": "Popping up...",
+          "seconds": 2
+        }
+      ],
+      "response": "🎉 Excellent choice, Crusty. Butter side **up**, always."
+    }
+  ],
+  "threads": [
+    {
+      "title": "Rye vs. sourdough: a debate",
+      "group": "Today"
+    },
+    {
+      "title": "Is a bagel just a toast donut?"
+    },
+    {
+      "title": "Help, my toaster is judging me",
+      "group": "Yesterday"
+    },
+    {
+      "title": "Jam pairings for a first date"
+    },
+    {
+      "title": "Crumb cleanup strategies",
+      "group": "Previous 7 days"
+    },
+    {
+      "title": "Write a sonnet about butter"
+    },
+    {
+      "title": "Why does toast always land jam-side down?"
+    }
+  ]
+}
