@@ -16,6 +16,7 @@ You don't need to know how to code. Everything below can be done by clicking aro
 | Give the app my own name, logo, colors and jokes             | [Make it your own brand](make-it-your-brand.md)                                                                    |
 | Try a finished example in 30 seconds                         | [Make it your own brand → Try the example brand](make-it-your-brand.md#try-the-example-brand-first)                |
 | Perform a skit without fumbling the typing                   | [Run the show](run-the-show.md)                                                                                    |
+| Fix a mistake mid-take, or skip to a later scene             | [Run the show → Undo a mistake or jump ahead](run-the-show.md#undo-a-mistake-or-jump-ahead)                         |
 | Start the skit over between takes                            | [Run the show → Start over](run-the-show.md#start-over-between-takes)                                              |
 | Show it on phones (mine, my cast's or my audience's)         | [Put it on phones](share-to-phones.md)                                                                             |
 | Install it on a phone's home screen like a real app          | [Put it on phones → Install it like a real app](share-to-phones.md#install-it-like-a-real-app)                     |

@@ -33,6 +33,7 @@ Thank you for that, first of all. I appreciate the feedback and the sentiment, a
 - **Type the scripted prompt:** if the next response has a `prompt`, press **Tab** in the empty box, or on a phone **long-press the empty message box**. The prompt types itself out; then send it.
 - **Send the prompt instantly:** press Enter or tap send with the box empty.
 - **Start over:** **New chat** in the sidebar, or **Restart script** in **Settings** (the sliders button at the bottom of the sidebar, next to the user name), goes back to the first response.
+- **Undo or jump:** right-click (or long-press) the **+** button for a hidden menu. **Undo last prompt** unsends the last message and removes its reply, even one that's still playing, so the same response plays next. **Jump to Response** lists every scripted response (`1: …`, `2: …`) and shows the chat as it stands after the one you pick, instantly and without animation. A normal click on **+** still opens the file picker.
 - After the last response, every prompt gets the `fallback` message.
 
 ## Download
