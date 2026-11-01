@@ -25,6 +25,7 @@ export type Message =
       shown: string; // how much of the reply is on screen
       complete: boolean; // all of it is (no more streaming)
       full: string;
+      instant?: boolean; // restored by a jump: skip the entrance animations
     };
 export type AssistantMessage = Extract<Message, { role: 'assistant' }>;
 
@@ -146,6 +147,87 @@ class Chat {
       };
       requestAnimationFrame(frame);
     });
+  }
+
+  /** Stops whatever is playing or being typed. */
+  private halt() {
+    this.run++;
+    this.busy = false;
+    this.stopTyping();
+  }
+
+  private forget(msgs: Message[]) {
+    const urls = msgs.flatMap(m => (m.role === 'user' ? m.atts.map(a => a.url) : []));
+    urls.forEach(u => URL.revokeObjectURL(u));
+    this.sentUrls = this.sentUrls.filter(u => !urls.includes(u));
+  }
+
+  /** Unsends the last prompt and removes its reply, finished or still playing. */
+  undo() {
+    const at = this.messages.map(m => m.role).lastIndexOf('user');
+    if (at < 0) return;
+    this.halt();
+    const removed = this.messages.splice(at);
+    this.forget(removed);
+    const first = removed[0];
+    this.index = Math.max(0, this.index - 1);
+    this.input = first.role === 'user' ? first.text : '';
+    ui.pinned = true;
+    ui.stick();
+    ui.focusComposer();
+  }
+
+  /** The scripted responses, for the jump list. */
+  get turns() {
+    const script = store.script;
+    return script.responses.map((r, i) => {
+      const resp = normalizeResponse(r, script);
+      const line = resp.text.split('\n').map(l => l.replace(/^[\s#>*\-_`]+|[*_`]+/g, '').trim()).find(Boolean);
+      return { n: i + 1, label: resp.prompt || line || '(empty)' };
+    });
+  }
+
+  /** Shows the conversation as it stands after `n` responses, with no animation. */
+  jumpTo(n: number) {
+    this.halt();
+    const script = store.script;
+    // Keep real turns (typed text, attachments) that are already on screen; build the rest from the script.
+    let turns = 0;
+    let keep = 0;
+    this.messages.forEach((m, i) => {
+      if (m.role === 'assistant' && m.complete && turns < n) {
+        turns++;
+        keep = i + 1;
+      }
+    });
+    this.forget(this.messages.splice(keep));
+    for (const m of this.messages) if (m.role === 'assistant') m.instant = true;
+    for (let i = turns; i < n; i++) {
+      const resp = normalizeResponse(script.responses[i], script);
+      const secs = Math.max(1, Math.round(resp.pending.reduce((t, p) => t + p.seconds, 0)));
+      this.messages.push({ id: ++ids, role: 'user', text: resp.prompt, atts: [] });
+      this.messages.push({
+        id: ++ids,
+        role: 'assistant',
+        thinking: resp.pending.length
+          ? {
+              steps: resp.pending.map(p => p.text),
+              label: (script.thoughtLabel || 'Thought for {s}s').replace('{s}', String(secs)),
+              done: true,
+              spinner: pickSpinner(script),
+            }
+          : null,
+        writing: true,
+        shown: resp.text,
+        complete: true,
+        full: resp.text,
+        instant: true,
+      });
+    }
+    this.index = n;
+    this.input = '';
+    ui.pinned = true;
+    ui.stick();
   }
 
   // Tab (or a long-press) on an empty box "types" the scripted prompt.

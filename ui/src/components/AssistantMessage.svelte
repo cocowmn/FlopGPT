@@ -12,16 +12,19 @@
 </script>
 
 <div class="msg">
-  {#if msg.thinking}<Thinking thinking={msg.thinking} />{/if}
+  {#if msg.thinking}<Thinking thinking={msg.thinking} instant={msg.instant} />{/if}
   {#if msg.writing}
     <!-- eslint-disable-next-line svelte/no-at-html-tags -- renderMarkdown escapes the text -->
-    <div class="prose">{@html html}</div>
+    <div class="prose" class:instant={msg.instant}>{@html html}</div>
   {/if}
-  <MessageActions text={msg.full} ready={msg.complete} />
+  <MessageActions text={msg.full} ready={msg.complete} instant={msg.instant} />
 </div>
 
 <style>
   .msg {
     min-width: 0;
+  }
+  .prose.instant {
+    animation: none;
   }
 </style>

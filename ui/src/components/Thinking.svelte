@@ -4,14 +4,16 @@
   import type { Thinking } from '../lib/stores/chat.svelte';
   import Spinner from './Spinner.svelte';
 
-  let { thinking }: { thinking: Thinking } = $props();
+  let { thinking, instant = false }: { thinking: Thinking; instant?: boolean } = $props();
 
   let open = $state(false);
-  let labels = $state<{ id: number; text: string; out: boolean }[]>([]);
+  let labels = $state<{ id: number; text: string; out: boolean }[]>(
+    untrack(() => (instant ? [{ id: 0, text: thinking.label, out: false }] : [])), // restored: no entrance
+  );
   let ids = 0;
   let box = $state<HTMLSpanElement>();
   let width = $state<number>(); // eases to fit each new label, so the chevron glides instead of jumping
-  let shown = ''; // the state last animated in: the effect can re-run (e.g. when a new message is sent) with nothing new
+  let shown = untrack(() => (instant ? `${thinking.steps.length}|${thinking.done}|${thinking.label}` : '')); // the state last animated in: the effect can re-run (e.g. when a new message is sent) with nothing new
 
   // Slide the old text up and out while the new text slides up and in.
   $effect(() => {
@@ -34,7 +36,7 @@
   });
 </script>
 
-<div class="thinking" class:live={!thinking.done} class:done={thinking.done}>
+<div class="thinking" class:live={!thinking.done} class:done={thinking.done} class:instant>
   <button type="button" class="thinking-head" aria-expanded={open} onclick={() => (open = !open)}>
     <Spinner pick={thinking.spinner} done={thinking.done} />
     <span class="think-label" bind:this={box} style:width={width && `${width}px`}>
@@ -109,6 +111,10 @@
     animation:
       blurb-out 0.3s ease-in both,
       shimmer 1.8s linear infinite;
+  }
+
+  .thinking.instant :is(.think-label span, .thinking-steps li) {
+    animation: none;
   }
 
   .thinking .chev {

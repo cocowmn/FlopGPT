@@ -3,7 +3,7 @@
   import Logo from './Logo.svelte';
 
   // Rendered (but hidden) for the whole reply so its row is already there when it fades in.
-  let { text, ready = true }: { text: string; ready?: boolean } = $props();
+  let { text, ready = true, instant = false }: { text: string; ready?: boolean; instant?: boolean } = $props();
   let rating = $state<'up' | 'down' | null>(null);
 
   function copy() {
@@ -15,7 +15,7 @@
   const rate = (r: 'up' | 'down') => (rating = rating === r ? null : r);
 </script>
 
-<div class="actions" class:ready inert={!ready}>
+<div class="actions" class:ready class:instant inert={!ready}>
   <button class="icon-btn" type="button" aria-label="Copy" onclick={copy}
     ><svg class="icon"><use href="#i-copy" /></svg></button
   >
@@ -55,6 +55,9 @@
       opacity 0.4s var(--ease),
       translate 0.4s var(--ease),
       visibility 0.4s;
+  }
+  .actions.instant {
+    transition: none;
   }
   .actions.ready {
     opacity: 1;

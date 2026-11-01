@@ -85,6 +85,36 @@
     if (longFired) e.preventDefault();
   }
 
+  // The + button: tap to pick files; right-click or long-press for the performer's debug menu.
+  let attach: HTMLButtonElement;
+  let attachTimer = 0,
+    attachLong = false;
+
+  function openMenu() {
+    const r = attach.getBoundingClientRect();
+    ui.debugMenu = { x: r.left, y: r.top };
+  }
+  function attachDown(e: PointerEvent) {
+    attachLong = false;
+    if (e.button > 0) return;
+    attachTimer = window.setTimeout(() => {
+      attachLong = true;
+      navigator.vibrate?.(20);
+      openMenu();
+    }, 450);
+  }
+  const attachCancel = () => clearTimeout(attachTimer);
+  function attachClick() {
+    if (!attachLong) picker.click();
+    attachLong = false;
+  }
+  function attachContext(e: MouseEvent) {
+    e.preventDefault();
+    attachCancel();
+    if (!attachLong) openMenu();
+    attachLong = true; // the click that follows a right-click must not open the picker
+  }
+
   // Sending is still refused while the prompt types itself out, but the button doesn't look disabled.
   const sendable = $derived(chat.canSend || (chat.typing && !chat.busy));
 </script>
@@ -100,7 +130,18 @@
   <div class="box">
     <AttachmentTray />
     <div class="row">
-      <button class="icon-btn attach" type="button" aria-label="Add photos or files" onclick={() => picker.click()}>
+      <button
+        bind:this={attach}
+        class="icon-btn attach"
+        type="button"
+        aria-label="Add photos or files"
+        onclick={attachClick}
+        onpointerdown={attachDown}
+        onpointerup={attachCancel}
+        onpointerleave={attachCancel}
+        onpointercancel={attachCancel}
+        oncontextmenu={attachContext}
+      >
         <svg class="icon"><use href="#i-plus" /></svg>
       </button>
       <textarea
@@ -174,6 +215,9 @@
     line-height: 1.5; /* 16px stops iOS zoom-on-focus */
   }
   .attach {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
     width: 36px;
     height: 36px;
     border-radius: 50%;

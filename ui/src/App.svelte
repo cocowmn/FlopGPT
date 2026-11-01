@@ -4,6 +4,7 @@
   import ChatView from './components/ChatView.svelte';
   import Composer from './components/Composer.svelte';
   import ConfirmDialog from './components/ConfirmDialog.svelte';
+  import DebugMenu from './components/DebugMenu.svelte';
   import EditorDialog from './components/editor/EditorDialog.svelte';
   import IconSprite from './components/IconSprite.svelte';
   import Lightbox from './components/Lightbox.svelte';
@@ -114,6 +115,7 @@
   <EditorDialog />
   <Lightbox />
   <ConfirmDialog />
+  <DebugMenu />
 {/if}
 <Toast />
 

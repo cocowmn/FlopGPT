@@ -24,6 +24,7 @@ class UI {
   editorOpen = $state(false);
   lightbox = $state<{ src: string; alt: string } | null>(null);
   confirmReq = $state<ConfirmRequest | null>(null);
+  debugMenu = $state<{ x: number; y: number } | null>(null); // the + button's hidden menu, anchored at its top-left
   toastMsg = $state('');
   toastShown = $state(false);
   failedImages = new SvelteSet<string>(); // image srcs that wouldn't load; the default shows instead
