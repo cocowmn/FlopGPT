@@ -47,9 +47,9 @@
     <button
       class="icon-btn"
       type="button"
-      aria-label="Demo settings"
+      aria-label="Settings"
       aria-keyshortcuts={SETTINGS_ARIA_KEY}
-      title="Demo settings ({SETTINGS_KEY})"
+      title="Settings ({SETTINGS_KEY})"
       onclick={() => (ui.settingsOpen = true)}
     >
       <svg class="icon"><use href="#i-sliders" /></svg>

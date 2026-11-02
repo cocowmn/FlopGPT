@@ -33,9 +33,9 @@ Both versions have the same settings, so every guide works in either one unless 
 
 ## The one button you need to know
 
-Everything is changed in **Demo settings**. To open it, click the **sliders button** at the bottom of the sidebar, next to your user name. You can also press **⌘ ,** on a Mac or **Ctrl ,** on Windows and Linux.
+Everything is changed in **Settings**. To open it, click the **sliders button** at the bottom of the sidebar, next to your user name. You can also press **⌘ ,** on a Mac or **Ctrl ,** on Windows and Linux.
 
-![The Demo settings button, at the bottom of the sidebar](images/open-settings-button.png)
+![The Settings button, at the bottom of the sidebar](images/open-settings-button.png)
 
 If you don't see the sidebar, click the panel icon in the top-left corner first.
 

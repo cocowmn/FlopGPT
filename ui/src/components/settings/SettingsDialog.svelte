@@ -1,4 +1,4 @@
-<!-- Demo settings: the header, tabs and footer stay put while the tab between them scrolls. -->
+<!-- Settings: the header, tabs and footer stay put while the tab between them scrolls. -->
 <script lang="ts">
   import { TAURI } from '../../lib/backend';
   import { narrow, ui } from '../../lib/stores/ui.svelte';
@@ -28,7 +28,7 @@
 <Modal class="settings" labelledby="settingsTitle" backdropClose bind:open={ui.settingsOpen}>
   <div class="dlg">
     <header>
-      <h2 id="settingsTitle">Demo settings</h2>
+      <h2 id="settingsTitle">Settings</h2>
       <button class="icon-btn" type="button" aria-label="Close" onclick={() => (ui.settingsOpen = false)}>
         <svg class="icon"><use href="#i-close" /></svg>
       </button>

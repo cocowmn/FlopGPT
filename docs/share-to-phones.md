@@ -26,7 +26,7 @@
 
 This needs the **desktop app** running on a computer, with the phone **on the same wifi**.
 
-1. Open the desktop app, then open **Demo settings > Server**. The server starts by itself when the app opens, so you should see **Running on port 8787**.
+1. Open the desktop app, then open **Settings > Server**. The server starts by itself when the app opens, so you should see **Running on port 8787**.
 
    ![The Server tab with its QR code](images/server-http.png)
 
@@ -52,7 +52,7 @@ Phones only let a web page install as a full app (with offline mode) when the pa
 
 ### On the computer (once)
 
-1. In **Demo settings > Server**, check **Serve over HTTPS too**.
+1. In **Settings > Server**, check **Serve over HTTPS too**.
 2. Two QR codes appear: **1. Set up a phone** and **2. Open**.
 
    ![Server tab with HTTPS on, showing two QR codes](images/server-https.png)

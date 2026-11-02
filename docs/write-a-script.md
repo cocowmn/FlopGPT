@@ -16,7 +16,7 @@
 
 ## Change what the AI says back
 
-1. Open **Demo settings** (the sliders button at the bottom of the sidebar).
+1. Open **Settings** (the sliders button at the bottom of the sidebar).
 2. On the **Conversation** tab, next to **Script**, click **Edit**.
 
    ![The Conversation tab: the Edit buttons, the playback options and the config file](images/settings-conversation.png)
@@ -127,7 +127,7 @@ The **Playback** section of the **Conversation** tab applies to the whole script
 
 The sidebar's chat history is fake too. It's another chance for jokes ("Help, my toaster is judging me").
 
-1. In **Demo settings > Conversation**, click **Edit** next to **Old conversations**.
+1. In **Settings > Conversation**, click **Edit** next to **Old conversations**.
 2. Type chat titles into the boxes. **+ Add chat** adds another one.
 3. **+ Add heading** adds a bold group label such as "Today" or "Yesterday". It sits above the chats that come after it.
 4. Click **Save**.

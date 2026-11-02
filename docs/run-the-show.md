@@ -31,7 +31,7 @@ Any of these restarts the script from the first response:
 
 - **New chat** in the sidebar.
 - The **pen-and-square icon** in the top-right corner.
-- **Demo settings > Conversation > Restart script**.
+- **Settings > Conversation > Restart script**.
 
 ## Undo a mistake or jump ahead
 
