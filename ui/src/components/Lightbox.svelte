@@ -23,6 +23,8 @@
     display: block;
     max-width: 96vw;
     max-height: 92dvh;
+    min-width: 0;
+    min-height: 0;
     border-radius: 14px;
     cursor: zoom-out;
   }

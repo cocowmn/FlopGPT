@@ -11,23 +11,26 @@
   let settled = $state(ready); // the image has finished fading in, so the placeholder can go
   let broken = $state(false);
   let drafts = $state<string[]>([]);
-  let step = $state(-1); // the draft on screen (-1: none yet)
+  let step = $state(0); // the draft on screen
+  // Drifting colors: the animated style, or progressive when the drafts can't be drawn.
+  const progressive = untrack(() => image.style) === 'progressive';
+  let drift = $state(!progressive);
   let timer = 0;
 
-  // Rough drafts, shown one after another over the generation time.
-  if (!ready && untrack(() => image.style) === 'progressive') {
+  // Rough drafts, shown one after another over the generation time, the first one as soon as it's drawn.
+  if (!ready && progressive) {
     const t0 = performance.now();
     draftFrames(untrack(() => image.src))
       .then(urls => {
         drafts = urls;
         const tick = () => {
           const t = (performance.now() - t0) / 1000 / Math.max(0.1, image.seconds);
-          step = Math.min(urls.length - 1, Math.floor(t * (urls.length + 1)) - 1);
+          step = Math.min(urls.length - 1, Math.floor(t * urls.length));
           if (!image.done) timer = window.setTimeout(tick, 100);
         };
         tick();
       })
-      .catch(() => {}); // can't be drawn (another site's image): the colors keep drifting instead
+      .catch(() => (drift = true)); // can't be drawn (another site's image): the colors drift instead
   }
   onDestroy(() => {
     clearTimeout(timer);
@@ -44,7 +47,7 @@
 <figure class="gen" class:ready class:instant class:done={image.done} style:aspect-ratio={ratio} style:width>
   {#if !settled}
     <div class="pending" aria-hidden="true">
-      <span class="blob a"></span><span class="blob b"></span><span class="blob c"></span>
+      {#if drift}<span class="blob a"></span><span class="blob b"></span><span class="blob c"></span>{/if}
       {#each drafts as d, i (d)}
         <img class="draft" class:on={i <= step} style:--blur="{(drafts.length - i) * 2.5}px" src={d} alt="" />
       {/each}
@@ -83,6 +86,8 @@
     border-radius: 18px;
     background: color-mix(in srgb, var(--accent) 8%, var(--bubble));
     overflow: hidden;
+    /* Safari doesn't round overflow: hidden over blurred or moving layers, so clip the corners outright. */
+    clip-path: inset(0 round 18px);
     animation: rise 0.4s var(--ease) both;
   }
   .gen.instant,

@@ -178,6 +178,20 @@ textarea {
   font: inherit;
   font-size: 14px;
 }
+/* Selects drop the native control (Safari ignores padding on it) so they match the text inputs */
+select.ed-in {
+  -webkit-appearance: none;
+  appearance: none;
+  padding-right: 30px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-position: right 10px center;
+  background-repeat: no-repeat;
+  background-size: 14px;
+  cursor: pointer;
+}
+select.ed-in:disabled {
+  cursor: default;
+}
 .ed-in:focus {
   outline: 2px solid var(--accent);
   outline-offset: -1px;
@@ -387,13 +401,25 @@ dialog.settings .dlg {
   flex-direction: column;
   max-height: calc(100dvh - 34px);
 }
+/* Opening a dialog focuses it; the box itself never needs a focus ring */
+dialog:focus {
+  outline: none;
+}
+/* The lightbox fills the window and centers the image, whatever its size (an SVG may have none of its own) */
 dialog.lightbox {
-  width: auto;
-  max-width: 96vw;
+  width: 100vw;
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
   border: 0;
-  border-radius: 14px;
+  border-radius: 0;
   background: transparent;
-  overflow: visible;
+  overflow: hidden;
+}
+dialog.lightbox[open] {
+  display: grid;
+  place-items: center;
 }
 dialog.lightbox::backdrop {
   background: rgba(0, 0, 0, 0.82);
