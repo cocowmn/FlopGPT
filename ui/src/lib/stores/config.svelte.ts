@@ -5,7 +5,6 @@
  * ------------------------------------------------------------------ */
 import {
   builtInConfig,
-  exportJson,
   exportZip,
   fetchConfig,
   HttpError,
@@ -15,7 +14,8 @@ import {
   TAURI,
   watchConfig,
 } from '../backend';
-import { isJson, takeLegacy, toImageDataURL } from '../files';
+import { EXT, packConfig, unpackConfig } from '../bundle';
+import { isConfigFile, isZip, takeLegacy, toImageDataURL } from '../files';
 import { IMAGE_SLOTS, slotOf, type ImageKey } from '../images';
 import { abs } from '../location';
 import { appIconPng, DEFAULT_ACCENT, SPARKLE, toHex } from '../pwa';
@@ -124,9 +124,9 @@ export async function setConfig(cfg: Config, restart: boolean, msg?: string) {
   if ((await saveConfig(cfg)) && msg) ui.toast(msg);
 }
 
-// A branding field typed in Settings: shown at once, saved once the typing pauses.
+// A field changed in Settings: shown at once, saved once the typing pauses. A blank value removes the key.
 let fieldSave = 0;
-export function setField(key: string, value: string) {
+export function setField(key: string, value: unknown) {
   const cfg: Config = { ...store.config };
   setKey(cfg, key, value);
   applyConfig(cfg, false);
@@ -219,27 +219,37 @@ export async function importFiles(files: File[]) {
     try {
       if (store.locked) throw new Error('The Mac app has phone editing turned off.');
       let raw;
-      try {
-        raw = JSON.parse(await file.text());
-      } catch (e) {
-        throw new Error(`${file.name} isn't valid JSON (${(e as Error).message})`, { cause: e });
+      let missing: string[] = [];
+      if (isZip(file)) {
+        try {
+          ({ config: raw, missing } = await unpackConfig(await file.arrayBuffer()));
+        } catch (e) {
+          throw new Error(`${file.name} ${(e as Error).message}.`, { cause: e });
+        }
+      } else {
+        try {
+          raw = JSON.parse(await file.text());
+        } catch (e) {
+          throw new Error(`${file.name} isn't valid JSON (${(e as Error).message})`, { cause: e });
+        }
       }
       const kind = detect(raw);
       if (!kind) throw new Error(`${file.name} doesn't look like a demo config.`);
       const note =
         kind === 'script' ? ' (kept the old conversations)' : kind === 'threads' ? ' (old conversations only)' : '';
-      await setConfig(merge(store.config, raw, kind), kind !== 'threads', `Imported ${file.name}${note}`);
+      const lost = missing.length ? `. Missing from the zip: ${missing.join(', ')}` : '';
+      await setConfig(merge(store.config, raw, kind), kind !== 'threads', `Imported ${file.name}${note}${lost}`);
     } catch (e) {
       ui.toast((e as Error).message);
     }
   }
 }
 
-/** Dropped files: .json files configure the demo; anything else is attached to the next message. */
+/** Dropped files: .zip and .json files configure the demo; anything else is attached to the next message. */
 export function dropFiles(files: File[]) {
-  const json = files.filter(isJson),
-    media = files.filter(f => !isJson(f));
-  if (json.length) importFiles(json);
+  const configs = files.filter(isConfigFile),
+    media = files.filter(f => !isConfigFile(f));
+  if (configs.length) importFiles(configs);
   if (media.length) chat.addFiles(media);
 }
 
@@ -251,7 +261,7 @@ const slug = (name: unknown) =>
 
 export async function exportConfig(cfg: Config = store.config) {
   try {
-    const path = await exportJson(slug(cfg.appName) + '-config.json', cfg);
+    const path = await exportZip(slug(cfg.appName) + '-config.zip', zip(packConfig(cfg)));
     if (path) ui.toast('Exported to ' + path);
   } catch (e) {
     ui.toast(String(e));
@@ -273,17 +283,6 @@ export function resetImages(keys: ImageKey[]) {
   for (const k of keys) delete cfg[k];
   setConfig(cfg, false, keys.length === 1 ? `${slotOf(keys[0]).label} reset` : 'Images reset');
 }
-
-const EXT: Record<string, string> = {
-  'image/png': 'png',
-  'image/jpeg': 'jpg',
-  'image/svg+xml': 'svg',
-  'image/webp': 'webp',
-  'image/gif': 'gif',
-  'image/avif': 'avif',
-  'image/x-icon': 'ico',
-  'image/vnd.microsoft.icon': 'ico',
-};
 
 /** Every image as the app shows it right now, the built-in ones included, in one .zip. */
 export async function exportImages() {

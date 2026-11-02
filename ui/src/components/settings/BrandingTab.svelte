@@ -1,16 +1,37 @@
-<!-- Settings' Images tab: every image the config can brand, each previewed the way it shows up in the app. -->
+<!-- Settings' Branding tab: the names and words that apply as they're typed, then every image the config can brand,
+     each previewed the way it shows up in the app. -->
 <script lang="ts">
   import { IMAGE_SLOTS, type ImageKey } from '../../lib/images';
   import {
     exportImages,
     imageFailed,
     resetImages,
+    setField,
     setImageFile,
     shown,
     store,
     useLargeLogo,
   } from '../../lib/stores/config.svelte';
   import { ui } from '../../lib/stores/ui.svelte';
+  import AccentField from '../editor/AccentField.svelte';
+  import Field from '../editor/Field.svelte';
+
+  // The branding fields, each with the default it falls back to when left blank.
+  const fields = $derived([
+    { key: 'appName', label: 'App name', placeholder: 'FlopGPT' },
+    { key: 'modelName', label: 'Model name', placeholder: store.brand.name },
+    { key: 'userName', label: 'User name', placeholder: 'You' },
+    { key: 'accent', label: 'Accent color', placeholder: '' },
+    { key: 'greeting', label: 'Greeting', placeholder: 'How can I help you today?', wide: true },
+    { key: 'placeholder', label: 'Placeholder', placeholder: `Message ${store.brand.name}`, wide: true },
+    {
+      key: 'disclaimer',
+      label: 'Disclaimer',
+      placeholder: `${store.brand.name} can make mistakes. Check important info.`,
+      wide: true,
+    },
+  ]);
+  const value = (key: string) => String(store.config[key] ?? '');
 
   let picker: HTMLInputElement;
   let target: ImageKey = 'logo'; // the row whose file picker is open
@@ -113,6 +134,25 @@
   {/if}
 {/snippet}
 
+<div class="cfg-grid">
+  {#each fields as f (f.key)}
+    <Field label={f.label} wide={f.wide}>
+      {#if f.key === 'accent'}
+        <AccentField value={value(f.key)} set={v => setField(f.key, v)} disabled={store.locked} />
+      {:else}
+        <input
+          class="ed-in"
+          placeholder={f.placeholder}
+          value={value(f.key)}
+          disabled={store.locked}
+          oninput={e => setField(f.key, e.currentTarget.value)}
+        />
+      {/if}
+    </Field>
+  {/each}
+</div>
+
+<h3 class="set-head">Images</h3>
 <p class="lead">Click a preview or drop an image on a row to replace it. PNG, JPG, WebP, GIF or SVG.</p>
 
 <ul class="img-list">
@@ -189,6 +229,23 @@
 <input bind:this={picker} type="file" accept="image/*" hidden onchange={picked} />
 
 <style>
+  .cfg-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+    padding-bottom: 16px;
+  }
+  /* Field's own top margin is for stacked fields; the grid spaces these. */
+  .cfg-grid :global(.ed-field) {
+    margin-top: 0;
+  }
+  .set-head {
+    margin: 0 -20px;
+    padding: 12px 20px 4px;
+    border-top: 1px solid var(--line);
+    font-size: 15px;
+  }
+
   .lead {
     margin: 0 0 12px;
     font-size: 13px;

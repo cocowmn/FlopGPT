@@ -60,14 +60,7 @@ export function watchConfig(onRev: (rev: number) => void) {
   else if (window.EventSource) new EventSource('/api/events').onmessage = e => onRev(Number(e.data));
 }
 
-/** Asks where to save (desktop) or downloads the file (phones). Returns the path, if any. */
-export async function exportJson(name: string, json: unknown): Promise<string | null> {
-  if (TAURI) return invoke<string | null>('export_json', { name, json });
-  download(name, new Blob([JSON.stringify(json, null, 2) + '\n'], { type: 'application/json' }));
-  return null;
-}
-
-/** Same, for a .zip. */
+/** Asks where to save a .zip (desktop) or downloads it (phones). Returns the path, if any. */
 export async function exportZip(name: string, bytes: Uint8Array<ArrayBuffer>): Promise<string | null> {
   if (TAURI) return invoke<string | null>('export_zip', { name, bytes: Array.from(bytes) });
   download(name, new Blob([bytes], { type: 'application/zip' }));

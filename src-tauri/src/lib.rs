@@ -132,19 +132,7 @@ fn config_save(hub: State<'_, Hub>, config: Option<Value>) -> Result<u64, String
     hub.save(config)
 }
 
-/// Asks where to save, then writes the JSON there. Returns the path, or None if cancelled.
-#[tauri::command]
-async fn export_json(app: AppHandle, name: String, json: Value) -> Result<Option<String>, String> {
-    save_as(
-        &app,
-        &name,
-        "JSON",
-        "json",
-        (serde_json::to_string_pretty(&json).unwrap() + "\n").as_bytes(),
-    )
-}
-
-/// Same, for a .zip.
+/// Asks where to save, then writes the .zip there. Returns the path, or None if cancelled.
 #[tauri::command]
 async fn export_zip(app: AppHandle, name: String, bytes: Vec<u8>) -> Result<Option<String>, String> {
     save_as(&app, &name, "Zip archive", "zip", &bytes)
@@ -205,7 +193,6 @@ pub fn run() {
             server_qr,
             config_load,
             config_save,
-            export_json,
             export_zip
         ])
         .run(tauri::generate_context!())

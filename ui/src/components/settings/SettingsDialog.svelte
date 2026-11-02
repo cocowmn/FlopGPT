@@ -4,19 +4,19 @@
   import { narrow, ui } from '../../lib/stores/ui.svelte';
   import Modal from '../Modal.svelte';
   import AboutTab from './AboutTab.svelte';
-  import ConfigTab from './ConfigTab.svelte';
-  import ImagesTab from './ImagesTab.svelte';
+  import BrandingTab from './BrandingTab.svelte';
+  import ConversationTab from './ConversationTab.svelte';
   import ServerPanel from './ServerPanel.svelte';
 
-  type Tab = 'config' | 'images' | 'server' | 'about';
+  type Tab = 'conversation' | 'branding' | 'server' | 'about';
   // A tab with an icon shows just the icon on narrow screens.
   const tabs: { key: Tab; label: string; icon?: string }[] = [
-    { key: 'config', label: 'Config' },
-    { key: 'images', label: 'Images' },
+    { key: 'conversation', label: 'Conversation' },
+    { key: 'branding', label: 'Branding' },
     ...(TAURI ? [{ key: 'server' as const, label: 'Server' }] : []),
     { key: 'about', label: 'About', icon: 'i-info' },
   ];
-  let tab = $state<Tab>('config');
+  let tab = $state<Tab>('conversation');
   let body = $state<HTMLDivElement>();
 
   function show(t: Tab) {
@@ -55,10 +55,10 @@
     </div>
 
     <div class="set-body" id="setPanel" role="tabpanel" aria-labelledby="setTab-{tab}" bind:this={body}>
-      {#if tab === 'config'}
-        <ConfigTab />
-      {:else if tab === 'images'}
-        <ImagesTab />
+      {#if tab === 'conversation'}
+        <ConversationTab />
+      {:else if tab === 'branding'}
+        <BrandingTab />
       {:else if tab === 'about'}
         <AboutTab />
       {/if}

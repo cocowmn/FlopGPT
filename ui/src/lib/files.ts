@@ -8,6 +8,9 @@ export const fmtSize = (b: number) =>
   b < 1024 ? b + ' B' : b < 1048576 ? Math.round(b / 1024) + ' KB' : (b / 1048576).toFixed(1) + ' MB';
 
 export const isJson = (f: File) => /\.json$/i.test(f.name) || f.type === 'application/json';
+export const isZip = (f: File) => /\.zip$/i.test(f.name) || /^application\/(x-)?zip(-compressed)?$/.test(f.type);
+/** A file that configures the demo, rather than one to attach. */
+export const isConfigFile = (f: File) => isJson(f) || isZip(f);
 
 export const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
 
