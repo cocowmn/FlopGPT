@@ -12,7 +12,7 @@
   import Sidebar from './components/Sidebar.svelte';
   import Toast from './components/Toast.svelte';
   import Topbar from './components/Topbar.svelte';
-  import { TAURI } from './lib/backend';
+  import { openExternal, TAURI } from './lib/backend';
   import { brandApp } from './lib/pwa';
   import { boot, dropFiles, shown, store } from './lib/stores/config.svelte';
   import { MAC, ui, wide } from './lib/stores/ui.svelte';
@@ -85,6 +85,15 @@
     }
   }
 
+  // In the app window, links that would open a new tab (replies, About) open in the browser instead.
+  function onclick(e: MouseEvent) {
+    if (!TAURI || e.defaultPrevented) return;
+    const a = (e.target as Element).closest?.('a[target="_blank"]') as HTMLAnchorElement | null;
+    if (!a || !/^https?:/.test(a.href)) return;
+    e.preventDefault();
+    openExternal(a.href).catch(err => ui.toast(`Couldn't open the link (${err}).`));
+  }
+
   /* drag & drop files anywhere on the page */
   function ondragover(e: DragEvent) {
     if (e.dataTransfer && [...e.dataTransfer.types].includes('Files')) e.preventDefault();
@@ -96,7 +105,7 @@
   }
 </script>
 
-<svelte:window {onkeydown} {ondragover} {ondrop} />
+<svelte:window {onkeydown} {onclick} {ondragover} {ondrop} />
 
 <IconSprite />
 

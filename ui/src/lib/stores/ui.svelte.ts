@@ -2,6 +2,7 @@ import { tick } from 'svelte';
 import { MediaQuery, SvelteSet } from 'svelte/reactivity';
 
 export const wide = new MediaQuery('min-width: 900px');
+export const narrow = new MediaQuery('max-width: 520px'); // phone-sized: some labels shrink to icons
 export const reduceMotion = new MediaQuery('prefers-reduced-motion: reduce');
 
 const nav = navigator as Navigator & { userAgentData?: { platform: string } };

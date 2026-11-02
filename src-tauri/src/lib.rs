@@ -169,6 +169,7 @@ fn save_as(app: &AppHandle, name: &str, kind: &str, ext: &str, data: &[u8]) -> R
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_opener::init())
         .setup(|app| {
             let handle = app.handle().clone();
             let settings = load_settings(&handle);

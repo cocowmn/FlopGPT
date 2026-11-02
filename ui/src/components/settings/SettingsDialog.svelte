@@ -1,17 +1,20 @@
-<!-- Demo settings: the header and tabs stay put while the tab below scrolls. -->
+<!-- Demo settings: the header, tabs and footer stay put while the tab between them scrolls. -->
 <script lang="ts">
   import { TAURI } from '../../lib/backend';
-  import { ui } from '../../lib/stores/ui.svelte';
+  import { narrow, ui } from '../../lib/stores/ui.svelte';
   import Modal from '../Modal.svelte';
+  import AboutTab from './AboutTab.svelte';
   import ConfigTab from './ConfigTab.svelte';
   import ImagesTab from './ImagesTab.svelte';
   import ServerPanel from './ServerPanel.svelte';
 
-  type Tab = 'config' | 'images' | 'server';
-  const tabs: { key: Tab; label: string }[] = [
+  type Tab = 'config' | 'images' | 'server' | 'about';
+  // A tab with an icon shows just the icon on narrow screens.
+  const tabs: { key: Tab; label: string; icon?: string }[] = [
     { key: 'config', label: 'Config' },
     { key: 'images', label: 'Images' },
     ...(TAURI ? [{ key: 'server' as const, label: 'Server' }] : []),
+    { key: 'about', label: 'About', icon: 'i-info' },
   ];
   let tab = $state<Tab>('config');
   let body = $state<HTMLDivElement>();
@@ -32,15 +35,21 @@
     </header>
     <div class="tabs set-tabs" role="tablist" aria-label="Settings">
       {#each tabs as t (t.key)}
+        {@const iconOnly = !!t.icon && narrow.current}
         <button
           class="tab"
           class:on={tab === t.key}
+          class:icon-tab={iconOnly}
           type="button"
           role="tab"
           id="setTab-{t.key}"
           aria-selected={tab === t.key}
           aria-controls="setPanel"
-          onclick={() => show(t.key)}>{t.label}</button
+          aria-label={iconOnly ? t.label : undefined}
+          title={iconOnly ? t.label : undefined}
+          onclick={() => show(t.key)}
+          >{#if iconOnly}<svg class="icon" aria-hidden="true"><use href="#{t.icon}" /></svg
+            >{:else}{t.label}{/if}</button
         >
       {/each}
     </div>
@@ -50,11 +59,18 @@
         <ConfigTab />
       {:else if tab === 'images'}
         <ImagesTab />
+      {:else if tab === 'about'}
+        <AboutTab />
       {/if}
       {#if TAURI}
         <div hidden={tab !== 'server'}><ServerPanel active={ui.settingsOpen && tab === 'server'} /></div>
       {/if}
     </div>
+
+    <footer class="set-foot">
+      made by Coal Cooper.
+      <a href="https://ko-fi.com/cocowmn" target="_blank" rel="noopener noreferrer">Support my work on Ko-Fi ☕️</a>
+    </footer>
   </div>
 </Modal>
 
@@ -65,6 +81,16 @@
   .set-tabs .tab {
     flex: 1;
   }
+  .set-tabs .tab.icon-tab {
+    display: grid;
+    flex: none;
+    place-items: center;
+    padding: 0 10px;
+  }
+  .icon-tab .icon {
+    width: 16px;
+    height: 16px;
+  }
   .set-body {
     flex: 1;
     min-height: 0;
@@ -72,5 +98,16 @@
     margin: 0 -20px;
     padding: 12px 20px 2px;
     border-top: 1px solid var(--line);
+  }
+  .set-foot {
+    margin: 0 -20px -4px;
+    padding: 10px 20px 0;
+    border-top: 1px solid var(--line);
+    color: var(--muted);
+    font-size: 12px;
+    text-align: center;
+  }
+  .set-foot a {
+    color: var(--accent);
   }
 </style>

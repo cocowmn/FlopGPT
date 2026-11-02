@@ -7,12 +7,13 @@ import { defineConfig, type Plugin } from 'vite';
 // `--mode standalone` builds a browser-only copy into dist-web/ that keeps its config in localStorage.
 export default defineConfig(({ mode }) => {
   const standalone = mode === 'standalone';
+  const { version } = JSON.parse(readFileSync('package.json', 'utf8'));
   return {
     root: 'ui',
     base: './',
     plugins: [svelte(), serviceWorker()],
     clearScreen: false,
-    define: { __STANDALONE__: JSON.stringify(standalone) },
+    define: { __STANDALONE__: JSON.stringify(standalone), __APP_VERSION__: JSON.stringify(version) },
     build: { outDir: standalone ? '../dist-web' : '../dist', emptyOutDir: true, target: 'es2022' },
     server: {
       port: 5173,

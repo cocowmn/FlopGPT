@@ -4,10 +4,12 @@
  * ------------------------------------------------------------------ */
 import { invoke, isTauri } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
+import { openUrl } from '@tauri-apps/plugin-opener';
 import type { Config, ServerStatus, Snapshot } from './types';
 
 export const TAURI = isTauri(); // true only inside the desktop app
 export const STANDALONE = __STANDALONE__; // true only in the browser-only build
+export const VERSION = __APP_VERSION__;
 
 const API = '/api/config';
 const KEY = 'flopgpt.config'; // localStorage, STANDALONE only: { rev, config }
@@ -71,6 +73,9 @@ export async function exportZip(name: string, bytes: Uint8Array<ArrayBuffer>): P
   download(name, new Blob([bytes], { type: 'application/zip' }));
   return null;
 }
+
+/** Opens a web link in the system browser (the app window can't open new tabs). */
+export const openExternal = (url: string) => openUrl(url);
 
 function download(name: string, blob: Blob) {
   const a = document.createElement('a');
