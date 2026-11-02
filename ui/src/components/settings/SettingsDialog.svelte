@@ -74,7 +74,8 @@
     </div>
 
     <footer class="set-foot">
-      made by Coal Cooper.
+      made by
+      <a href="https://github.com/cocowmn" target="_blank" rel="noopener noreferrer"> Coal Cooper </a>.
       <a href="https://ko-fi.com/cocowmn" target="_blank" rel="noopener noreferrer">Support my work on Ko-Fi ☕️</a>
     </footer>
   </div>
