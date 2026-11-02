@@ -4,7 +4,7 @@ import type { Config, ImageStyle, RawPending, RawResponse, Response, Thread } fr
 export const DEFAULT_SECONDS = 2.5;
 export const DEFAULT_TYPING_CPS = 28; // how fast Tab / long-press types the scripted prompt
 export const DEFAULT_IMAGE_SECONDS = 8; // how long an image takes to "generate"
-export const DEFAULT_IMAGE_LABEL = 'Creating image';
+export const DEFAULT_IMAGE_LABEL = 'Creating Image...';
 export const DEFAULT_FALLBACK = "I'm not able to continue this conversation right now. Please start a new chat.";
 
 export const num = <D>(v: unknown, d: D): number | D => {
