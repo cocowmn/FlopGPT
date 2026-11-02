@@ -39,6 +39,8 @@ Everything is changed in **Settings**. To open it, click the **sliders button** 
 
 If you don't see the sidebar, click the panel icon in the top-left corner first.
 
+In the desktop app, Settings and the script editor open in windows of their own, so you can keep the chat in view while you work. In the browser version they open on top of the chat.
+
 It has four tabs:
 
 - **Conversation:** the script, the fake old chats, how fast everything plays, and saving or loading your whole setup.

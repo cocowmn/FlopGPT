@@ -26,22 +26,22 @@
 
 This needs the **desktop app** running on a computer, with the phone **on the same wifi**.
 
-1. Open the desktop app, then open **Settings > Server**. The server starts by itself when the app opens, so you should see **Running on port 8787**.
+1. Open the desktop app, then open **Settings > Server**. The server starts by itself when the app opens, so you should see **Live on port 8787**. If it says **Stopped**, click **Start**.
 
    ![The Server tab with its QR code](images/server-http.png)
 
-2. Point the phone's camera at the QR code and tap the link that appears. Or type the address shown, such as `http://192.168.1.42:8787/`, into the phone's browser.
+2. Point the phone's camera at the QR code and tap the link that appears. Or type the address shown, such as `http://192.168.1.42:8787/`, into the phone's browser. The copy button next to the address copies it, to send to a phone in a message.
 3. The demo opens on the phone, with the same brand and script as your computer.
 
 **Good to know:**
 
 - **Every phone follows your computer.** Change the script or brand on the computer, and connected phones update. A phone in the middle of a chat waits for its next **New chat**, so a live take isn't interrupted.
-- **Counting connections:** the panel shows how many devices are connected. Use it to confirm the phone actually reached your computer.
+- **Check who's connected:** the **Devices** list shows each phone's address, and whether it's **Viewing now** or when it was last seen. Use it to confirm the phone actually reached your computer.
 - **Mac permission:** if your Mac asks whether FlopGPT may "accept incoming network connections", click **Allow**. On Windows, allow access when the firewall asks.
 
 ## Decide who can change the demo
 
-**Let phones change the config** is on by default. With it on, anyone with the demo open on the same wifi can edit the script and branding, and the changes save to your computer.
+**Allow phones to edit**, under **Options** in **Settings > Server**, is on by default. With it on, anyone with the demo open on the same wifi can edit the script and branding, and the changes save to your computer.
 
 - **Home, or a rehearsal with your own cast:** leave it on. It's handy for tweaking lines from your phone.
 - **Shared or public wifi, or a show with an audience:** turn it **off**. Phones can then still view the demo but not change it.
@@ -52,8 +52,8 @@ Phones only let a web page install as a full app (with offline mode) when the pa
 
 ### On the computer (once)
 
-1. In **Settings > Server**, check **Serve over HTTPS too**.
-2. Two QR codes appear: **1. Set up a phone** and **2. Open**.
+1. In **Settings > Server**, under **Options**, turn on **HTTPS**.
+2. Two QR codes appear: **1. Trust this computer** and **2. Open the app**.
 
    ![Server tab with HTTPS on, showing two QR codes](images/server-https.png)
 
@@ -108,7 +108,7 @@ The installed app is tied to the exact address it was installed from, such as `h
 
 - **Easiest fix:** reinstall from the new address. You don't need to redo the certificate on the same computer.
 - **Permanent fix:** in your wifi router's settings, give your computer a fixed address. This is often called "reserved IP" or "DHCP reservation". If the router isn't yours, ask whoever runs the network.
-- **Changing the port:** type a new number in **Port** and click **Apply**. This also changes the address, so phones need to reinstall.
+- **Changing the port:** under **Advanced**, type a new number in **Port** and click **Apply** (or press Enter). This also changes the address, so phones need to reinstall.
 
 ## Stuck?
 
@@ -120,4 +120,5 @@ The installed app is tied to the exact address it was installed from, such as `h
   - **iPhone:** the last step, turning on **FlopGPT Local CA** in **Certificate Trust Settings**, is the one people miss.
   - **Android:** make sure you installed it as a **CA certificate**.
 - **It worked yesterday and now it doesn't.** Your computer's address probably changed. Check the address in the **Server** tab, then see [Keep the same address between shows](#keep-the-same-address-between-shows).
-- **I clicked "New certificate".** That replaces the certificate, so every phone has to repeat the [phone steps](#on-each-phone-once).
+- **"Port 8787 was busy, so it's using … instead."** Another program has that port. Phones can still connect at the new address shown; to get the old one back, close the other program and click **Stop**, then **Start**.
+- **I clicked "New certificate"** (under **Advanced**). That replaces the certificate, so every phone has to repeat the [phone steps](#on-each-phone-once).

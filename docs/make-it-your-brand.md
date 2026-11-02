@@ -105,4 +105,4 @@ Where it's saved:
 - **A row says "Couldn't load".** The image file is broken or unsupported. Try saving it again as PNG.
 - **My logo looks tiny or squished.** Crop it to a square, with little empty space around it.
 - **The phone home-screen icon still shows the old logo.** Once installed, phones keep the name and icon they were installed with. See [Put it on phones → Brand it before you install it](share-to-phones.md#brand-it-before-you-install-it).
-- **I can't type in the fields on my phone.** The desktop app has phone editing turned off. Turn on **Let phones change the config** in the desktop app's **Server** tab, or make the changes on the computer instead.
+- **I can't type in the fields on my phone.** The desktop app has phone editing turned off. Turn on **Allow phones to edit** in the desktop app's **Server** tab, or make the changes on the computer instead.

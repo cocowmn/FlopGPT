@@ -61,7 +61,7 @@ A response can "draw" a picture, like the image generators in real chatbots. It'
 2. Optional: set **Seconds to generate** for how long it "works" on it, and a **Description** for screen readers.
 3. Click **Save & restart**.
 
-The thinking steps play first, then a shimmering "Creating image" line appears over a placeholder, just like a thinking step, until the picture arrives. The response's text comes after the picture, so it works as a caption ("Here's your portrait!").
+The thinking steps play first, then a shimmering "Creating Image..." line appears above a placeholder, just like a thinking step, until the picture arrives. The response's text comes after the picture, so it works as a caption ("Here's your portrait!").
 
 ![An image being generated, with the animated placeholder](images/perform-image-generating.png)
 
@@ -101,7 +101,7 @@ Responses support **Markdown**, a few simple symbols that format text:
 | `` `toast` ``              | `code-style` text |
 | `![a toast](https://…)`    | a picture         |
 
-Leave an empty line between paragraphs. Emoji work too 🍞. A picture in the text shows up as soon as the typing reaches it, without a "Creating image" wait.
+Leave an empty line between paragraphs. Emoji work too 🍞. A picture in the text shows up as soon as the typing reaches it, without a "Creating Image..." wait.
 
 ## Change the speed and the "thinking" style
 
@@ -119,7 +119,7 @@ The **Playback** section of the **Conversation** tab applies to the whole script
 | **Spinner**                          | The little animation beside the thinking steps. Leave blank for a random one each time, or type `none` for no animation. |
 | **Thought label**                    | What the steps fold up into. `{s}` becomes the number of seconds, as in `Toasted for {s}s`.                              |
 | **While an image generates, show**   | An animated placeholder, or rough drafts that sharpen. See [Make it "generate" an image](#make-it-generate-an-image).    |
-| **Image label**                      | The line shown above a generating image ("Creating image" if left blank).                                                |
+| **Image label**                      | The line shown above a generating image ("Creating Image..." if left blank).                                             |
 
 **After the last response**, what the AI says to every message once the script has run out, is at the top of the script editor.
 

@@ -139,7 +139,7 @@ The names are `3-dots-bounce`, `3-dots-fade`, `3-dots-move`, `3-dots-rotate`, `3
   "thoughtLabel": "Thought for {s}s",
   "imageStyle": "animated",
   "imageSeconds": 8,
-  "imageLabel": "Creating image",
+  "imageLabel": "Creating Image...",
   "fallback": "Shown after the script runs out.",
 
   "responses": [
@@ -178,7 +178,7 @@ Everything except `responses` is optional.
 | `thoughtLabel`                                                                        | top level             | The label the blurbs collapse to (default `Thought for {s}s`; `{s}` is the seconds).                                                                                                                                                                         |
 | `imageStyle`                                                                          | top level or response | How a generated image comes in: `"animated"` (default; drifting colors) or `"progressive"` (rough drafts of the image that sharpen).                                                                                                                         |
 | `imageSeconds`                                                                        | top level or response | How long a generated image takes (default 8). It also waits for the image to load.                                                                                                                                                                           |
-| `imageLabel`                                                                          | top level             | The shimmering line above an image while it generates, like a blurb (default `Creating image`).                                                                                                                                                              |
+| `imageLabel`                                                                          | top level             | The shimmering line above an image while it generates, like a blurb (default `Creating Image...`).                                                                                                                                                           |
 | `fallback`                                                                            | top level             | The answer to every prompt after the last response: a string, or a response like those in `responses`.                                                                                                                                                       |
 | `prompt`                                                                              | response              | A line the performer can type with Tab or send with Enter on an empty box.                                                                                                                                                                                   |
 | `pending`                                                                             | response              | The blurbs, shown in order. Each is a string or `{ "text", "seconds" }` (`thinking` also works).                                                                                                                                                             |
