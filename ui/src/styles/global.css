@@ -395,6 +395,10 @@ dialog.editor {
 dialog.settings {
   width: min(560px, calc(100% - 32px));
 }
+/* One fixed height for every tab, so switching tabs doesn't resize the box; a longer tab scrolls */
+dialog.settings .dlg {
+  height: min(600px, calc(100dvh - 34px));
+}
 dialog.editor .dlg,
 dialog.settings .dlg {
   display: flex;
