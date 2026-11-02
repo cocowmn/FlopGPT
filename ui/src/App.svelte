@@ -12,7 +12,7 @@
   import Sidebar from './components/Sidebar.svelte';
   import Toast from './components/Toast.svelte';
   import Topbar from './components/Topbar.svelte';
-  import { openExternal, TAURI } from './lib/backend';
+  import { openLinksExternally, TAURI } from './lib/backend';
   import { brandApp } from './lib/pwa';
   import { boot, dropFiles, shown, store } from './lib/stores/config.svelte';
   import { MAC, ui, wide } from './lib/stores/ui.svelte';
@@ -81,18 +81,11 @@
     // ⌘, / Ctrl+, opens the settings, as in most apps
     if (e.key === ',' && (MAC ? e.metaKey : e.ctrlKey) && !e.altKey && !e.shiftKey) {
       e.preventDefault();
-      ui.settingsOpen = true;
+      ui.openSettings();
     }
   }
 
-  // In the app window, links that would open a new tab (replies, About) open in the browser instead.
-  function onclick(e: MouseEvent) {
-    if (!TAURI || e.defaultPrevented) return;
-    const a = (e.target as Element).closest?.('a[target="_blank"]') as HTMLAnchorElement | null;
-    if (!a || !/^https?:/.test(a.href)) return;
-    e.preventDefault();
-    openExternal(a.href).catch(err => ui.toast(`Couldn't open the link (${err}).`));
-  }
+  const onclick = (e: MouseEvent) => openLinksExternally(e, err => ui.toast(`Couldn't open the link (${err}).`));
 
   /* drag & drop files anywhere on the page */
   function ondragover(e: DragEvent) {
@@ -120,8 +113,11 @@
     </main>
   </div>
 
-  <SettingsDialog />
-  <EditorDialog />
+  {#if !TAURI}
+    <!-- the desktop app opens these in windows of their own (Pane.svelte) -->
+    <SettingsDialog />
+    <EditorDialog />
+  {/if}
   <Lightbox />
   <ConfirmDialog />
   <DebugMenu />

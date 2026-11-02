@@ -1,3 +1,4 @@
+import { openWindow, TAURI, WINDOW } from '../../lib/backend';
 import { toEditData, type EditData, type Section } from '../../lib/normalize';
 import { store } from '../../lib/stores/config.svelte';
 import { ui } from '../../lib/stores/ui.svelte';
@@ -9,7 +10,12 @@ export const ed = $state<{ section: Section; data: EditData | null; dirty: boole
   dirty: false,
 });
 
+/** In the desktop app the editor has a window of its own (that window calls this to fill itself in). */
 export function openEditor(section: Section) {
+  if (TAURI && WINDOW !== 'editor') {
+    openWindow('editor', section).catch(e => ui.toast(`Couldn't open the editor (${e}).`));
+    return;
+  }
   ed.section = section;
   ed.data = toEditData(store.config);
   ed.dirty = false;

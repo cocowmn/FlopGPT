@@ -6,7 +6,7 @@ use std::sync::atomic::Ordering;
 
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use tauri::{AppHandle, Emitter, Manager, State};
+use tauri::{AppHandle, Emitter, Manager, State, WebviewUrl, WebviewWindowBuilder, WindowEvent};
 use tauri_plugin_dialog::DialogExt;
 use tokio::sync::Mutex;
 
@@ -153,6 +153,68 @@ fn save_as(app: &AppHandle, name: &str, kind: &str, ext: &str, data: &[u8]) -> R
     Ok(Some(path.display().to_string()))
 }
 
+/// Opens Settings or the editor in a window of its own, or brings it forward if it's open.
+/// The page draws its own close button, so the window has none.
+#[tauri::command]
+async fn open_window(app: AppHandle, kind: String, section: Option<String>) -> Result<(), String> {
+    if let Some(win) = app.get_webview_window(&kind) {
+        return win.set_focus().map_err(|e| e.to_string());
+    }
+    let (title, w, h, resizable) = match kind.as_str() {
+        "settings" => ("Settings", 560.0, 600.0, false),
+        "editor" => ("Editor", 720.0, 700.0, true),
+        _ => return Err(format!("no {kind} window")),
+    };
+    let section = serde_json::to_string(&section).unwrap();
+    let mut builder = WebviewWindowBuilder::new(&app, &kind, WebviewUrl::App("index.html".into()))
+        .title(title)
+        .inner_size(w, h)
+        .min_inner_size(520.0, 480.0)
+        .resizable(resizable)
+        .disable_drag_drop_handler()
+        .initialization_script(format!("window.__FLOP_SECTION__ = {section};"));
+    // Centered over the chat window.
+    if let Some(main) = app.get_webview_window("main") {
+        if let (Ok(pos), Ok(size), Ok(scale)) = (main.outer_position(), main.outer_size(), main.scale_factor()) {
+            let (pos, size) = (pos.to_logical::<f64>(scale), size.to_logical::<f64>(scale));
+            builder = builder.position(pos.x + (size.width - w) / 2.0, pos.y + (size.height - h) / 2.0);
+        }
+    }
+    #[cfg(target_os = "macos")]
+    let builder = builder
+        .title_bar_style(tauri::TitleBarStyle::Overlay)
+        .hidden_title(true);
+    #[cfg(not(target_os = "macos"))]
+    let builder = builder.decorations(false);
+    let win = builder.build().map_err(|e| e.to_string())?;
+    #[cfg(target_os = "macos")]
+    hide_window_buttons(&win);
+    #[cfg(not(target_os = "macos"))]
+    let _ = win;
+    Ok(())
+}
+
+/// Hides the Mac window's close, minimize and zoom buttons, keeping its rounded corners and shadow.
+#[cfg(target_os = "macos")]
+fn hide_window_buttons(win: &tauri::WebviewWindow) {
+    use objc2_app_kit::{NSWindow, NSWindowButton};
+    let handle = win.clone();
+    let _ = win.run_on_main_thread(move || {
+        let Ok(ptr) = handle.ns_window() else { return };
+        // SAFETY: Tauri hands back this window's NSWindow, and AppKit is only touched on the main thread.
+        let ns = unsafe { &*ptr.cast::<NSWindow>() };
+        for b in [
+            NSWindowButton::CloseButton,
+            NSWindowButton::MiniaturizeButton,
+            NSWindowButton::ZoomButton,
+        ] {
+            if let Some(button) = ns.standardWindowButton(b) {
+                button.setHidden(true);
+            }
+        }
+    });
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -182,6 +244,16 @@ pub fn run() {
             });
             Ok(())
         })
+        // Settings and the editor go with the chat window: closing it closes them.
+        .on_window_event(|win, event| {
+            if win.label() == "main" && matches!(event, WindowEvent::Destroyed) {
+                for (label, other) in win.app_handle().webview_windows() {
+                    if label != "main" {
+                        let _ = other.close();
+                    }
+                }
+            }
+        })
         .invoke_handler(tauri::generate_handler![
             server_status,
             server_start,
@@ -193,7 +265,8 @@ pub fn run() {
             server_qr,
             config_load,
             config_save,
-            export_zip
+            export_zip,
+            open_window
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

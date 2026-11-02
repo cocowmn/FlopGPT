@@ -3,13 +3,16 @@
  *  The browser-only build (STANDALONE) has no app and keeps its config in localStorage.
  * ------------------------------------------------------------------ */
 import { invoke, isTauri } from '@tauri-apps/api/core';
-import { listen } from '@tauri-apps/api/event';
+import { emit, emitTo, listen } from '@tauri-apps/api/event';
+import { getCurrentWindow } from '@tauri-apps/api/window';
 import { openUrl } from '@tauri-apps/plugin-opener';
 import type { Config, ServerStatus, Snapshot } from './types';
 
 export const TAURI = isTauri(); // true only inside the desktop app
 export const STANDALONE = __STANDALONE__; // true only in the browser-only build
 export const VERSION = __APP_VERSION__;
+/** Which desktop window this page is: the chat ('main'), 'settings' or 'editor'. Always 'main' off the desktop. */
+export const WINDOW = TAURI ? getCurrentWindow().label : 'main';
 
 const API = '/api/config';
 const KEY = 'flopgpt.config'; // localStorage, STANDALONE only: { rev, config }
@@ -69,6 +72,42 @@ export async function exportZip(name: string, bytes: Uint8Array<ArrayBuffer>): P
 
 /** Opens a web link in the system browser (the app window can't open new tabs). */
 export const openExternal = (url: string) => openUrl(url);
+
+/** A click handler for the app's windows: links that would open a new tab (replies, About) open in the browser instead. */
+export function openLinksExternally(e: MouseEvent, onError: (err: unknown) => void) {
+  if (!TAURI || e.defaultPrevented) return;
+  const a = (e.target as Element).closest?.('a[target="_blank"]') as HTMLAnchorElement | null;
+  if (!a || !/^https?:/.test(a.href)) return;
+  e.preventDefault();
+  openExternal(a.href).catch(onError);
+}
+
+/* ---- Desktop: Settings and the editor have windows of their own, kept in step with the chat window ---- */
+
+export type WindowKind = 'settings' | 'editor';
+
+/** Opens (or brings forward) the Settings or editor window. */
+export const openWindow = (kind: WindowKind, section?: string) => invoke<void>('open_window', { kind, section });
+
+interface Shared {
+  from: string;
+  config: Config;
+  restart: boolean;
+}
+
+/** Shows a config this window just changed in the other windows, before it's saved (desktop only). */
+export function shareConfig(config: Config, restart: boolean) {
+  if (TAURI) emit<Shared>('config-shared', { from: WINDOW, config, restart }).catch(() => {});
+}
+export function onSharedConfig(fn: (config: Config, restart: boolean) => void) {
+  if (TAURI) listen<Shared>('config-shared', e => e.payload.from !== WINDOW && fn(e.payload.config, e.payload.restart));
+}
+
+/** Restart script, from the Settings window: the chat is in the main one. */
+export const startOverInMain = () => emitTo('main', 'start-over').catch(() => {});
+export function onStartOver(fn: () => void) {
+  if (TAURI) listen('start-over', fn);
+}
 
 function download(name: string, blob: Blob) {
   const a = document.createElement('a');

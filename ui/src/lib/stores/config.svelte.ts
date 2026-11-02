@@ -9,10 +9,15 @@ import {
   fetchConfig,
   HttpError,
   lastConfig,
+  onSharedConfig,
+  onStartOver,
   putConfig,
+  shareConfig,
   STANDALONE,
+  startOverInMain,
   TAURI,
   watchConfig,
+  WINDOW,
 } from '../backend';
 import { EXT, packConfig, unpackConfig } from '../bundle';
 import { isConfigFile, isZip, takeLegacy, toImageDataURL } from '../files';
@@ -119,19 +124,39 @@ export function applyConfig(cfg: Config, restart: boolean) {
   if (restart) chat.reset();
 }
 
-export async function setConfig(cfg: Config, restart: boolean, msg?: string) {
+// A change made in this window: shown here and in the app's other windows (Settings and the editor have their own).
+export function applyEverywhere(cfg: Config, restart: boolean) {
   applyConfig(cfg, restart);
+  shareConfig(store.config, restart);
+}
+
+export async function setConfig(cfg: Config, restart: boolean, msg?: string) {
+  applyEverywhere(cfg, restart);
   if ((await saveConfig(cfg)) && msg) ui.toast(msg);
 }
 
 // A field changed in Settings: shown at once, saved once the typing pauses. A blank value removes the key.
-let fieldSave = 0;
+// The other windows see it a moment sooner, but not on every keystroke (the config can hold large images).
+let fieldSave = 0,
+  fieldShare = 0;
 export function setField(key: string, value: unknown) {
   const cfg: Config = { ...store.config };
   setKey(cfg, key, value);
   applyConfig(cfg, false);
+  clearTimeout(fieldShare);
+  fieldShare = window.setTimeout(() => shareConfig(store.config, false), 150);
   clearTimeout(fieldSave);
-  fieldSave = window.setTimeout(() => saveConfig(store.config), 500);
+  fieldSave = window.setTimeout(flushField, 500);
+}
+
+/** Saves a field change that's still waiting for the typing to pause (also before its window closes). */
+export async function flushField() {
+  if (!fieldSave) return;
+  clearTimeout(fieldShare);
+  clearTimeout(fieldSave);
+  fieldSave = 0;
+  shareConfig(store.config, false);
+  await saveConfig(store.config);
 }
 
 // Another device (or the app) saved a config: take it now, or after this chat.
@@ -145,6 +170,12 @@ async function onConfigRev(rev: number) {
   if (!snap || snap.rev <= store.rev) return;
   store.rev = snap.rev;
   store.writable = !!snap.writable;
+  // Already showing it: another of the app's windows shared it before saving.
+  if (JSON.stringify(snap.config) === JSON.stringify(store.config)) return;
+  if (WINDOW !== 'main') {
+    applyConfig(snap.config, false);
+    return;
+  }
   if (chat.index === 0 && !chat.busy) {
     try {
       applyConfig(snap.config, true);
@@ -160,6 +191,10 @@ async function onConfigRev(rev: number) {
 
 // New chat / Restart script: pick up a config that arrived mid-chat.
 export function startOver() {
+  if (WINDOW !== 'main') {
+    startOverInMain();
+    return;
+  }
   if (store.pending) {
     try {
       applyConfig(store.pending, true);
@@ -171,8 +206,19 @@ export function startOver() {
   chat.reset();
 }
 
+// Settings or the editor changed the config in their own window.
+function onShared(cfg: Config, restart: boolean) {
+  try {
+    applyConfig(cfg, restart && WINDOW === 'main');
+  } catch (e) {
+    ui.toast(`The new config is unusable (${(e as Error).message}).`);
+  }
+}
+
 export async function boot() {
   watchConfig(onConfigRev); // also catches the app coming back if it can't be reached right now
+  onSharedConfig(onShared);
+  onStartOver(startOver);
   let snap;
   try {
     snap = await fetchConfig();
@@ -208,6 +254,21 @@ export async function boot() {
     applyConfig(cfg, true);
   } catch (e) {
     applyConfig(EMPTY_CONFIG, true);
+    ui.toast(`The saved config is unusable (${(e as Error).message}). import or reset it in Settings.`);
+  }
+}
+
+/** The Settings and editor windows: the saved config, kept up to date. No chat, nothing to migrate. */
+export async function bootWindow() {
+  watchConfig(onConfigRev);
+  onSharedConfig(onShared);
+  try {
+    const snap = await fetchConfig();
+    store.rev = snap.rev;
+    store.writable = !!snap.writable;
+    applyConfig(snap.config, false);
+  } catch (e) {
+    applyConfig(EMPTY_CONFIG, false);
     ui.toast(`The saved config is unusable (${(e as Error).message}). import or reset it in Settings.`);
   }
 }
@@ -391,7 +452,7 @@ export async function resetDefaults() {
   );
   if (!ok || !(await saveConfig(null))) return;
   try {
-    applyConfig((await fetchConfig()).config, true);
+    applyEverywhere((await fetchConfig()).config, true);
     ui.toast('Reset to defaults');
   } catch (e) {
     ui.toast((e as Error).message);

@@ -31,7 +31,7 @@
     configPicker.value = '';
   }
   function restart() {
-    startOver();
+    startOver(); // from the desktop Settings window, the chat window's
     ui.settingsOpen = false;
   }
 </script>

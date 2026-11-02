@@ -405,6 +405,19 @@ dialog.settings .dlg {
   flex-direction: column;
   max-height: calc(100dvh - 34px);
 }
+/* The desktop app's Settings and editor windows: the same box, filling its window */
+.pane {
+  height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  overflow: hidden;
+}
+.pane.editor .dlg,
+.pane.settings .dlg {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
 /* Opening a dialog focuses it; the box itself never needs a focus ring */
 dialog:focus {
   outline: none;

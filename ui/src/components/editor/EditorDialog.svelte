@@ -9,7 +9,8 @@
     sectionJson,
     toEditData,
   } from '../../lib/normalize';
-  import { applyConfig, exportConfig, saveConfig, store } from '../../lib/stores/config.svelte';
+  import { WINDOW } from '../../lib/backend';
+  import { applyEverywhere, exportConfig, saveConfig, store } from '../../lib/stores/config.svelte';
   import { ui } from '../../lib/stores/ui.svelte';
   import type { Config } from '../../lib/types';
   import Modal from '../Modal.svelte';
@@ -57,7 +58,9 @@
   }
 
   async function requestClose() {
-    if (!ed.dirty || (await ui.confirm('Discard your changes?', 'Discard'))) ui.editorOpen = false;
+    if (ed.dirty && !(await ui.confirm('Discard your changes?', 'Discard'))) return;
+    ed.dirty = false; // discarded: closing its window doesn't ask again
+    ui.editorOpen = false;
   }
 
   function exportIt() {
@@ -69,25 +72,36 @@
     }
   }
 
-  function apply() {
+  async function apply() {
     error = '';
     let cfg: Config;
     try {
       cfg = output();
-      applyConfig(cfg, convo); // only a changed script needs the chat to start over
+      applyEverywhere(cfg, convo); // only a changed script needs the chat to start over
     } catch (e) {
       error = (e as Error).message;
       return;
     }
     ed.dirty = false;
+    // In a window of its own, closing it is the confirmation; it stays open if the save failed.
+    if (WINDOW === 'editor') {
+      if (await saveConfig(cfg)) ui.editorOpen = false;
+      return;
+    }
     ui.editorOpen = false;
     saveConfig(cfg).then(ok => ok && ui.toast('Saved'));
   }
 </script>
 
-<Modal class="editor" labelledby="edTitle" bind:open={ui.editorOpen} onrequestclose={requestClose}>
+<Modal
+  class="editor"
+  labelledby="edTitle"
+  windowed={WINDOW === 'editor'}
+  bind:open={ui.editorOpen}
+  onrequestclose={requestClose}
+>
   <div class="dlg">
-    <header>
+    <header data-tauri-drag-region>
       <h2 id="edTitle">{convo ? 'Edit conversation' : 'Edit old conversations'}</h2>
       <div class="tabs" role="group" aria-label="Editor mode">
         <button class="tab" class:on={mode === 'form'} type="button" onclick={() => setMode('form')}>Form</button>

@@ -1,5 +1,6 @@
 import { tick } from 'svelte';
 import { MediaQuery, SvelteSet } from 'svelte/reactivity';
+import { openWindow, TAURI } from '../backend';
 
 export const wide = new MediaQuery('min-width: 900px');
 export const narrow = new MediaQuery('max-width: 520px'); // phone-sized: some labels shrink to icons
@@ -46,6 +47,12 @@ class UI {
   confirm(message: string, ok = 'OK'): Promise<boolean> {
     this.confirmReq?.resolve(false);
     return new Promise(resolve => (this.confirmReq = { message, ok, resolve }));
+  }
+
+  /** The desktop app opens Settings in a window of its own; phones and browsers in the page. */
+  openSettings() {
+    if (TAURI) openWindow('settings').catch(e => this.toast(`Couldn't open Settings (${e}).`));
+    else this.settingsOpen = true;
   }
 
   closeSidebarIfNarrow() {

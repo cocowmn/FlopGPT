@@ -1,6 +1,6 @@
 <!-- Settings: the header, tabs and footer stay put while the tab between them scrolls. -->
 <script lang="ts">
-  import { TAURI } from '../../lib/backend';
+  import { TAURI, WINDOW } from '../../lib/backend';
   import { narrow, ui } from '../../lib/stores/ui.svelte';
   import Modal from '../Modal.svelte';
   import AboutTab from './AboutTab.svelte';
@@ -25,9 +25,15 @@
   }
 </script>
 
-<Modal class="settings" labelledby="settingsTitle" backdropClose bind:open={ui.settingsOpen}>
+<Modal
+  class="settings"
+  labelledby="settingsTitle"
+  backdropClose
+  windowed={WINDOW === 'settings'}
+  bind:open={ui.settingsOpen}
+>
   <div class="dlg">
-    <header>
+    <header data-tauri-drag-region>
       <h2 id="settingsTitle">Settings</h2>
       <button class="icon-btn" type="button" aria-label="Close" onclick={() => (ui.settingsOpen = false)}>
         <svg class="icon"><use href="#i-close" /></svg>

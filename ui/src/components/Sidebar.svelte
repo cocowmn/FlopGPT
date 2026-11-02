@@ -50,7 +50,7 @@
       aria-label="Settings"
       aria-keyshortcuts={SETTINGS_ARIA_KEY}
       title="Settings ({SETTINGS_KEY})"
-      onclick={() => (ui.settingsOpen = true)}
+      onclick={() => ui.openSettings()}
     >
       <svg class="icon"><use href="#i-sliders" /></svg>
     </button>
