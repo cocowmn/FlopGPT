@@ -44,6 +44,12 @@
   );
 </script>
 
+<!-- Like a thinking step: a shimmering line above the image, which folds away once it's done. -->
+{#if !ready}
+  <div class="label-wrap" class:gone={image.done} aria-live="polite">
+    <div class="label-in"><p class="label">{image.label}</p></div>
+  </div>
+{/if}
 <figure class="gen" class:ready class:instant class:done={image.done} style:aspect-ratio={ratio} style:width>
   {#if !settled}
     <div class="pending" aria-hidden="true">
@@ -54,11 +60,9 @@
       <span class="grain"></span>
     </div>
   {/if}
-  {#if !image.done}
-    <figcaption class="label">{image.label}</figcaption>
-  {:else if broken}
+  {#if image.done && broken}
     <figcaption class="broken">Couldn't load the image</figcaption>
-  {:else}
+  {:else if image.done}
     <button
       class="zoom"
       type="button"
@@ -172,11 +176,26 @@
     opacity: 1;
   }
 
+  .label-wrap {
+    display: grid;
+    grid-template-rows: 1fr;
+    transition:
+      grid-template-rows 0.4s var(--ease),
+      opacity 0.3s ease;
+  }
+  .label-wrap.gone {
+    grid-template-rows: 0fr;
+    opacity: 0;
+  }
+  .label-in {
+    min-height: 0;
+    overflow: hidden;
+  }
   .label {
-    position: absolute;
-    top: 12px;
-    left: 14px;
-    z-index: 2;
+    margin: 0;
+    padding: 4px 0 8px;
+    line-height: 1.6;
+    width: fit-content;
     color: transparent;
     background: linear-gradient(90deg, var(--muted) 0%, var(--text) 50%, var(--muted) 100%) 0 0 / 200% 100%;
     -webkit-background-clip: text;
