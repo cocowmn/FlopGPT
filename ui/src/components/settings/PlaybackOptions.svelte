@@ -48,13 +48,15 @@
 
 <div class="cfg-grid">
   <label class="check wide">
+    Stream replies word by word
     <input
+      class="switch"
       type="checkbox"
+      role="switch"
       checked={cfg.streamResponse !== false}
       disabled={store.locked}
       onchange={e => setField('streamResponse', e.currentTarget.checked ? '' : false)}
     />
-    Stream replies word by word
   </label>
   {#each numbers as n (n.key)}
     <Field label={n.label}>
@@ -123,13 +125,12 @@
   .check {
     display: flex;
     align-items: center;
-    gap: 8px;
+    justify-content: space-between;
+    gap: 12px;
     font-size: 14px;
+    cursor: pointer;
   }
   .check.wide {
     grid-column: 1 / -1;
-  }
-  .check input {
-    accent-color: var(--accent);
   }
 </style>
