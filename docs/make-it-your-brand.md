@@ -13,17 +13,17 @@ Every change shows up as you type and is saved automatically. There's no Save bu
 Want to see a finished brand before making your own?
 
 1. Download [examples/toastgpt-config.json](examples/toastgpt-config.json). On GitHub, click the **Download raw file** button.
-2. Drag the file onto the FlopGPT window. Or open **Demo settings > Config** and click **Import…**.
+2. Drag the file onto the FlopGPT window. Or open **Demo settings > Conversation** and click **Import…**.
 
-That's it: name, logo, colors, script and sidebar chats all change at once. To go back, click **Reset to defaults** at the bottom of the **Config** tab.
+That's it: name, logo, colors, script and sidebar chats all change at once. To go back, click **Reset to defaults** at the bottom of the **Conversation** tab.
 
 > **Tip:** export your own setup first (see [Save, share and back up](#save-share-and-back-up-your-setup)), because importing replaces it.
 
 ## Name it, and write its slogan and fine print
 
-Open **Demo settings** (the sliders button at the bottom of the sidebar). The **Config** tab starts with your brand's text:
+Open **Demo settings** (the sliders button at the bottom of the sidebar) and click the **Branding** tab. It starts with your brand's text:
 
-![The branding fields on the Config tab](images/settings-config-branding.png)
+![The branding fields on the Branding tab](images/settings-branding.png)
 
 | Field            | Where it shows up                                 | ToastGPT example                                           |
 | ---------------- | ------------------------------------------------- | ---------------------------------------------------------- |
@@ -42,12 +42,12 @@ Open **Demo settings** (the sliders button at the bottom of the sidebar). The **
 
 ## Swap the logo everywhere at once
 
-1. Open **Demo settings > Images**.
+1. Open **Demo settings > Branding** and scroll down to **Images**.
 2. Click the **Large logo** preview, or click **Upload…**, and pick your image. You can also drag the image onto that row.
 
 That one image is reused everywhere: the sidebar, the browser tab, the installed-app icon, and the little mark after each AI answer. Those rows say **Uses large logo** until you give them their own image.
 
-![The Images tab](images/settings-images.png)
+![The Images section of the Branding tab](images/settings-images.png)
 
 **Getting a logo:**
 
@@ -57,7 +57,7 @@ That one image is reused everywhere: the sidebar, the browser tab, the installed
 
 ## Use different images in different places
 
-Each row on the **Images** tab is one spot in the app:
+Each row under **Images** on the **Branding** tab is one spot in the app:
 
 | Image             | Where it shows up                                                                   |
 | ----------------- | ----------------------------------------------------------------------------------- |
@@ -87,11 +87,13 @@ Each row on the **Images** tab is one spot in the app:
 
 ## Save, share and back up your setup
 
-Your whole setup is one small file: branding, images, script and sidebar chats.
+Your whole setup is one small .zip file: branding, images, script and sidebar chats.
 
-- **Save it:** **Demo settings > Config > Export…** You'll get a file named something like `toastgpt-config.json`.
-- **Load it** (on another computer, in another browser, or a friend's setup): drag the file onto the app, or click **Import…**.
+- **Save it:** **Demo settings > Conversation > Export…** You'll get a file named something like `toastgpt-config.zip`.
+- **Load it** (on another computer, in another browser, or a friend's setup): drag the file onto the app, or click **Import…**. Older `.json` config files, like the [example](examples/toastgpt-config.json), load the same way.
 - **Keep several brands:** export each one to its own file and import whichever you need for today's show. The app only holds one setup at a time.
+
+Inside the .zip is a `config.json` with the settings, and an `assets` folder with the images. You can unzip it, swap an image for another file with the same name, and zip it back up (the `config.json` and the `assets` folder at the top of the zip).
 
 Where it's saved:
 

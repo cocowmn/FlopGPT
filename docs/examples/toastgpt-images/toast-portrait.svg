@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffcf8a"/>
+      <stop offset=".55" stop-color="#ff9e6b"/>
+      <stop offset="1" stop-color="#c75b6b"/>
+    </linearGradient>
+    <radialGradient id="sun" cx=".5" cy=".5" r=".5">
+      <stop offset="0" stop-color="#fff6d8"/>
+      <stop offset=".6" stop-color="#ffe2a0"/>
+      <stop offset="1" stop-color="#ffe2a0" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="crumb" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f6c77d"/>
+      <stop offset="1" stop-color="#e2a352"/>
+    </linearGradient>
+    <linearGradient id="hill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7a3b4f"/>
+      <stop offset="1" stop-color="#3f2236"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="480" fill="url(#sky)"/>
+  <circle cx="470" cy="190" r="150" fill="url(#sun)"/>
+  <circle cx="470" cy="190" r="62" fill="#fff3cf"/>
+  <path d="M0 360c90-40 170-50 260-30s180 10 260-30 120-20 120-20v200H0z" fill="#a24d5f" opacity=".7"/>
+  <path d="M0 400c120-30 220-30 330-5s210 5 310-25v110H0z" fill="url(#hill)"/>
+  <ellipse cx="250" cy="420" rx="120" ry="16" fill="#2b1626" opacity=".45"/>
+  <g transform="translate(150 150)">
+    <path d="M18 92C-6 86-12 50 2 28 20 2 68-10 100-10s80 12 98 38c14 22 8 58-16 64v150c0 12-10 22-22 22H40c-12 0-22-10-22-22z" fill="#a8622a"/>
+    <path d="M32 96C14 90 10 62 22 46 36 26 72 16 100 16s64 10 78 30c12 16 8 44-10 50v136c0 8-6 14-14 14H46c-8 0-14-6-14-14z" fill="url(#crumb)"/>
+    <rect x="62" y="96" width="62" height="44" rx="10" fill="#fff4b8" transform="rotate(-8 93 118)"/>
+    <rect x="66" y="100" width="22" height="10" rx="5" fill="#fffbe2" transform="rotate(-8 93 118)"/>
+    <path d="M44 170h44l6-10h12l6 10h44" fill="none" stroke="#2b1626" stroke-width="7" stroke-linejoin="round"/>
+    <path d="M44 170c0 18 10 26 22 26s22-8 22-26zM112 170c0 18 10 26 22 26s22-8 22-26z" fill="#2b1626"/>
+    <path d="M54 176c4-3 10-3 12 0" stroke="#7fd4ff" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <path d="M122 176c4-3 10-3 12 0" stroke="#7fd4ff" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <path d="M82 214c10 10 26 10 36 0" fill="none" stroke="#2b1626" stroke-width="6" stroke-linecap="round"/>
+  </g>
+</svg>

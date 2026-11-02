@@ -7,18 +7,19 @@
 ## How a script works (30-second version)
 
 - A script is a list of **responses**. Each time someone sends a message, the next response plays, whatever they typed.
-- Each response has up to three parts:
+- Each response has up to four parts:
   - **Prompt** (optional): the line your performer "types". FlopGPT can type it for them (see [Run the show](run-the-show.md)).
   - **Thinking steps:** short lines like "Thinking…" that flash by before the answer.
+  - **Generated image** (optional): a picture the AI pretends to draw. See [Make it "generate" an image](#make-it-generate-an-image).
   - **Response:** the answer itself.
 - Once all the responses have played, every message gets the **After the last response** message, until you start a new chat.
 
 ## Change what the AI says back
 
 1. Open **Demo settings** (the sliders button at the bottom of the sidebar).
-2. On the **Config** tab, next to **Conversation**, click **Edit**.
+2. On the **Conversation** tab, next to **Script**, click **Edit**.
 
-   ![The Edit button for the Conversation, and the Import/Export buttons](images/settings-config-files.png)
+   ![The Conversation tab: the Edit buttons, the playback options and the config file](images/settings-conversation.png)
 
 3. Scroll down to **Script**. Each card is one response, in the order they'll play.
 
@@ -52,6 +53,32 @@ When the answer arrives, the steps fold up into a line like "Thought for 7s", wh
 - **Comic timing:** give a short step (1–1.5 s) right before a long one (3–4 s). The pause sells the punchline.
 - **Answer instantly:** delete all the thinking steps from that card.
 
+## Make it "generate" an image
+
+A response can "draw" a picture, like the image generators in real chatbots. It's any image you choose, revealed as if it were being made on the spot.
+
+1. In a response card, next to **Generated image**, click **Upload…** and pick a picture. You can also drag one onto the field, or paste the address of an image on the web.
+2. Optional: set **Seconds to generate** for how long it "works" on it, and a **Description** for screen readers.
+3. Click **Save & restart**.
+
+The thinking steps play first, then a placeholder reading "Creating image" takes their place until the picture appears. The response's text comes after the picture, so it works as a caption ("Here's your portrait!").
+
+![An image being generated, with the animated placeholder](images/perform-image-generating.png)
+
+Choose how the picture comes in under **While an image generates, show** on the **Conversation** tab:
+
+- **An animated placeholder:** soft colors drift behind the "Creating image" label, then the picture fades in.
+- **Rough drafts that sharpen:** blurry, grainy versions of your picture appear, each one clearer than the last, like early image generators.
+
+![The finished image, with its caption](images/perform-image.png)
+
+**Tips:**
+
+- **Anyone can click the picture** to see it full size.
+- **Use a PNG, JPG or WebP.** Uploads are shrunk to 1024 pixels so your setup stays small enough to save and send to phones.
+- **Rename the label** to fit your brand with **Image label**, as in `Toasting your portrait`.
+- **Rough drafts need an uploaded image.** A picture pasted as a web address only gets drafts if its website allows it; otherwise it shows the animated placeholder.
+
 ## Make the prompt type itself
 
 Fill in a card's **Prompt** box with the exact line your performer is supposed to say. During the show, pressing **Tab**, or long-pressing the message box on a phone, makes it type itself out letter by letter. [Run the show](run-the-show.md) explains how to perform with it.
@@ -72,30 +99,35 @@ Responses support **Markdown**, a few simple symbols that format text:
 | `# Toast`                  | a big heading     |
 | `[link](https://…)`        | a clickable link  |
 | `` `toast` ``              | `code-style` text |
+| `![a toast](https://…)`    | a picture         |
 
-Leave an empty line between paragraphs. Emoji work too 🍞.
+Leave an empty line between paragraphs. Emoji work too 🍞. A picture in the text shows up as soon as the typing reaches it, without a "Creating image" wait.
 
 ## Change the speed and the "thinking" style
 
-The **Options** section at the top of the editor applies to the whole script:
+The **Playback** section of the **Conversation** tab applies to the whole script. Changes take effect right away, from the next answer on:
 
-![The Options section of the script editor](images/editor-options.png)
+![The Playback section of the Conversation tab](images/settings-playback.png)
 
 | Option                               | What it does                                                                                                             |
 | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------ |
+| **Stream replies word by word**      | On: the answer types out word by word. Off: it appears all at once.                                                      |
+| **Reply speed (characters/s)**       | How fast the answer types out on screen. Lower is more dramatic.                                                         |
+| **Auto-typing speed (characters/s)** | How fast the **Prompt** types itself when you press Tab.                                                                 |
+| **Seconds per thinking step**        | How long each thinking step shows, unless the step has its own number (2.5 s if left blank).                             |
+| **Seconds to generate an image**     | How long a [generated image](#make-it-generate-an-image) takes, unless its card has its own number (8 s if left blank).  |
 | **Spinner**                          | The little animation beside the thinking steps. Leave blank for a random one each time, or type `none` for no animation. |
 | **Thought label**                    | What the steps fold up into. `{s}` becomes the number of seconds, as in `Toasted for {s}s`.                              |
-| **Seconds per step**                 | How long each thinking step shows, unless the step has its own number (2.5 s if left blank).                             |
-| **Characters per second**            | How fast the answer types out on screen. Lower is more dramatic.                                                         |
-| **Auto-typing speed (characters/s)** | How fast the **Prompt** types itself when you press Tab.                                                                 |
-| **Stream responses**                 | On: the answer types out word by word. Off: it appears all at once.                                                      |
-| **After the last response**          | What the AI says to every message once the script has run out.                                                           |
+| **While an image generates, show**   | An animated placeholder, or rough drafts that sharpen. See [Make it "generate" an image](#make-it-generate-an-image).    |
+| **Image label**                      | The text on a generating image ("Creating image" if left blank).                                                         |
+
+**After the last response**, what the AI says to every message once the script has run out, is at the top of the script editor.
 
 ## Fill the sidebar with fake old chats
 
 The sidebar's chat history is fake too. It's another chance for jokes ("Help, my toaster is judging me").
 
-1. In **Demo settings > Config**, click **Edit** next to **Old conversations**.
+1. In **Demo settings > Conversation**, click **Edit** next to **Old conversations**.
 2. Type chat titles into the boxes. **+ Add chat** adds another one.
 3. **+ Add heading** adds a bold group label such as "Today" or "Yesterday". It sits above the chats that come after it.
 4. Click **Save**.
@@ -124,6 +156,13 @@ The shape is simple. Each `{ … }` block in `responses` is one card:
       "prompt": "Are you biased?",
       "pending": ["No", "Absolutely not", "Well..."],
       "response": "I am a perfectly neutral assistant."
+    },
+    {
+      "prompt": "Draw me as toast",
+      "pending": ["Warming up the toaster oven..."],
+      "image": "https://example.com/toast-portrait.png",
+      "imageSeconds": 6,
+      "response": "Here you are. **Golden brown**."
     }
   ],
   "fallback": "I'm all out of crumbs. Start a **New chat** for a fresh loaf."
@@ -131,6 +170,7 @@ The shape is simple. Each `{ … }` block in `responses` is one card:
 ```
 
 - `pending` is the list of thinking steps. A step is either plain text in quotes, or `{ "text": "...", "seconds": 3 }` to set its own time.
+- `image` is the generated picture: a web address, or (in an exported .zip) a file in its `assets` folder such as `"assets/toast.png"`. `imageSeconds` sets how long it takes.
 - Put commas between items, but not after the last one. If something's wrong, the editor shows an error in red instead of saving.
 - Switch back to the **Form** tab at any time; your changes carry over.
 
@@ -140,5 +180,6 @@ A full example is in [examples/toastgpt-config.json](examples/toastgpt-config.js
 
 - **My new script didn't play.** Make sure you clicked **Save & restart**, not **Cancel**. If you're mid-chat on a phone, the change waits for the next **New chat**.
 - **It keeps saying the same thing.** You've reached the end of the script, so it's showing the **After the last response** message. Click **New chat** to start over.
-- **I broke everything.** Click **Reset** next to **Conversation** to go back to the built-in script. To undo everything (branding included), click **Reset to defaults**.
+- **I broke everything.** Click **Reset** next to **Script** to go back to the built-in script. To undo everything (branding included), click **Reset to defaults**.
+- **"Not saved" after adding images.** The browser version can only keep a few megabytes. Use fewer or smaller pictures, or use the desktop app.
 - **Next:** [make it look like your own product](make-it-your-brand.md), or [learn to perform it](run-the-show.md).

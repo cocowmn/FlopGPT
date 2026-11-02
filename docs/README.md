@@ -12,11 +12,12 @@ You don't need to know how to code. Everything below can be done by clicking aro
 | ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------ |
 | Make the "AI" say exactly what I want                        | [Write your script](write-a-script.md)                                                                             |
 | Make the "AI" look like it's thinking hard                   | [Write your script → Make it "think" before answering](write-a-script.md#make-it-think-before-answering)           |
+| Make the "AI" draw a picture                                 | [Write your script → Make it "generate" an image](write-a-script.md#make-it-generate-an-image)                     |
 | Fill the sidebar with fake past chats                        | [Write your script → Fill the sidebar with fake old chats](write-a-script.md#fill-the-sidebar-with-fake-old-chats) |
 | Give the app my own name, logo, colors and jokes             | [Make it your own brand](make-it-your-brand.md)                                                                    |
 | Try a finished example in 30 seconds                         | [Make it your own brand → Try the example brand](make-it-your-brand.md#try-the-example-brand-first)                |
 | Perform a skit without fumbling the typing                   | [Run the show](run-the-show.md)                                                                                    |
-| Fix a mistake mid-take, or skip to a later scene             | [Run the show → Undo a mistake or jump ahead](run-the-show.md#undo-a-mistake-or-jump-ahead)                         |
+| Fix a mistake mid-take, or skip to a later scene             | [Run the show → Undo a mistake or jump ahead](run-the-show.md#undo-a-mistake-or-jump-ahead)                        |
 | Start the skit over between takes                            | [Run the show → Start over](run-the-show.md#start-over-between-takes)                                              |
 | Show it on phones (mine, my cast's or my audience's)         | [Put it on phones](share-to-phones.md)                                                                             |
 | Install it on a phone's home screen like a real app          | [Put it on phones → Install it like a real app](share-to-phones.md#install-it-like-a-real-app)                     |
@@ -37,3 +38,10 @@ Everything is changed in **Demo settings**. To open it, click the **sliders butt
 ![The Demo settings button, at the bottom of the sidebar](images/open-settings-button.png)
 
 If you don't see the sidebar, click the panel icon in the top-left corner first.
+
+It has four tabs:
+
+- **Conversation:** the script, the fake old chats, how fast everything plays, and saving or loading your whole setup.
+- **Branding:** the app's name, words, colors and images.
+- **Server** (desktop app only): [putting it on phones](share-to-phones.md).
+- **About** (an **ⓘ** on small screens): the app's version, and links to its code and these guides.

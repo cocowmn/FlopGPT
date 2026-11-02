@@ -25,6 +25,7 @@ Thank you for that, first of all. I appreciate the feedback and the sentiment, a
 1. Type anything and press Enter (Shift+Enter for a new line).
 2. The next scripted response plays: a few short "thinking" blurbs, each shown for its own length of time, then the answer streams in.
 3. The blurbs collapse to "Thought for Ns". Click that line to see them all.
+4. A response with an `image` "generates" it after the blurbs, behind an animated placeholder or a series of rough drafts that sharpen, then shows the text below it.
 
 **Attachments:** the **+** button adds up to 10 photos, videos, audio files, PDFs or text files. You can also paste an image or drop files on the page. They can be sent with or without text, show up in the thread (click an image to enlarge it), and never leave the browser.
 
@@ -86,21 +87,25 @@ A demo is one JSON config: the branding, the scripted responses, and the old con
 
 ### Changing the config
 
-In **Settings > Config**:
+**Settings** has a **Conversation** tab and a **Branding** tab (plus **Server** in the desktop app, and **About**).
 
-- **Edit** opens an editor. The **Form** tab has fields for the settings, each response and the sidebar chats; the **JSON** tab shows the whole config, for anything the form doesn't cover. **Save & restart** saves and starts the chat over.
-- **Import...** loads a config file, as does dropping a `.json` file on the page (other dropped files are attached to the next message). An older script-only or threads-only file replaces just that part.
-- **Export...** saves the config as a file.
+On **Conversation**:
 
-**Reset to defaults**, at the bottom of Settings, goes back to the built-in config.
+- **Edit** next to **Script** or **Old conversations** opens an editor. The **Form** tab has fields for each response (including its generated image) and the sidebar chats; the **JSON** tab shows that part of the config, for anything the form doesn't cover. **Save & restart** saves and starts the chat over.
+- **Playback** sets streaming, speeds, the spinner, the thought label and how images generate. Changes apply at once.
+- **Import...** loads a config `.zip` or `.json`, as does dropping one on the page (other dropped files are attached to the next message). An older script-only or threads-only `.json` replaces just that part.
+- **Export...** saves the config as a `.zip`: `config.json`, plus an `assets/` folder holding its images. In the zip, `config.json` refers to them by path (`"logo": "assets/logo.png"`, or `![alt](assets/photo.webp)` in a response), and importing puts them back in.
+- **Reset to defaults** goes back to the built-in config.
+
+On **Branding**, the name, model name, user name, accent color, greeting, placeholder and disclaimer apply as they're typed, and the images are below them.
 
 The desktop app saves the config in its app data folder (on a Mac, `~/Library/Application Support/com.cocowmn.flopgpt/config.json`). Phones save through the app; the browser-only version saves in the browser.
 
 ### Logo
 
-**Settings > Images** replaces the default sparkle with your own images. The **Large logo** is used everywhere (the empty-chat greeting, the sidebar, the mark at the end of each reply, the browser tab and the installed app icon) until **Small logo**, **App icon**, **Favicon** or **Thread avatar** gets its own image. **User avatar** sets the picture beside the user name. A square image with a transparent background looks best. Images are stored in the config, so they export with it. **Reset** brings the default back.
+**Settings > Branding** replaces the default sparkle with your own images. The **Large logo** is used everywhere (the empty-chat greeting, the sidebar, the mark at the end of each reply, the browser tab and the installed app icon) until **Small logo**, **App icon**, **Favicon** or **Thread avatar** gets its own image. **User avatar** sets the picture beside the user name. A square image with a transparent background looks best. Images are stored in the config, so they export with it (as files in the zip's `assets/` folder). **Reset** brings the default back.
 
-In a config file, `"logo"` can also be a URL or data URI or, if you build the app yourself, the name of a file in `ui/public/` (`"logo": "my-logo.png"`).
+In a config file, `"logo"` can also be a URL or data URI, an `assets/` path inside a config zip or, if you build the app yourself, the name of a file in `ui/public/` (`"logo": "my-logo.png"`).
 
 ### Thinking spinners
 
@@ -132,6 +137,9 @@ The names are `3-dots-bounce`, `3-dots-fade`, `3-dots-move`, `3-dots-rotate`, `3
   "charsPerSecond": 90,
   "typingCharsPerSecond": 28,
   "thoughtLabel": "Thought for {s}s",
+  "imageStyle": "animated",
+  "imageSeconds": 8,
+  "imageLabel": "Creating image",
   "fallback": "Shown after the script runs out.",
 
   "responses": [
@@ -139,6 +147,12 @@ The names are `3-dots-bounce`, `3-dots-fade`, `3-dots-move`, `3-dots-rotate`, `3
       "prompt": "Optional. Tab / empty-Enter will type this.",
       "pending": ["Reading your message", { "text": "Doing something dramatic", "seconds": 4 }, "Almost there"],
       "response": "The final answer. **Markdown** is supported."
+    },
+    {
+      "pending": ["Picking up a crayon"],
+      "image": "assets/drawing.png",
+      "imageAlt": "A crayon drawing of a cat",
+      "response": "Shown below the image once it has generated."
     }
   ],
 
@@ -162,14 +176,19 @@ Everything except `responses` is optional.
 | `charsPerSecond`                                                                      | top level or response | Streaming speed (default 90).                                                                                                                                                                                                                                |
 | `typingCharsPerSecond`                                                                | top level             | How fast Tab or long-press types a `prompt` (default 28).                                                                                                                                                                                                    |
 | `thoughtLabel`                                                                        | top level             | The label the blurbs collapse to (default `Thought for {s}s`; `{s}` is the seconds).                                                                                                                                                                         |
+| `imageStyle`                                                                          | top level or response | How a generated image comes in: `"animated"` (default; drifting colors behind the label) or `"progressive"` (rough drafts of the image that sharpen).                                                                                                        |
+| `imageSeconds`                                                                        | top level or response | How long a generated image takes (default 8). It also waits for the image to load.                                                                                                                                                                           |
+| `imageLabel`                                                                          | top level             | The label on an image while it generates (default `Creating image`).                                                                                                                                                                                         |
 | `fallback`                                                                            | top level             | The answer to every prompt after the last response: a string, or a response like those in `responses`.                                                                                                                                                       |
 | `prompt`                                                                              | response              | A line the performer can type with Tab or send with Enter on an empty box.                                                                                                                                                                                   |
 | `pending`                                                                             | response              | The blurbs, shown in order. Each is a string or `{ "text", "seconds" }` (`thinking` also works).                                                                                                                                                             |
+| `image`                                                                               | response              | An image the response "generates" after its blurbs and before its text: a URL, data URI or `assets/` path. Click it to enlarge it.                                                                                                                           |
+| `imageAlt`                                                                            | response              | The image's description, for screen readers.                                                                                                                                                                                                                 |
 | `seconds`                                                                             | pending item          | How long that blurb shows.                                                                                                                                                                                                                                   |
 | `response`                                                                            | response              | The answer, in Markdown (`text` also works). A plain string in `responses` is an answer with no blurbs.                                                                                                                                                      |
 | `threads`                                                                             | top level             | Old conversations in the sidebar, as `{ "title", "group" }` or plain strings. `group` starts a heading that the following chats share until the next `group`. They're for show: clicking one only highlights it, though the sidebar search does filter them. |
 
-Markdown supported in responses: paragraphs, `#` headings, `-` and `1.` lists, `>` quotes, fenced code blocks, `` `inline code` ``, `**bold**`, `*italic*`, `[links](https://...)`, `---`.
+Markdown supported in responses: paragraphs, `#` headings, `-` and `1.` lists, `>` quotes, fenced code blocks, `` `inline code` ``, `**bold**`, `*italic*`, `[links](https://...)`, `![images](https://...)`, `---`. An image in the text appears whole once streaming reaches it.
 
 ## Browser-only version
 
@@ -228,7 +247,7 @@ While `npm run dev` runs, phones get the page as it was built when dev started (
 
 - `ui/src/App.svelte` - the page; `ui/src/components/` - its parts (sidebar, chat, composer, settings and the config editor)
 - `ui/src/lib/stores/` - app state: the config and syncing it (`config.svelte.ts`), the chat playing the script (`chat.svelte.ts`), and UI state (`ui.svelte.ts`)
-- `ui/src/lib/` - config parsing (`normalize.ts`), the Markdown renderer, and calls to the app or, in the browser-only build, localStorage (`backend.ts`)
+- `ui/src/lib/` - config parsing (`normalize.ts`), the config .zip (`bundle.ts`, `zip.ts`, `unzip.ts`), the Markdown renderer, an image's rough drafts (`progressive.ts`), and calls to the app or, in the browser-only build, localStorage (`backend.ts`)
 - `ui/src/lib/spinners.ts` - the animated thinking spinners (add your own here)
 - `ui/src/styles/global.css` - colors and shared styles; everything else is styled in its component
 - `src-tauri/default-config.json` - the built-in config
