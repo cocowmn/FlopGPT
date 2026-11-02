@@ -1,7 +1,14 @@
 import { kindOf } from '../files';
-import { DEFAULT_FALLBACK, DEFAULT_TYPING_CPS, normalizeResponse, num, promptAt } from '../normalize';
+import {
+  DEFAULT_FALLBACK,
+  DEFAULT_IMAGE_LABEL,
+  DEFAULT_TYPING_CPS,
+  normalizeResponse,
+  num,
+  promptAt,
+} from '../normalize';
 import { pickSpinner } from '../spinner';
-import type { Attachment, Response, SpinnerPick } from '../types';
+import type { Attachment, ImageStyle, Response, SpinnerPick } from '../types';
 import { store } from './config.svelte';
 import { ui } from './ui.svelte';
 
@@ -15,12 +22,25 @@ export interface Thinking {
   spinner: SpinnerPick;
 }
 
+/** A "generated" image: a placeholder until `done`, then the image. */
+export interface GenImage {
+  src: string;
+  alt: string;
+  style: ImageStyle;
+  seconds: number;
+  label: string; // shown while it "generates"
+  done: boolean;
+  w: number; // its size once loaded, for the placeholder's shape (0 = not known yet)
+  h: number;
+}
+
 export type Message =
   | { id: number; role: 'user'; text: string; atts: Attachment[] }
   | {
       id: number;
       role: 'assistant';
       thinking: Thinking | null;
+      image: GenImage | null;
       writing: boolean; // the reply text has started
       shown: string; // how much of the reply is on screen
       complete: boolean; // all of it is (no more streaming)
@@ -30,6 +50,19 @@ export type Message =
 export type AssistantMessage = Extract<Message, { role: 'assistant' }>;
 
 let ids = 0;
+
+// An image's size, once it has loaded (null if it can't be).
+function imageSize(src: string): Promise<{ w: number; h: number } | null> {
+  const img = new Image();
+  img.src = src;
+  return img.decode().then(
+    () => ({ w: img.naturalWidth, h: img.naturalHeight }),
+    () => null,
+  );
+}
+
+const genImage = (image: Response['image'], done: boolean): GenImage | null =>
+  image && { ...image, label: store.script.imageLabel || DEFAULT_IMAGE_LABEL, done, w: 0, h: 0 };
 
 class Chat {
   messages = $state<Message[]>([]);
@@ -93,6 +126,7 @@ class Chat {
       id: ++ids,
       role: 'assistant',
       thinking: null,
+      image: null,
       writing: false,
       shown: '',
       complete: false,
@@ -121,6 +155,21 @@ class Chat {
       thinking.label = (store.script.thoughtLabel || 'Thought for {s}s').replace('{s}', String(secs));
     }
 
+    // The image "generates" for its seconds, and at least until it has loaded.
+    if (resp.image) {
+      msg.image = genImage(resp.image, false);
+      const image = msg.image!; // the reactive copy
+      ui.stick();
+      const size = imageSize(resp.image.src).then(s => {
+        if (s && live()) Object.assign(image, s);
+        ui.stick();
+      });
+      await Promise.all([sleep(resp.image.seconds * 1000), size]);
+      if (!live()) return;
+      image.done = true;
+      ui.stick();
+    }
+
     msg.writing = true;
     if (resp.stream && resp.text) await this.stream(msg, resp.cps, live);
     if (!live()) return;
@@ -132,13 +181,25 @@ class Chat {
 
   private stream(msg: AssistantMessage, cps: number, live: () => boolean) {
     const text = msg.full;
+    // Markdown images appear whole, rather than as their half-typed ![…](…), and take as long as one character.
+    const images = [...text.matchAll(/!\[[^\]]*\]\([^)\s]*\)/g)].map(m => [m.index, m.index + m[0].length]);
+    const indexAt = (shown: number) => {
+      let i = 0;
+      for (const [a, b] of images) {
+        if (shown <= a - i) break;
+        shown -= a - i + 1;
+        i = b;
+      }
+      return i + shown;
+    };
     return new Promise<void>(resolve => {
       const t0 = performance.now();
       const frame = (now: number) => {
         if (!live()) return resolve();
-        let n = Math.floor(((now - t0) / 1000) * cps);
+        let n = indexAt(Math.floor(((now - t0) / 1000) * cps));
         if (n >= text.length) return resolve();
         while (n < text.length && !/\s/.test(text[n])) n++; // reveal whole words
+        for (const [a, b] of images) if (n > a && n < b) n = b;
         if (n !== msg.shown.length) {
           msg.shown = text.slice(0, n);
           ui.stick();
@@ -182,8 +243,11 @@ class Chat {
     const script = store.script;
     return script.responses.map((r, i) => {
       const resp = normalizeResponse(r, script);
-      const line = resp.text.split('\n').map(l => l.replace(/^[\s#>*\-_`]+|[*_`]+/g, '').trim()).find(Boolean);
-      return { n: i + 1, label: resp.prompt || line || '(empty)' };
+      const line = resp.text
+        .split('\n')
+        .map(l => l.replace(/^[\s#>*\-_`]+|[*_`]+/g, '').trim())
+        .find(Boolean);
+      return { n: i + 1, label: resp.prompt || line || (resp.image ? '(image)' : '(empty)') };
     });
   }
 
@@ -217,6 +281,7 @@ class Chat {
               spinner: pickSpinner(script),
             }
           : null,
+        image: genImage(resp.image, true),
         writing: true,
         shown: resp.text,
         complete: true,

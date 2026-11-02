@@ -14,8 +14,8 @@ export const isConfigFile = (f: File) => isJson(f) || isZip(f);
 
 export const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
 
-// Shrinks bitmaps to `max` px so the config stays small; SVGs are kept as-is.
-export function toImageDataURL(file: File, max = 256): Promise<string> {
+// Shrinks bitmaps to `max` px (as `type`) so the config stays small; SVGs are kept as-is.
+export function toImageDataURL(file: File, max = 256, type = 'image/png', quality?: number): Promise<string> {
   return new Promise((resolve, reject) => {
     if (!/^image\//.test(file.type)) return reject(new Error('Please choose an image file.'));
     const fr = new FileReader();
@@ -31,7 +31,7 @@ export function toImageDataURL(file: File, max = 256): Promise<string> {
         c.width = Math.max(1, Math.round(img.naturalWidth * k));
         c.height = Math.max(1, Math.round(img.naturalHeight * k));
         c.getContext('2d')!.drawImage(img, 0, 0, c.width, c.height);
-        resolve(c.toDataURL('image/png'));
+        resolve(c.toDataURL(type, quality));
       };
       img.src = data;
     };

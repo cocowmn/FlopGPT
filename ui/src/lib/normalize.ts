@@ -1,7 +1,10 @@
-import type { Config, RawPending, RawResponse, Response, Thread } from './types';
+import { abs } from './location';
+import type { Config, ImageStyle, RawPending, RawResponse, Response, Thread } from './types';
 
 export const DEFAULT_SECONDS = 2.5;
 export const DEFAULT_TYPING_CPS = 28; // how fast Tab / long-press types the scripted prompt
+export const DEFAULT_IMAGE_SECONDS = 8; // how long an image takes to "generate"
+export const DEFAULT_IMAGE_LABEL = 'Creating image';
 export const DEFAULT_FALLBACK = "I'm not able to continue this conversation right now. Please start a new chat.";
 
 export const num = <D>(v: unknown, d: D): number | D => {
@@ -40,12 +43,22 @@ export function normalizeResponse(r: RawResponse | undefined | null, script: Con
         : { text: String(p ?? ''), seconds: fallbackSecs },
     )
     .filter(p => p.text.trim());
+  const src = typeof r.image === 'string' ? r.image.trim() : '';
+  const style: ImageStyle = (r.imageStyle ?? script.imageStyle) === 'progressive' ? 'progressive' : 'animated';
   return {
     prompt: typeof r.prompt === 'string' ? r.prompt : '',
     pending,
     text: String(r.response ?? r.text ?? r.message ?? ''),
     stream: r.stream ?? script.streamResponse ?? true,
     cps: num(r.charsPerSecond, num(script.charsPerSecond, 90)) || 90,
+    image: src
+      ? {
+          src: abs(src),
+          alt: String(r.imageAlt ?? ''),
+          seconds: num(r.imageSeconds, num(script.imageSeconds, DEFAULT_IMAGE_SECONDS)),
+          style,
+        }
+      : null,
   };
 }
 
@@ -181,6 +194,9 @@ export const SECTION_KEYS: Record<Section, readonly string[]> = {
     'charsPerSecond',
     'typingCharsPerSecond',
     'streamResponse',
+    'imageStyle',
+    'imageSeconds',
+    'imageLabel',
     'fallback',
     'responses',
   ],

@@ -1,30 +1,47 @@
 /* ------------------------------------------------------------------ *
- *  Tiny markdown renderer (headings, lists, quotes, code, bold/italic/links)
+ *  Tiny markdown renderer (headings, lists, quotes, code, bold/italic/links, images)
  * ------------------------------------------------------------------ */
 export const esc = (s: string) =>
   s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+// Image sources that can't run anything: web addresses, image data, and paths next to the page.
+const safeSrc = (src: string) => /^(https?:|data:image\/|\.{0,2}\/|[\w-]+\/|[\w-]+\.\w+$)/i.test(src);
 
 function inline(s: string): string {
   s = esc(s);
   const codes: string[] = [];
   s = s.replace(/`([^`]+)`/g, (_, c: string) => '\u0000' + (codes.push(c) - 1) + '\u0000');
+  // Images are set aside like code, so the link pattern below doesn't see their [alt](src).
+  const imgs: string[] = [];
+  s = s.replace(/!\[([^\]]*)\]\(([^)\s]+)\)/g, (all, alt: string, src: string) =>
+    safeSrc(src)
+      ? '\u0001' + (imgs.push(`<img class="md-img" src="${src}" alt="${alt}" loading="lazy">`) - 1) + '\u0001'
+      : all,
+  );
   s = s
     .replace(/\[([^\]]+)\]\((https?:[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
     .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
     .replace(/(^|[^*])\*([^*\s][^*]*)\*(?!\*)/g, '$1<em>$2</em>');
-  // eslint-disable-next-line no-control-regex -- \u0000 marks where code spans go back in
-  return s.replace(/\u0000(\d+)\u0000/g, (_, n: string) => '<code>' + codes[+n] + '</code>');
+  /* eslint-disable no-control-regex -- \u0000 and \u0001 mark where code spans and images go back in */
+  return s
+    .replace(/\u0001(\d+)\u0001/g, (_, n: string) => imgs[+n])
+    .replace(/\u0000(\d+)\u0000/g, (_, n: string) => '<code>' + codes[+n] + '</code>');
+  /* eslint-enable no-control-regex */
 }
 
 const isBlockStart = (l: string) => /^(```|#{1,4}\s|>|\s*[-*]\s+|\s*\d+[.)]\s+|(-{3,}|\*{3,})\s*$)/.test(l);
 
-export function renderMarkdown(src: string): string {
+/** The HTML of each top-level block (paragraph, list, …), so a streaming reply only redraws the block that grew. */
+export function renderBlocks(src: string): string[] {
   const lines = src.replace(/\r\n?/g, '\n').split('\n');
   const n = lines.length;
+  const blocks: string[] = [];
   let html = '',
     i = 0,
     m: RegExpMatchArray | null;
   while (i < n) {
+    if (html) blocks.push(html);
+    html = '';
     const line = lines[i];
     if (/^```/.test(line)) {
       const buf: string[] = [];
@@ -59,8 +76,11 @@ export function renderMarkdown(src: string): string {
       html += '<p>' + buf.map(inline).join('<br>') + '</p>';
     }
   }
-  return html;
+  if (html) blocks.push(html);
+  return blocks;
 }
+
+export const renderMarkdown = (src: string) => renderBlocks(src).join('');
 
 // While streaming, close dangling ** or ` so half-typed formatting doesn't flash raw symbols.
 export function closeOpen(t: string): string {

@@ -36,7 +36,14 @@
 <svelte:window {onpointerdown} {onkeydown} onblur={() => at && close()} />
 
 {#if at}
-  <div class="menu" role="menu" bind:this={menu} style:left="{left}px" style:bottom="{bottom}px" style:width="{WIDTH}px">
+  <div
+    class="menu"
+    role="menu"
+    bind:this={menu}
+    style:left="{left}px"
+    style:bottom="{bottom}px"
+    style:width="{WIDTH}px"
+  >
     <button type="button" role="menuitem" disabled={!chat.messages.length} onclick={() => run(() => chat.undo())}>
       Undo last prompt
     </button>

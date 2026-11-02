@@ -1,6 +1,7 @@
 <script lang="ts">
-  import { DEFAULT_SECONDS, num, type EditResponse, type EditScript } from '../../lib/normalize';
+  import { DEFAULT_IMAGE_SECONDS, DEFAULT_SECONDS, num, type EditResponse, type EditScript } from '../../lib/normalize';
   import Field from './Field.svelte';
+  import ImageInput from './ImageInput.svelte';
   import RowButtons from './RowButtons.svelte';
   import TextInput from './TextInput.svelte';
   import { changed } from './editor.svelte';
@@ -41,6 +42,17 @@
       }}>+ Add step</button
     >
   </Field>
+  <Field label="Generated image (shown before the response)" group>
+    <ImageInput obj={r} key="image" />
+  </Field>
+  {#if r.image}
+    <div class="ed-grid img-opts">
+      <Field label="Seconds to generate">
+        <TextInput obj={r} key="imageSeconds" number placeholder={String(num(s.imageSeconds, DEFAULT_IMAGE_SECONDS))} />
+      </Field>
+      <Field label="Description (for screen readers)"><TextInput obj={r} key="imageAlt" /></Field>
+    </div>
+  {/if}
   <Field label="Response (Markdown)"><TextInput obj={r} key="response" rows={5} /></Field>
 </div>
 
@@ -56,6 +68,12 @@
     align-items: center;
     justify-content: space-between;
     font-size: 14px;
+  }
+  .img-opts {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+    margin-top: 10px;
   }
   .ed-secs {
     flex: none;

@@ -1,7 +1,13 @@
 <!-- How the script plays: speeds, spinner and labels, applied as they're changed. -->
 <script lang="ts">
   import { untrack } from 'svelte';
-  import { DEFAULT_SECONDS, DEFAULT_TYPING_CPS, num } from '../../lib/normalize';
+  import {
+    DEFAULT_IMAGE_LABEL,
+    DEFAULT_IMAGE_SECONDS,
+    DEFAULT_SECONDS,
+    DEFAULT_TYPING_CPS,
+    num,
+  } from '../../lib/normalize';
   import { setField, store } from '../../lib/stores/config.svelte';
   import Field from '../editor/Field.svelte';
 
@@ -13,6 +19,7 @@
     { key: 'charsPerSecond', label: 'Reply speed (characters/s)', placeholder: '90' },
     { key: 'typingCharsPerSecond', label: 'Auto-typing speed (characters/s)', placeholder: String(DEFAULT_TYPING_CPS) },
     { key: 'defaultPendingSeconds', label: 'Seconds per thinking step', placeholder: String(DEFAULT_SECONDS) },
+    { key: 'imageSeconds', label: 'Seconds to generate an image', placeholder: String(DEFAULT_IMAGE_SECONDS) },
   ];
   const typed = $state<Record<string, string>>(
     untrack(() => Object.fromEntries(numbers.map(n => [n.key, text(n.key)]))),
@@ -79,6 +86,26 @@
       value={text('thoughtLabel')}
       disabled={store.locked}
       oninput={e => setField('thoughtLabel', e.currentTarget.value)}
+    />
+  </Field>
+  <Field label="While an image generates, show">
+    <select
+      class="ed-in"
+      value={cfg.imageStyle === 'progressive' ? 'progressive' : 'animated'}
+      disabled={store.locked}
+      onchange={e => setField('imageStyle', e.currentTarget.value === 'progressive' ? 'progressive' : '')}
+    >
+      <option value="animated">An animated placeholder</option>
+      <option value="progressive">Rough drafts that sharpen</option>
+    </select>
+  </Field>
+  <Field label="Image label">
+    <input
+      class="ed-in"
+      placeholder={DEFAULT_IMAGE_LABEL}
+      value={text('imageLabel')}
+      disabled={store.locked}
+      oninput={e => setField('imageLabel', e.currentTarget.value)}
     />
   </Field>
 </div>

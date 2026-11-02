@@ -2,6 +2,9 @@
 export type RawPending =
   string | { text?: string; label?: string; seconds?: number | string; duration?: number | string };
 
+/** How a generated image comes in: an animated placeholder, or blurry previews that sharpen. */
+export type ImageStyle = 'animated' | 'progressive';
+
 /** One scripted response as written in a config. A bare string is a response with no blurbs. */
 export type RawResponse =
   | string
@@ -16,6 +19,10 @@ export type RawResponse =
       stream?: boolean;
       charsPerSecond?: number | string;
       defaultPendingSeconds?: number | string;
+      image?: string; // a "generated" image, shown before the response text
+      imageAlt?: string;
+      imageSeconds?: number | string;
+      imageStyle?: ImageStyle;
       [key: string]: unknown;
     };
 
@@ -44,6 +51,9 @@ export interface Config {
   charsPerSecond?: number | string;
   typingCharsPerSecond?: number | string;
   thoughtLabel?: string;
+  imageStyle?: ImageStyle;
+  imageSeconds?: number | string;
+  imageLabel?: string;
   fallback?: RawResponse;
   [key: string]: unknown;
 }
@@ -55,6 +65,7 @@ export interface Response {
   text: string;
   stream: boolean;
   cps: number;
+  image: { src: string; alt: string; seconds: number; style: ImageStyle } | null;
 }
 
 export interface Thread {
