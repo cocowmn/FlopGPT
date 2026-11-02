@@ -72,7 +72,7 @@ async fn server_start(state: State<'_, ServerState>) -> Result<Status, String> {
 #[tauri::command]
 async fn server_stop(state: State<'_, ServerState>) -> Result<Status, String> {
     let mut s = state.lock().await;
-    s.stop();
+    s.stop().await;
     Ok(s.status())
 }
 
@@ -84,7 +84,7 @@ async fn server_set_port(app: AppHandle, state: State<'_, ServerState>, port: u1
     let mut s = state.lock().await;
     s.configured_port = port;
     save_settings(&app, &s)?;
-    s.stop();
+    s.stop().await;
     s.start().await;
     Ok(s.status())
 }
@@ -102,7 +102,7 @@ async fn server_set_https(app: AppHandle, state: State<'_, ServerState>, on: boo
     let mut s = state.lock().await;
     s.https = on;
     save_settings(&app, &s)?;
-    s.stop();
+    s.stop().await;
     s.start().await;
     Ok(s.status())
 }
@@ -111,7 +111,7 @@ async fn server_set_https(app: AppHandle, state: State<'_, ServerState>, on: boo
 #[tauri::command]
 async fn server_reset_cert(state: State<'_, ServerState>) -> Result<Status, String> {
     let mut s = state.lock().await;
-    s.stop();
+    s.stop().await;
     s.reset_cert()?;
     s.start().await;
     Ok(s.status())

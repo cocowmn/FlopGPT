@@ -43,6 +43,7 @@ const PORT_TRIES: u16 = 20;
 const CONNECTED_SECS: u64 = 120;
 const MAX_BODY: usize = 10 * 1024 * 1024;
 const FIRST_BYTE_SECS: u64 = 10;
+const STOP_WAIT: Duration = Duration::from_secs(3); // cap on waiting for open requests to finish
 const CERT_PAGE: &str = include_str!("cert.html");
 
 struct Client {
@@ -175,6 +176,7 @@ pub struct Server {
     error: Option<String>,
     cert_error: Option<String>,
     stop: Option<watch::Sender<bool>>,
+    task: Option<tauri::async_runtime::JoinHandle<()>>, // ends once the listener is closed
 }
 
 #[derive(Serialize)]
@@ -215,6 +217,7 @@ impl Server {
             error: None,
             cert_error: None,
             stop: None,
+            task: None,
         }
     }
 
@@ -276,7 +279,7 @@ impl Server {
             .tls
             .as_ref()
             .map(|t| TlsAcceptor::from(tls::server_config(t.resolver.clone())));
-        tauri::async_runtime::spawn(async move {
+        let task = tauri::async_runtime::spawn(async move {
             if let Some(acceptor) = acceptor {
                 return serve_both(listener, app, acceptor, rx).await;
             }
@@ -290,6 +293,7 @@ impl Server {
         self.port = Some(port);
         self.error = None;
         self.stop = Some(tx);
+        self.task = Some(task);
     }
 
     fn load_tls(&self) -> Result<Tls, String> {
@@ -299,9 +303,14 @@ impl Server {
         Ok(Tls { ca, resolver, ips })
     }
 
-    pub fn stop(&mut self) {
+    /// Signals the server to stop and waits (briefly) for it to let go of its port, so a restart
+    /// right after can bind the same one instead of finding it busy.
+    pub async fn stop(&mut self) {
         if let Some(tx) = self.stop.take() {
             let _ = tx.send(true);
+        }
+        if let Some(task) = self.task.take() {
+            let _ = tokio::time::timeout(STOP_WAIT, task).await;
         }
         self.port = None;
     }
